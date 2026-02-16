@@ -1,195 +1,250 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import ViewToggle, { type ViewMode } from './ViewToggle';
 
 // ============================================================
 // Types & Mock Data
 // ============================================================
 
-interface Risk {
+type Severity = 'critical' | 'high' | 'medium' | 'low';
+
+interface SecurityRisk {
     id: string;
-    severity: 'critical' | 'high' | 'medium' | 'low';
     title: string;
-    description: string;
+    severity: Severity;
     resource: string;
     resourceType: string;
     environment: string;
     tenant: string;
+    owner: string;
     detectedAt: string;
-    action: { label: string; type: string };
-    recommendation: string;
+    description: string;
+    action: string;
+    resolved: boolean;
 }
 
-const MOCK_RISKS: Risk[] = [
-    { id: 'risk-001', severity: 'high', title: 'HTTP 커넥터 사용 (DLP 위반)', description: '프로덕션 환경에서 HTTP 커넥터를 사용하는 캔버스 앱이 감지되었습니다. DLP 정책에 의해 차단 대상입니다.', resource: '경비 청구', resourceType: 'Canvas App', environment: 'Production', tenant: '자회사 A', detectedAt: '2026-02-16 09:00', action: { label: '격리하기', type: 'quarantine' }, recommendation: 'Custom Connector로 전환하거나 앱을 격리하세요.' },
-    { id: 'risk-002', severity: 'high', title: '전체 조직 공유', description: '경비 청구 앱이 Everyone (전체 조직)에 공유되어 있습니다. 민감한 데이터 접근 위험이 있습니다.', resource: '경비 청구', resourceType: 'Canvas App', environment: 'Production', tenant: '자회사 A', detectedAt: '2026-02-16 09:00', action: { label: '공유 제한', type: 'restrict' }, recommendation: '특정 보안 그룹으로 공유 범위를 제한하세요.' },
-    { id: 'risk-003', severity: 'high', title: 'HTTP 커넥터 사용 (DLP 위반)', description: '일일 동기화 Flow에서 HTTP 커넥터를 사용하고 있습니다.', resource: '일일 동기화', resourceType: 'Cloud Flow', environment: 'Production', tenant: '자회사 A', detectedAt: '2026-02-16 09:00', action: { label: '격리하기', type: 'quarantine' }, recommendation: 'Custom Connector 또는 Premium 커넥터로 전환하세요.' },
-    { id: 'risk-004', severity: 'medium', title: '미사용 리소스 (90일+)', description: '온보딩 자동화 Flow가 30일 이상 실행되지 않았습니다.', resource: '온보딩 자동화', resourceType: 'Cloud Flow', environment: 'Sandbox', tenant: '자회사 A', detectedAt: '2026-02-15 09:00', action: { label: '소유자 알림', type: 'notify' }, recommendation: '소유자에게 연락하여 필요 여부를 확인하세요.' },
-    { id: 'risk-005', severity: 'medium', title: '미사용 리소스 (90일+)', description: 'PoC 대시보드가 120일간 비활성 상태입니다.', resource: 'PoC 대시보드', resourceType: 'Canvas App', environment: 'Sandbox', tenant: '자회사 A', detectedAt: '2026-02-15 09:00', action: { label: '아카이브', type: 'archive' }, recommendation: '더 이상 필요 없다면 아카이브 처리하세요.' },
-    { id: 'risk-006', severity: 'low', title: '프리미엄 커넥터 (비용)', description: 'IT 지원 봇에서 Azure OpenAI 커넥터를 사용합니다. 비용을 모니터링하세요.', resource: 'IT 지원 봇', resourceType: 'Copilot Agent', environment: 'Developer', tenant: '자회사 A', detectedAt: '2026-02-14 09:00', action: { label: '비용 확인', type: 'license' }, recommendation: '월 사용량 및 API 호출 비용을 리뷰하세요.' },
-    { id: 'risk-007', severity: 'medium', title: '전체 조직 공유', description: '출퇴근 체크 앱이 Everyone에 공유되어 있습니다.', resource: '출퇴근 체크', resourceType: 'Canvas App', environment: 'Default', tenant: '자회사 B', detectedAt: '2026-02-16 09:00', action: { label: '공유 제한', type: 'restrict' }, recommendation: '보안 그룹별 공유로 전환하세요.' },
-    { id: 'risk-008', severity: 'low', title: '프리미엄 커넥터 (비용)', description: 'SQL Server 커넥터를 사용하고 있어 프리미엄 라이선스가 필요합니다.', resource: '생산 관리', resourceType: 'Canvas App', environment: 'Production', tenant: '자회사 B', detectedAt: '2026-02-14 09:00', action: { label: '비용 확인', type: 'license' }, recommendation: '라이선스 비용 대비 사용 빈도를 확인하세요.' },
+const SEV_CONFIG: Record<Severity, { label: string; class: string; icon: string; score: number }> = {
+    critical: { label: '긴급', class: 'bg-rose-100 text-rose-700 border-rose-200', icon: '🔴', score: 30 },
+    high: { label: '높음', class: 'bg-orange-100 text-orange-700 border-orange-200', icon: '🟠', score: 20 },
+    medium: { label: '보통', class: 'bg-amber-100 text-amber-700 border-amber-200', icon: '🟡', score: 10 },
+    low: { label: '낮음', class: 'bg-blue-100 text-blue-700 border-blue-200', icon: '🔵', score: 5 },
+};
+
+const MOCK_RISKS: SecurityRisk[] = [
+    { id: 'risk-001', title: 'HTTP 커넥터 DLP 위반', severity: 'critical', resource: '경비 청구 앱', resourceType: 'Canvas App', environment: 'Production', tenant: '자회사 A', owner: 'kim@hq.com', detectedAt: '2026-02-16 08:00', description: 'Business 데이터 그룹에서 HTTP 커넥터 사용 감지', action: '격리', resolved: false },
+    { id: 'risk-002', title: 'Everyone 공유', severity: 'high', resource: 'HR 휴가 신청', resourceType: 'Canvas App', environment: 'Production', tenant: '자회사 A', owner: 'kim@hq.com', detectedAt: '2026-02-15 14:00', description: '조직 전체(Everyone)에 공유된 민감 앱', action: '공유 제한', resolved: false },
+    { id: 'risk-003', title: '비인가 커넥터', severity: 'high', resource: 'Legacy CRM', resourceType: 'Canvas App', environment: 'Production', tenant: '자회사 B', owner: 'lee@sub-b.com', detectedAt: '2026-02-15 10:00', description: '허가되지 않은 외부 커넥터(SMTP) 사용', action: '격리', resolved: false },
+    { id: 'risk-004', title: '미소유 리소스', severity: 'medium', resource: 'PoC Dashboard', resourceType: 'Canvas App', environment: 'Sandbox', tenant: '자회사 A', owner: '퇴사자', detectedAt: '2026-02-14 09:00', description: '퇴사자 소유 앱 — 소유권 이전 필요', action: '이전', resolved: false },
+    { id: 'risk-005', title: '과도한 권한', severity: 'medium', resource: '재고 관리 Flow', resourceType: 'Cloud Flow', environment: 'Production', tenant: '자회사 C', owner: 'na@sub-c.com', detectedAt: '2026-02-13 16:00', description: 'Environment Admin 권한으로 실행 중 — 최소 권한 원칙 위반', action: '권한 축소', resolved: false },
+    { id: 'risk-006', title: 'Trial 라이선스 만료 임박', severity: 'medium', resource: '고객 분석', resourceType: 'Model-Driven App', environment: 'Default', tenant: '자회사 B', owner: 'seo@sub-b.com', detectedAt: '2026-02-12 11:00', description: 'Trial 라이선스 7일 후 만료 — 유료 전환 또는 비활성화 필요', action: '알림', resolved: false },
+    { id: 'risk-007', title: '비활성 커넥터', severity: 'low', resource: 'SAP Connector v1', resourceType: 'Custom Connector', environment: 'Production', tenant: '자회사 A', owner: '퇴사자', detectedAt: '2026-02-10 09:00', description: '230일간 미사용된 커넥터 — 제거 또는 이전 검토', action: '제거', resolved: false },
+    { id: 'risk-008', title: 'Dataverse 직접 접근', severity: 'low', resource: '출장 정산 Flow', resourceType: 'Cloud Flow', environment: 'Production', tenant: '자회사 B', owner: 'lee@sub-b.com', detectedAt: '2026-02-09 15:00', description: 'Service Account로 Dataverse 직접 접근 — API 경유 권장', action: '알림', resolved: false },
 ];
 
 // ============================================================
-// Components
+// Confirmation Modal
 // ============================================================
 
-const SeverityBadge = ({ severity }: { severity: string }) => {
-    const config: Record<string, { bg: string; text: string; dot: string }> = {
-        critical: { bg: 'bg-rose-100 border-rose-200', text: 'text-rose-700', dot: 'bg-rose-500' },
-        high: { bg: 'bg-rose-50 border-rose-200', text: 'text-rose-600', dot: 'bg-rose-500' },
-        medium: { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-600', dot: 'bg-amber-500' },
-        low: { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-600', dot: 'bg-blue-500' },
-    };
-    const c = config[severity] || config.low;
-    return (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${c.bg} ${c.text}`}>
-            <span className={`w-2 h-2 rounded-full ${c.dot}`} />
-            {severity.toUpperCase()}
-        </span>
-    );
-};
-
-const ActionModal = ({ risk, onClose, onConfirm }: { risk: Risk; onClose: () => void; onConfirm: () => void }) => (
+const ConfirmModal = ({ risk, onConfirm, onClose }: {
+    risk: SecurityRisk; onConfirm: () => void; onClose: () => void;
+}) => (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-fade-in" onClick={onClose}>
-        <div className="bg-white rounded-2xl shadow-2xl w-[480px] p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-slate-800 mb-2">{risk.action.label} 확인</h3>
-            <div className="bg-slate-50 rounded-xl p-4 mb-4 text-sm space-y-2">
-                <div className="flex justify-between"><span className="text-slate-500">리소스</span><span className="font-semibold">{risk.resource}</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">환경</span><span className="font-semibold">{risk.environment}</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">위험</span><span className="font-semibold">{risk.title}</span></div>
-            </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-5 text-sm text-amber-700">
-                ⚠️ 이 작업은 즉시 적용됩니다. 격리된 앱은 사용자가 접근할 수 없습니다.
-            </div>
-            <div className="flex gap-3 justify-end">
-                <button id="modal-cancel" onClick={onClose} className="btn-secondary px-5">취소</button>
-                <button id="modal-confirm" onClick={onConfirm} className="btn-danger px-5">
-                    {risk.action.label}
-                </button>
+        <div className="bg-white rounded-2xl shadow-2xl w-[420px] p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">⚠️ 조치 확인</h3>
+            <p className="text-sm text-slate-600 mb-4">
+                <strong>{risk.resource}</strong>에 대해 <strong>{risk.action}</strong> 조치를 실행하시겠습니까?
+            </p>
+            <div className="flex justify-end gap-3">
+                <button onClick={onClose} className="btn-secondary px-5">취소</button>
+                <button id="confirm-action" onClick={onConfirm} className="btn-primary px-5">✅ 실행</button>
             </div>
         </div>
     </div>
 );
 
 // ============================================================
-// Main Security Center View
+// Main Security View
 // ============================================================
 
 export default function SecurityView() {
-    const [severityFilter, setSeverityFilter] = useState<string>('all');
-    const [actionModal, setActionModal] = useState<Risk | null>(null);
-    const [resolvedIds, setResolvedIds] = useState<Set<string>>(new Set());
+    const [viewMode, setViewMode] = useState<ViewMode>('table');
+    const [risks, setRisks] = useState(MOCK_RISKS);
+    const [sevFilter, setSevFilter] = useState<string>('all');
+    const [tenantFilter, setTenantFilter] = useState<string>('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [confirmRisk, setConfirmRisk] = useState<SecurityRisk | null>(null);
 
-    const filtered = MOCK_RISKS.filter(r => {
-        if (resolvedIds.has(r.id)) return false;
-        return severityFilter === 'all' || r.severity === severityFilter;
-    });
+    const filtered = useMemo(() => {
+        return risks.filter(r => {
+            if (r.resolved) return false;
+            if (sevFilter !== 'all' && r.severity !== sevFilter) return false;
+            if (tenantFilter !== 'all' && r.tenant !== tenantFilter) return false;
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                return r.title.toLowerCase().includes(q) || r.resource.toLowerCase().includes(q) || r.owner.toLowerCase().includes(q);
+            }
+            return true;
+        });
+    }, [risks, sevFilter, tenantFilter, searchQuery]);
 
-    const counts = { critical: 0, high: 0, medium: 0, low: 0 };
-    MOCK_RISKS.filter(r => !resolvedIds.has(r.id)).forEach(r => counts[r.severity]++);
-    const totalRisks = Object.values(counts).reduce((a, b) => a + b, 0);
+    const activeRisks = risks.filter(r => !r.resolved);
+    const score = Math.max(0, 100 - activeRisks.reduce((s, r) => s + SEV_CONFIG[r.severity].score, 0));
+    const tenants = Array.from(new Set(MOCK_RISKS.map(r => r.tenant)));
 
-    const score = Math.max(0, 100 - counts.critical * 10 - counts.high * 10 - counts.medium * 5 - counts.low * 2);
-    const grade = score >= 90 ? 'A' : score >= 70 ? 'B' : score >= 50 ? 'C' : 'D';
-    const gradeColor = grade === 'A' ? 'text-emerald-600 bg-emerald-50' : grade === 'B' ? 'text-blue-600 bg-blue-50' : grade === 'C' ? 'text-amber-600 bg-amber-50' : 'text-rose-600 bg-rose-50';
-
-    const handleAction = (risk: Risk) => setActionModal(risk);
-    const confirmAction = () => {
-        if (actionModal) {
-            setResolvedIds(prev => new Set(prev).add(actionModal.id));
-            setActionModal(null);
-        }
+    const handleConfirm = () => {
+        if (!confirmRisk) return;
+        setRisks(prev => prev.map(r => r.id === confirmRisk.id ? { ...r, resolved: true } : r));
+        setConfirmRisk(null);
     };
 
     return (
-        <div className="p-6 space-y-6 animate-fade-in max-w-[1200px]">
+        <div className="p-6 space-y-5 animate-fade-in max-w-[1200px]">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-xl font-bold text-slate-800">보안 센터</h1>
-                    <p className="text-sm text-slate-500 mt-0.5">위험 요소를 탐지하고 즉시 조치합니다</p>
+                    <p className="text-sm text-slate-500 mt-0.5">보안 위험을 탐지하고 즉시 조치합니다</p>
                 </div>
-                <button id="btn-scan" className="btn-primary">
-                    🔍 스캔 실행
-                </button>
+                <div className="flex items-center gap-4">
+                    <div className={`text-center px-5 py-2 rounded-xl border font-bold
+            ${score >= 80 ? 'grade-a' : score >= 60 ? 'grade-b' : score >= 40 ? 'grade-c' : 'grade-d'}`}>
+                        <div className="text-2xl">{score}</div>
+                        <div className="text-[10px] uppercase">보안 점수</div>
+                    </div>
+                </div>
             </div>
 
-            {/* Score + Counts */}
-            <div className="grid grid-cols-5 gap-4">
-                <div className="glass-card p-5 text-center">
-                    <div className={`text-4xl font-black ${gradeColor.split(' ')[0]}`}>{grade}</div>
-                    <div className="text-2xl font-bold text-slate-700">{score}<span className="text-sm text-slate-400 font-normal"> / 100</span></div>
-                    <div className="text-xs text-slate-400 mt-1">보안 점수</div>
-                </div>
+            {/* Severity Summary */}
+            <div className="grid grid-cols-4 gap-3">
                 {(['critical', 'high', 'medium', 'low'] as const).map(sev => {
-                    const colors: Record<string, string> = { critical: 'text-rose-600', high: 'text-rose-500', medium: 'text-amber-500', low: 'text-blue-500' };
+                    const conf = SEV_CONFIG[sev];
+                    const count = activeRisks.filter(r => r.severity === sev).length;
                     return (
-                        <button key={sev} id={`severity-${sev}`}
-                            onClick={() => setSeverityFilter(sev === severityFilter ? 'all' : sev)}
-                            className={`glass-card p-5 text-center transition-all ${severityFilter === sev ? 'ring-2 ring-blue-400' : ''}`}>
-                            <div className={`text-2xl font-bold ${colors[sev]}`}>{counts[sev]}</div>
-                            <div className="text-xs text-slate-500 font-semibold uppercase mt-1">{sev}</div>
+                        <button key={sev} id={`sev-${sev}`}
+                            onClick={() => setSevFilter(s => s === sev ? 'all' : sev)}
+                            className={`p-3 rounded-xl border text-center transition-all cursor-pointer
+                ${sevFilter === sev ? 'ring-2 ring-blue-400 ' + conf.class : 'bg-white border-slate-200 hover:bg-slate-50'}`}>
+                            <div className="text-lg">{conf.icon}</div>
+                            <div className="text-xl font-bold">{count}</div>
+                            <div className="text-[10px] font-semibold text-slate-500">{conf.label}</div>
                         </button>
                     );
                 })}
             </div>
 
-            {/* Filter bar */}
-            <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-500">{filtered.length} / {totalRisks} 위험</span>
-                {severityFilter !== 'all' && (
-                    <button onClick={() => setSeverityFilter('all')} className="text-xs text-blue-600 hover:underline">필터 해제</button>
-                )}
+            {/* Filter Bar */}
+            <div className="flex items-center gap-3 flex-wrap">
+                <div className="relative flex-1 min-w-[200px]">
+                    <svg className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input id="sec-search" name="search" type="text" placeholder="위험, 리소스, 소유자 검색..."
+                        className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                </div>
+                <select id="sec-tenant-filter" name="tenantFilter" value={tenantFilter} onChange={e => setTenantFilter(e.target.value)}
+                    className="px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white">
+                    <option value="all">전체 자회사</option>
+                    {tenants.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <ViewToggle mode={viewMode} onChange={setViewMode} totalCount={activeRisks.length} filteredCount={filtered.length} />
             </div>
 
-            {/* Risk List */}
-            <div className="space-y-3">
-                {filtered.map((risk, i) => (
-                    <div key={risk.id}
-                        className="glass-card p-5 animate-slide-up"
-                        style={{ animationDelay: `${i * 60}ms` }}>
-                        <div className="flex items-start gap-4">
-                            <div className="pt-0.5"><SeverityBadge severity={risk.severity} /></div>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-bold text-slate-800">{risk.title}</span>
-                                </div>
-                                <p className="text-sm text-slate-500 mb-2">{risk.description}</p>
-                                <div className="flex flex-wrap gap-3 text-xs text-slate-400">
-                                    <span>📦 {risk.resource}</span>
-                                    <span>🌐 {risk.environment}</span>
-                                    <span>🏢 {risk.tenant}</span>
-                                    <span>🕐 {risk.detectedAt}</span>
-                                </div>
-                                <div className="mt-2 flex items-center gap-2 text-xs">
-                                    <span className="text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">💡 {risk.recommendation}</span>
+            {/* TABLE VIEW */}
+            {viewMode === 'table' && (
+                <div className="glass-card overflow-hidden animate-fade-in">
+                    <table className="data-table">
+                        <thead>
+                            <tr>
+                                <th>심각도</th>
+                                <th>위험</th>
+                                <th>리소스</th>
+                                <th>유형</th>
+                                <th>환경</th>
+                                <th>자회사</th>
+                                <th>소유자</th>
+                                <th>감지 일시</th>
+                                <th>조치</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filtered.map((risk, i) => {
+                                const sev = SEV_CONFIG[risk.severity];
+                                return (
+                                    <tr key={risk.id} className="animate-slide-up" style={{ animationDelay: `${i * 25}ms` }}>
+                                        <td>
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${sev.class}`}>
+                                                {sev.icon} {sev.label}
+                                            </span>
+                                        </td>
+                                        <td className="font-semibold text-slate-800">{risk.title}</td>
+                                        <td className="text-slate-600">{risk.resource}</td>
+                                        <td><span className="badge badge-neutral">{risk.resourceType}</span></td>
+                                        <td className="text-slate-500 text-xs">{risk.environment}</td>
+                                        <td className="text-slate-500 text-xs">{risk.tenant}</td>
+                                        <td className="text-slate-500 text-xs">{risk.owner}</td>
+                                        <td className="text-slate-400 text-xs whitespace-nowrap">{risk.detectedAt}</td>
+                                        <td>
+                                            <button id={`action-${risk.id}`} onClick={() => setConfirmRisk(risk)}
+                                                className="text-xs font-bold px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all whitespace-nowrap">
+                                                ⚡ {risk.action}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                    {filtered.length === 0 && (
+                        <div className="text-center py-12 text-slate-400">
+                            <div className="text-4xl mb-2">✅</div>
+                            <div className="font-medium">감지된 위험 없음</div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* CARD VIEW */}
+            {viewMode === 'card' && (
+                <div className="space-y-3 animate-fade-in">
+                    {filtered.map((risk, i) => {
+                        const sev = SEV_CONFIG[risk.severity];
+                        return (
+                            <div key={risk.id} className="glass-card p-5 animate-slide-up" style={{ animationDelay: `${i * 50}ms` }}>
+                                <div className="flex items-start gap-4">
+                                    <div className="text-2xl">{sev.icon}</div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="font-bold text-slate-800">{risk.title}</span>
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${sev.class}`}>{sev.label}</span>
+                                        </div>
+                                        <p className="text-sm text-slate-500 mb-2">{risk.description}</p>
+                                        <div className="flex gap-4 text-xs text-slate-400">
+                                            <span>📎 {risk.resource}</span>
+                                            <span>👤 {risk.owner}</span>
+                                            <span>🏢 {risk.tenant}</span>
+                                            <span>🕐 {risk.detectedAt}</span>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => setConfirmRisk(risk)}
+                                        className="btn-primary text-xs px-4 py-1.5 flex-shrink-0">
+                                        ⚡ {risk.action}
+                                    </button>
                                 </div>
                             </div>
-                            <button
-                                id={`action-${risk.id}`}
-                                onClick={() => handleAction(risk)}
-                                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all
-                  ${risk.action.type === 'quarantine' ? 'bg-rose-600 text-white hover:bg-rose-700 shadow-lg shadow-rose-200' :
-                                        risk.action.type === 'restrict' ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-200' :
-                                            risk.action.type === 'notify' ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200' :
-                                                'bg-slate-600 text-white hover:bg-slate-700 shadow-lg shadow-slate-200'}`}>
-                                {risk.action.label}
-                            </button>
+                        );
+                    })}
+                    {filtered.length === 0 && (
+                        <div className="text-center py-16 text-slate-400">
+                            <div className="text-5xl mb-4">✅</div>
+                            <div className="text-lg font-medium">감지된 위험 없음</div>
                         </div>
-                    </div>
-                ))}
-                {filtered.length === 0 && (
-                    <div className="text-center py-16 text-slate-400">
-                        <div className="text-5xl mb-4">🎉</div>
-                        <div className="text-lg font-medium">모든 위험이 해결되었습니다!</div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            )}
 
-            {/* Modal */}
-            {actionModal && <ActionModal risk={actionModal} onClose={() => setActionModal(null)} onConfirm={confirmAction} />}
+            {confirmRisk && <ConfirmModal risk={confirmRisk} onConfirm={handleConfirm} onClose={() => setConfirmRisk(null)} />}
         </div>
     );
 }

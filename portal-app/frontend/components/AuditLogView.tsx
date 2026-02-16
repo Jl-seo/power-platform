@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
+import ViewToggle, { type ViewMode } from './ViewToggle';
 
 // ============================================================
 // Types & Mock Data
@@ -21,11 +22,11 @@ interface AuditEntry {
 }
 
 const CAT_CONFIG: Record<AuditCategory, { label: string; icon: string; color: string }> = {
-    governance: { label: '거버넌스', icon: '🛡️', color: 'bg-blue-100 text-blue-700' },
-    security: { label: '보안', icon: '🔒', color: 'bg-rose-100 text-rose-700' },
-    selfservice: { label: '셀프서비스', icon: '🎫', color: 'bg-purple-100 text-purple-700' },
-    admin: { label: '관리', icon: '⚙️', color: 'bg-slate-100 text-slate-700' },
-    system: { label: '시스템', icon: '🤖', color: 'bg-emerald-100 text-emerald-700' },
+    governance: { label: '거버넌스', icon: '🛡️', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+    security: { label: '보안', icon: '🔒', color: 'bg-rose-100 text-rose-700 border-rose-200' },
+    selfservice: { label: '셀프서비스', icon: '🎫', color: 'bg-purple-100 text-purple-700 border-purple-200' },
+    admin: { label: '관리', icon: '⚙️', color: 'bg-slate-100 text-slate-700 border-slate-200' },
+    system: { label: '시스템', icon: '🤖', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
 };
 
 const MOCK_AUDIT: AuditEntry[] = [
@@ -43,33 +44,42 @@ const MOCK_AUDIT: AuditEntry[] = [
     { id: 'aud-012', timestamp: '2026-02-10 15:00:00', category: 'selfservice', action: '커넥터 신청 반려', actor: 'admin@hq.com', target: 'Azure OpenAI 커넥터', details: '비용 검토 미완료. 월 비용 산정 후 재신청 요망', tenant: '자회사 A', result: 'failure' },
 ];
 
+// Saved View Tabs
+interface ViewTab { id: string; label: string; icon: string; filter: (e: AuditEntry) => boolean; }
+const VIEW_TABS: ViewTab[] = [
+    { id: 'all', label: '전체', icon: '📋', filter: () => true },
+    { id: 'governance', label: '거버넌스', icon: '🛡️', filter: e => e.category === 'governance' },
+    { id: 'security', label: '보안', icon: '🔒', filter: e => e.category === 'security' },
+    { id: 'selfservice', label: '셀프서비스', icon: '🎫', filter: e => e.category === 'selfservice' },
+    { id: 'system', label: '시스템/관리', icon: '🤖', filter: e => e.category === 'system' || e.category === 'admin' },
+    { id: 'failures', label: '실패만', icon: '❌', filter: e => e.result === 'failure' },
+];
+
 // ============================================================
 // Main Audit Log View
 // ============================================================
 
 export default function AuditLogView() {
+    const [viewMode, setViewMode] = useState<ViewMode>('table');
+    const [activeTab, setActiveTab] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
-    const [categoryFilter, setCategoryFilter] = useState<string>('all');
     const [dateRange, setDateRange] = useState<string>('7d');
 
+    const currentTab = VIEW_TABS.find(t => t.id === activeTab) || VIEW_TABS[0];
     const filtered = useMemo(() => {
         return MOCK_AUDIT.filter(entry => {
-            const matchSearch = !searchQuery ||
-                entry.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                entry.actor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                entry.target.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                entry.details.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchCategory = categoryFilter === 'all' || entry.category === categoryFilter;
-            return matchSearch && matchCategory;
+            if (!currentTab.filter(entry)) return false;
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                return entry.action.toLowerCase().includes(q) || entry.actor.toLowerCase().includes(q) ||
+                    entry.target.toLowerCase().includes(q) || entry.details.toLowerCase().includes(q);
+            }
+            return true;
         });
-    }, [searchQuery, categoryFilter]);
-
-    const categoryCounts: Record<string, number> = {};
-    MOCK_AUDIT.forEach(e => { categoryCounts[e.category] = (categoryCounts[e.category] || 0) + 1; });
+    }, [activeTab, searchQuery, currentTab]);
 
     return (
-        <div className="p-6 space-y-6 animate-fade-in max-w-[1200px]">
-            {/* Header */}
+        <div className="p-6 space-y-4 animate-fade-in max-w-[1200px]">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-xl font-bold text-slate-800">감사 로그</h1>
@@ -78,10 +88,26 @@ export default function AuditLogView() {
                 <button id="btn-export" className="btn-secondary">📥 CSV 내보내기</button>
             </div>
 
-            {/* Filters */}
-            <div className="glass-card p-4 flex items-center gap-4 flex-wrap">
-                {/* Search */}
-                <div className="relative flex-1 min-w-[200px]">
+            {/* View Tabs (Airtable-style) */}
+            <div className="flex items-center gap-1 border-b border-slate-200 overflow-x-auto">
+                {VIEW_TABS.map(tab => {
+                    const count = MOCK_AUDIT.filter(tab.filter).length;
+                    return (
+                        <button key={tab.id} id={`audit-tab-${tab.id}`} onClick={() => setActiveTab(tab.id)}
+                            className={`px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-all flex items-center gap-1.5
+                ${activeTab === tab.id
+                                    ? 'border-blue-600 text-blue-700 bg-blue-50/50'
+                                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}>
+                            <span>{tab.icon}</span> {tab.label}
+                            <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-full ml-1">{count}</span>
+                        </button>
+                    );
+                })}
+            </div>
+
+            {/* Search + Filters + View Toggle */}
+            <div className="flex items-center gap-3">
+                <div className="relative flex-1">
                     <svg className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -89,25 +115,6 @@ export default function AuditLogView() {
                         className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                 </div>
-
-                {/* Category Filter */}
-                <div className="flex gap-1.5">
-                    <button id="audit-cat-all" onClick={() => setCategoryFilter('all')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all
-              ${categoryFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
-                        전체
-                    </button>
-                    {Object.entries(CAT_CONFIG).map(([key, conf]) => (
-                        <button key={key} id={`audit-cat-${key}`}
-                            onClick={() => setCategoryFilter(key === categoryFilter ? 'all' : key)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all
-                ${categoryFilter === key ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
-                            {conf.icon} {conf.label} ({categoryCounts[key] || 0})
-                        </button>
-                    ))}
-                </div>
-
-                {/* Date Range */}
                 <select id="audit-date-range" name="dateRange" value={dateRange} onChange={e => setDateRange(e.target.value)}
                     className="px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white">
                     <option value="1d">오늘</option>
@@ -115,59 +122,89 @@ export default function AuditLogView() {
                     <option value="30d">최근 30일</option>
                     <option value="90d">최근 90일</option>
                 </select>
+                <ViewToggle mode={viewMode} onChange={setViewMode} totalCount={MOCK_AUDIT.length} filteredCount={filtered.length} />
             </div>
 
-            {/* Results count */}
-            <div className="text-xs text-slate-400">{filtered.length}건 표시</div>
-
-            {/* Timeline */}
-            <div className="relative">
-                {/* Timeline line */}
-                <div className="absolute left-[22px] top-0 bottom-0 w-0.5 bg-slate-200" />
-
-                <div className="space-y-4">
-                    {filtered.map((entry, i) => {
-                        const catConf = CAT_CONFIG[entry.category];
-                        return (
-                            <div key={entry.id}
-                                className="relative flex gap-4 animate-slide-up"
-                                style={{ animationDelay: `${i * 40}ms` }}>
-                                {/* Timeline dot */}
-                                <div className={`relative z-10 w-11 h-11 rounded-xl flex items-center justify-center text-base flex-shrink-0
-                  ${entry.result === 'failure' ? 'bg-rose-100' : catConf.color}`}>
-                                    {entry.result === 'failure' ? '❌' : catConf.icon}
-                                </div>
-
-                                {/* Content */}
-                                <div className={`flex-1 glass-card p-4 ${entry.result === 'failure' ? 'border-rose-200' : ''}`}>
-                                    <div className="flex items-start justify-between mb-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold text-sm text-slate-800">{entry.action}</span>
-                                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${catConf.color}`}>{catConf.label}</span>
-                                            {entry.result === 'failure' && (
-                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600">실패</span>
-                                            )}
-                                        </div>
-                                        <span className="text-xs text-slate-400 whitespace-nowrap">{entry.timestamp}</span>
-                                    </div>
-                                    <div className="text-sm text-slate-600 mb-1.5">📎 {entry.target}</div>
-                                    <div className="text-xs text-slate-500">{entry.details}</div>
-                                    <div className="flex gap-4 text-[11px] text-slate-400 mt-2">
-                                        <span>👤 {entry.actor}</span>
-                                        <span>🏢 {entry.tenant}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
+            {/* TABLE VIEW */}
+            {viewMode === 'table' && (
+                <div className="glass-card overflow-hidden animate-fade-in">
+                    <table className="data-table">
+                        <thead>
+                            <tr>
+                                <th>일시</th>
+                                <th>카테고리</th>
+                                <th>액션</th>
+                                <th>대상</th>
+                                <th>실행자</th>
+                                <th>자회사</th>
+                                <th>상세</th>
+                                <th>결과</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filtered.map((entry, i) => {
+                                const catConf = CAT_CONFIG[entry.category];
+                                return (
+                                    <tr key={entry.id} className="animate-slide-up" style={{ animationDelay: `${i * 25}ms` }}>
+                                        <td className="text-slate-400 text-xs whitespace-nowrap">{entry.timestamp}</td>
+                                        <td>
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${catConf.color}`}>{catConf.icon} {catConf.label}</span>
+                                        </td>
+                                        <td className="font-semibold text-slate-800">{entry.action}</td>
+                                        <td className="text-slate-600 text-sm">{entry.target}</td>
+                                        <td className="text-slate-500 text-xs">{entry.actor}</td>
+                                        <td className="text-slate-500 text-xs">{entry.tenant}</td>
+                                        <td className="text-slate-400 text-xs max-w-[200px] truncate" title={entry.details}>{entry.details}</td>
+                                        <td>
+                                            {entry.result === 'failure'
+                                                ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 border border-rose-200">❌ 실패</span>
+                                                : <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600 border border-emerald-200">✅</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                     {filtered.length === 0 && (
-                        <div className="text-center py-16 text-slate-400 ml-16">
-                            <div className="text-5xl mb-4">📋</div>
-                            <div className="text-lg font-medium">감사 로그가 없습니다</div>
-                        </div>
+                        <div className="text-center py-12 text-slate-400"><div className="text-4xl mb-2">📋</div><div className="font-medium">로그가 없습니다</div></div>
                     )}
                 </div>
-            </div>
+            )}
+
+            {/* CARD VIEW (Timeline) */}
+            {viewMode === 'card' && (
+                <div className="relative animate-fade-in">
+                    <div className="absolute left-[22px] top-0 bottom-0 w-0.5 bg-slate-200" />
+                    <div className="space-y-4">
+                        {filtered.map((entry, i) => {
+                            const catConf = CAT_CONFIG[entry.category];
+                            return (
+                                <div key={entry.id} className="relative flex gap-4 animate-slide-up" style={{ animationDelay: `${i * 40}ms` }}>
+                                    <div className={`relative z-10 w-11 h-11 rounded-xl flex items-center justify-center text-base flex-shrink-0
+                    ${entry.result === 'failure' ? 'bg-rose-100' : catConf.color}`}>
+                                        {entry.result === 'failure' ? '❌' : catConf.icon}
+                                    </div>
+                                    <div className={`flex-1 glass-card p-4 ${entry.result === 'failure' ? 'border-rose-200' : ''}`}>
+                                        <div className="flex items-start justify-between mb-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-sm text-slate-800">{entry.action}</span>
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${catConf.color}`}>{catConf.label}</span>
+                                            </div>
+                                            <span className="text-xs text-slate-400 whitespace-nowrap">{entry.timestamp}</span>
+                                        </div>
+                                        <div className="text-sm text-slate-600 mb-1.5">📎 {entry.target}</div>
+                                        <div className="text-xs text-slate-500">{entry.details}</div>
+                                        <div className="flex gap-4 text-[11px] text-slate-400 mt-2">
+                                            <span>👤 {entry.actor}</span><span>🏢 {entry.tenant}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
