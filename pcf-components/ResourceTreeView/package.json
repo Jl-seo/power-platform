@@ -1,0 +1,27 @@
+{
+    "name": "resource-tree-view",
+    "version": "1.0.0",
+    "description": "Power Platform Resource Tree View PCF Component",
+    "scripts": {
+        "build": "pcf-scripts build",
+        "clean": "pcf-scripts clean",
+        "lint": "pcf-scripts lint",
+        "lint:fix": "pcf-scripts lint fix",
+        "rebuild": "pcf-scripts rebuild",
+        "start": "pcf-scripts start watch"
+    },
+    "dependencies": {
+        "@fluentui/react-components": "^9.46.2",
+        "@fluentui/react-icons": "^2.0.217",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "devDependencies": {
+        "@types/node": "^18.0.0",
+        "@types/react": "^18.2.0",
+        "@types/react-dom": "^18.2.0",
+        "pcf-scripts": "^1",
+        "pcf-start": "^1",
+        "typescript": "^5.0.0"
+    }
+}

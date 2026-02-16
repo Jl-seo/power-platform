@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest>
+  <control namespace="CoEPortal" constructor="ResourceTreeView" 
+           version="1.0.0" 
+           display-name-key="Resource Tree View" 
+           description-key="Power Platform 리소스 트리 뷰 컴포넌트">
+    
+    <!-- 입력: 환경 및 리소스 데이터 (JSON) -->
+    <property name="environmentData" 
+              display-name-key="Environment Data" 
+              description-key="JSON 형식의 환경 및 리소스 데이터" 
+              of-type="Multiple" 
+              usage="input" 
+              required="true" />
+    
+    <!-- 출력: 선택된 리소스 ID -->
+    <property name="selectedResourceId" 
+              display-name-key="Selected Resource ID" 
+              description-key="사용자가 선택한 리소스의 ID" 
+              of-type="SingleLine.Text" 
+              usage="output" />
+    
+    <!-- 출력: 선택된 리소스 타입 -->
+    <property name="selectedResourceType" 
+              display-name-key="Selected Resource Type" 
+              description-key="사용자가 선택한 리소스의 타입 (app|flow|bot)" 
+              of-type="SingleLine.Text" 
+              usage="output" />
+    
+    <resources>
+      <code path=\"index.tsx\" order=\"1\"/>
+      <!-- React 18 + Fluent UI 9 (Platform Libraries) -->
+      <platform-library name="React" version="18.2.0" />
+      <platform-library name="Fluent" version="9.46.2" />
+    </resources>
+  </control>
+</manifest>

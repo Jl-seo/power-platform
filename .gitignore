@@ -2,3 +2,12 @@
 power-platform/enterprise-templates/finance/sap-procurement/Administer/install.md
 power-platform/enterprise-templates/finance/sap-procurement/Administer/install.md
 /power-platform/enterprise-templates/finance/sap-procurement/Administer
+*.pyc
+__pycache__/
+node_modules/
+.next/
+.env
+.env.local
+.DS_Store
+portal-app/backend/.env
+.env
