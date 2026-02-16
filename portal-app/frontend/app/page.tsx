@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic';
 import InventoryView, { MOCK_TENANTS } from '../components/InventoryView';
 import SecurityView from '../components/SecurityView';
 import GovernanceView from '../components/GovernanceView';
+import SelfServiceView from '../components/SelfServiceView';
+import AuditLogView from '../components/AuditLogView';
 
 // recharts uses window — must be loaded client-side only
 const DashboardView = dynamic(() => import('../components/DashboardView'), { ssr: false });
@@ -32,8 +34,8 @@ const NAV_ITEMS: NavItem[] = [
     { id: 'inventory', label: '인벤토리', icon: '📦' },
     { id: 'security', label: '보안 센터', icon: '🔒', badge: 8 },
     { id: 'governance', label: '거버넌스', icon: '🛡️', badge: 2 },
-    { id: 'selfservice', label: '셀프서비스', icon: '🎫', disabled: true },
-    { id: 'audit', label: '감사 로그', icon: '📋', disabled: true },
+    { id: 'selfservice', label: '셀프서비스', icon: '🎫', badge: 4 },
+    { id: 'audit', label: '감사 로그', icon: '📋' },
     { id: 'license', label: '라이선스', icon: '💰', disabled: true },
     { id: 'lifecycle', label: '라이프사이클', icon: '🔄', disabled: true },
 ];
@@ -188,12 +190,14 @@ export default function Portal() {
                     {currentPage === 'inventory' && <InventoryView tenants={MOCK_TENANTS} onAction={handleAction} />}
                     {currentPage === 'security' && <SecurityView />}
                     {currentPage === 'governance' && <GovernanceView />}
-                    {['selfservice', 'audit', 'license', 'lifecycle', 'settings'].includes(currentPage) && (
+                    {currentPage === 'selfservice' && <SelfServiceView />}
+                    {currentPage === 'audit' && <AuditLogView />}
+                    {['license', 'lifecycle', 'settings'].includes(currentPage) && (
                         <div className="flex items-center justify-center h-full text-slate-400">
                             <div className="text-center">
                                 <div className="text-6xl mb-4">🚧</div>
-                                <div className="text-xl font-bold">Phase 2에서 구현 예정</div>
-                                <div className="text-sm mt-2">셀프서비스, 감사 로그, 라이선스, 라이프사이클, 설정</div>
+                                <div className="text-xl font-bold">Phase 3에서 구현 예정</div>
+                                <div className="text-sm mt-2">라이선스 최적화, 라이프사이클 관리, 설정</div>
                             </div>
                         </div>
                     )}
