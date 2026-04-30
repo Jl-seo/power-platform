@@ -1,0 +1,45 @@
+{
+  "$schema": "./connection-bootstrap.schema.json",
+  "comment": "Single source of truth for connections that must exist in the target environment BEFORE solution import. Tracks: SPN (auto), OAuthInteractive (one-time consent), ApiKey (auto if secret available).",
+
+  "connectors": [
+    {
+      "displayName": "Sample custom connector",
+      "apiDefinitionFile": "C:\\PPMigration\\connectors\\sample\\apiDefinition.swagger.json",
+      "apiPropertiesFile": "C:\\PPMigration\\connectors\\sample\\apiProperties.json",
+      "iconFile":         "C:\\PPMigration\\connectors\\sample\\icon.png",
+      "solutionUniqueName": "cr_CustomConnectors"
+    }
+  ],
+
+  "connections": [
+    {
+      "logicalName":  "cr_sharedcommondataserviceforapps_REPLACE",
+      "displayName":  "Dataverse (SPN)",
+      "connectorId":  "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+      "authMode":     "SPN"
+    },
+    {
+      "logicalName":  "cr_sharedsharepointonline_REPLACE",
+      "displayName":  "SharePoint (Bootstrap user)",
+      "connectorId":  "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+      "authMode":     "OAuthInteractive"
+    },
+    {
+      "logicalName":  "cr_sharedoffice365_REPLACE",
+      "displayName":  "Office 365 Outlook (Bootstrap user)",
+      "connectorId":  "/providers/Microsoft.PowerApps/apis/shared_office365",
+      "authMode":     "OAuthInteractive"
+    },
+    {
+      "logicalName":  "cr_sharedazureopenai_REPLACE",
+      "displayName":  "Azure OpenAI (Key)",
+      "connectorId":  "/providers/Microsoft.PowerApps/apis/shared_azureopenai",
+      "authMode":     "ApiKey",
+      "parameters": {
+        "azureOpenAIEndpoint": "https://YOUR-AOAI.openai.azure.com",
+        "azureOpenAIApiKey":   "@secret:azureOpenAIKey"
+      }
+    }
+  ]
+}

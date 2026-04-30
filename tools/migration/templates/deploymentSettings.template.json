@@ -1,0 +1,16 @@
+{
+  "_comment": "Skeleton matching the format documented in power-platform/alm/conn-ref-env-variables-build-tools.md. Set-DeploymentSettings.ps1 fills ConnectionId from connection-map.json and EnvironmentVariables.Value from env-var-values.json (or PP_EV_* environment variables).",
+  "EnvironmentVariables": [
+    {
+      "SchemaName": "cr_ExampleEnvVarSchemaName",
+      "Value": ""
+    }
+  ],
+  "ConnectionReferences": [
+    {
+      "LogicalName": "cr_sharedcommondataserviceforapps_REPLACE",
+      "ConnectionId": "",
+      "ConnectorId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+    }
+  ]
+}
