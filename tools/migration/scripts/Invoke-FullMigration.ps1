@@ -38,6 +38,10 @@ $PSDefaultParameterValues = @{
 }
 Add-Type -AssemblyName System.Web
 
+# Auto-load vendored modules + pac CLI if a vendor folder is present (offline / air-gapped support).
+$vendorInit = Join-Path $PSScriptRoot '..\vendor\Initialize-OfflineEnv.ps1'
+if (Test-Path $vendorInit) { . $vendorInit }
+
 $libDir = Join-Path $PSScriptRoot 'lib'
 Import-Module (Join-Path $libDir 'PPMigration.psm1')   -Force
 Import-Module (Join-Path $libDir 'PPThrottle.psm1')    -Force

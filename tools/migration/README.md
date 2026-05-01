@@ -62,6 +62,16 @@ tools/migration/
 | `Microsoft.Graph` | SPN registration in `Initialize-PPMigrationSpn.ps1` | `Install-Module Microsoft.Graph -Scope CurrentUser` |
 | `Az.KeyVault` (optional) | KeyVault secret backend | `Install-Module Az.KeyVault -Scope CurrentUser` |
 
+## Offline / air-gapped target machine
+
+If the target machine cannot install pac CLI or modules from the internet, populate `vendor/` first on a machine that *can* reach the internet:
+
+```powershell
+.\vendor\Download-Dependencies.ps1   # downloads pac CLI nupkg + Save-Module everything
+```
+
+Then zip the whole `tools/migration/` folder and ship it. The orchestrator auto-detects `vendor/` and prepends it to `$env:PSModulePath` and `$env:PATH` — no installer runs on the target. See `vendor/README.md`.
+
 ## Quick start
 
 ```powershell
