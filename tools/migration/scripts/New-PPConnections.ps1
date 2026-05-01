@@ -43,6 +43,8 @@ Import-Module (Join-Path $libDir 'PPThrottle.psm1') -Force
 Import-Module (Join-Path $libDir 'PPSecrets.psm1') -Force
 Import-Module (Join-Path $libDir 'PPAuth.psm1') -Force
 Import-Module (Join-Path $libDir 'State-Manager.psm1') -Force
+Import-Module (Join-Path $libDir 'PPSolution.psm1') -Force
+Import-Module (Join-Path $libDir 'PPConnectionRest.psm1') -Force
 . (Join-Path $libDir 'Connection-Bootstrap.ps1')
 
 $cfg = Read-PPConfig -Path $Config
@@ -61,18 +63,27 @@ if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir
 $mapPath = Join-Path $targetDir 'connection-map.json'
 $map = if (Test-Path $mapPath) { Read-PPJson -Path $mapPath -AsHashtable } else { @{} }
 
-# Authenticate pac CLI to target env using the SPN
+# Hybrid: pac if available; otherwise REST tokens.
+$usePac = Test-PPPacAvailable
+Write-PPLog -Level Info -Message ("Connections mode: {0}" -f ($(if ($usePac) {'pac CLI'} else {'REST'})))
 $secretPlain = Get-PPSecret -Name $cfg.secrets.spnClientSecret -AsPlainText
-$authProfile = 'pp-target'
-$authList = & pac auth list 2>&1
-if ($authList -notmatch [Regex]::Escape($authProfile)) {
-    & pac auth create --name $authProfile `
-        --url $cfg.targetEnvUrl `
-        --tenant $cfg.tenantId `
-        --applicationId $cfg.spnAppId `
-        --clientSecret $secretPlain | Out-Host
+if ($usePac) {
+    $authProfile = 'pp-target'
+    $authList = & pac auth list 2>&1
+    if ($authList -notmatch [Regex]::Escape($authProfile)) {
+        & pac auth create --name $authProfile `
+            --url $cfg.targetEnvUrl `
+            --tenant $cfg.tenantId `
+            --applicationId $cfg.spnAppId `
+            --clientSecret $secretPlain | Out-Host
+    }
+    & pac auth select --name $authProfile | Out-Host
 }
-& pac auth select --name $authProfile | Out-Host
+
+# Token used by REST tracks (SPN connection PUT, OAuth bootstrap, custom connector PUT)
+$secretSecure = ConvertTo-PPSecureString $secretPlain
+$rpToken = Get-PPSpnToken -TenantId $cfg.tenantId -AppId $cfg.spnAppId `
+    -Resource 'https://service.powerapps.com' -ClientSecret $secretSecure
 
 # Step 1: install custom connectors (if any) — must happen before connections that reference them.
 if ($bs.ContainsKey('connectors') -and $bs.connectors) {
@@ -108,30 +119,38 @@ foreach ($entry in $bs.connections) {
     switch ($entry.authMode) {
         'SPN' {
             try {
-                $args = @('connection','create',
-                          '--name', $entry.displayName,
-                          '--tenant-id', $cfg.tenantId,
-                          '--application-id', $cfg.spnAppId,
-                          '--client-secret', $secretPlain,
-                          '--environment', $cfg.targetEnvUrl,
-                          '--connector-id', ($entry.connectorId -replace '^.*/apis/', ''))
-                $out = & pac @args 2>&1
-                if ($LASTEXITCODE -ne 0) { throw "pac connection create failed: $($out -join "`n")" }
-                # Parse the new connection id from pac output (also retrieve via list as a fallback)
-                $connId = $null
-                $listJson = & pac connection list --environment $cfg.targetEnvUrl --json 2>&1
-                if ($LASTEXITCODE -eq 0) {
-                    $arr = ($listJson -join "`n") | ConvertFrom-Json
-                    $found = $arr | Where-Object { $_.DisplayName -eq $entry.displayName }
-                    if ($found) { $connId = ($found | Select-Object -First 1).ConnectionId }
-                }
-                if (-not $connId) {
-                    foreach ($l in $out) {
-                        if ($l -match '([0-9a-f-]{36})') { $connId = $matches[1]; break }
+                if ($usePac) {
+                    $args = @('connection','create',
+                              '--name', $entry.displayName,
+                              '--tenant-id', $cfg.tenantId,
+                              '--application-id', $cfg.spnAppId,
+                              '--client-secret', $secretPlain,
+                              '--environment', $cfg.targetEnvUrl,
+                              '--connector-id', ($entry.connectorId -replace '^.*/apis/', ''))
+                    $out = & pac @args 2>&1
+                    if ($LASTEXITCODE -ne 0) { throw "pac connection create failed: $($out -join "`n")" }
+                    $connId = $null
+                    $listJson = & pac connection list --environment $cfg.targetEnvUrl --json 2>&1
+                    if ($LASTEXITCODE -eq 0) {
+                        $arr = ($listJson -join "`n") | ConvertFrom-Json
+                        $found = $arr | Where-Object { $_.DisplayName -eq $entry.displayName }
+                        if ($found) { $connId = ($found | Select-Object -First 1).ConnectionId }
                     }
+                    if (-not $connId) {
+                        foreach ($l in $out) {
+                            if ($l -match '([0-9a-f-]{36})') { $connId = $matches[1]; break }
+                        }
+                    }
+                    if (-not $connId) { throw "Could not determine connection id for $logical" }
+                    $map[$logical] = @{ connectionId = $connId; connectorId = $entry.connectorId; authMode = 'SPN'; displayName = $entry.displayName }
+                } else {
+                    # REST PUT
+                    $result = New-PPConnectionSpn -Token $rpToken `
+                        -EnvironmentId $envId -EnvironmentUrl $cfg.targetEnvUrl `
+                        -TenantId $cfg.tenantId -AppId $cfg.spnAppId -ClientSecret $secretSecure `
+                        -ConnectorId $entry.connectorId -ConnectionName $logical -DisplayName $entry.displayName
+                    $map[$logical] = $result
                 }
-                if (-not $connId) { throw "Could not determine connection id for $logical" }
-                $map[$logical] = @{ connectionId = $connId; connectorId = $entry.connectorId; authMode = 'SPN'; displayName = $entry.displayName }
                 Add-PPCompletedItem -Phase 'Bootstrap' -Key 'connections' -Item $logical
             } catch {
                 Write-PPFailure -Phase 'Bootstrap' -Step 'NewConnectionSPN' -Resource $logical -Error $_.Exception.Message

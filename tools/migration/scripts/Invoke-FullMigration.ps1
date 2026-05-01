@@ -47,6 +47,8 @@ Import-Module (Join-Path $libDir 'PPMigration.psm1')   -Force
 Import-Module (Join-Path $libDir 'PPThrottle.psm1')    -Force
 Import-Module (Join-Path $libDir 'PPSecrets.psm1')     -Force
 Import-Module (Join-Path $libDir 'PPAuth.psm1')        -Force
+Import-Module (Join-Path $libDir 'PPSolution.psm1')    -Force
+Import-Module (Join-Path $libDir 'PPSolutionPack.psm1') -Force
 Import-Module (Join-Path $libDir 'State-Manager.psm1') -Force
 
 $cfg = Read-PPConfig -Path $Config
@@ -106,16 +108,24 @@ function Phase-Apply {
         New-Item -ItemType Directory -Path $repairFolder -Force | Out-Null
 
         Run-Step "Unpack:$sln" {
-            & pac solution unpack --zipfile $sourceZip --folder $repairFolder --packagetype Unmanaged | Out-Host
-            if ($LASTEXITCODE -ne 0) { throw "pac solution unpack failed for $sln" }
+            if (Test-PPPacAvailable) {
+                & pac solution unpack --zipfile $sourceZip --folder $repairFolder --packagetype Unmanaged | Out-Host
+                if ($LASTEXITCODE -ne 0) { throw "pac solution unpack failed for $sln" }
+            } else {
+                Expand-PPSolutionZip -ZipPath $sourceZip -DestDir $repairFolder
+            }
         }
         Run-Step "RepairGuids:$sln" {
             $params = @{ Folder = $repairFolder; IdMap = $idMap }
             & (Join-Path $PSScriptRoot 'Repair-PPSolutionGuids.ps1') @params
         }
         Run-Step "Pack:$sln" {
-            & pac solution pack --zipfile $repairedZip --folder $repairFolder --packagetype Unmanaged | Out-Host
-            if ($LASTEXITCODE -ne 0) { throw "pac solution pack failed for $sln" }
+            if (Test-PPPacAvailable) {
+                & pac solution pack --zipfile $repairedZip --folder $repairFolder --packagetype Unmanaged | Out-Host
+                if ($LASTEXITCODE -ne 0) { throw "pac solution pack failed for $sln" }
+            } else {
+                Compress-PPSolutionFolder -FolderPath $repairFolder -OutZipPath $repairedZip
+            }
         }
         Run-Step "Settings:$sln" {
             $sParams = @{ SeedFile = $seed; ConnectionMap = $cm; OutFile = $populated }
@@ -124,11 +134,10 @@ function Phase-Apply {
         }
         Run-Step "Import:$sln" {
             & (Join-Path $PSScriptRoot 'Import-PPSolution.ps1') `
-                -TargetEnvUrl $cfg.targetEnvUrl `
+                -Config $Config `
                 -SolutionZip $repairedZip `
                 -SettingsFile $populated `
-                -SolutionUniqueName $sln `
-                -StateDir (Join-Path $cfg.outDir 'state')
+                -SolutionUniqueName $sln
         }
     }
 

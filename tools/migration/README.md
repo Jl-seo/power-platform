@@ -62,6 +62,14 @@ tools/migration/
 | `Microsoft.Graph` | SPN registration in `Initialize-PPMigrationSpn.ps1` | `Install-Module Microsoft.Graph -Scope CurrentUser` |
 | `Az.KeyVault` (optional) | KeyVault secret backend | `Install-Module Az.KeyVault -Scope CurrentUser` |
 
+## No-pac (REST-only) mode
+
+If `pac` CLI cannot be installed on the Windows VM, the toolkit auto-detects its absence and falls back to direct Power Platform REST APIs. Every phase still works — solution export/import via `ExportSolutionAsync`/`ImportSolutionAsync`, solution unpack/pack via .NET `ZipArchive`, Dataverse SPN connection create via Power Apps RP REST PUT.
+
+Minimum requirements: PowerShell 5.1 (built into Windows) + network reach to `login.microsoftonline.com`, the Dataverse URL, `api.powerapps.com`, and `api.flow.microsoft.com`. No module installs needed if `secretBackend = 'DPAPIFile'`.
+
+See `docs/no-pac-mode.md` for the full mapping, caveats (especially around the SPN connectionParameters schema), and a minimal config.
+
 ## Offline / air-gapped target machine
 
 If the target machine cannot install pac CLI or modules from the internet, populate `vendor/` first on a machine that *can* reach the internet:
