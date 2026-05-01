@@ -92,7 +92,7 @@ if ($bs.ContainsKey('connectors') -and $bs.connectors) {
     }
 }
 
-$envId = Get-PPEnvironmentId -EnvironmentUrl $cfg.targetEnvUrl
+$envId = Get-PPEnvironmentId -Config $cfg -Side target
 
 foreach ($entry in $bs.connections) {
     $logical = $entry.logicalName

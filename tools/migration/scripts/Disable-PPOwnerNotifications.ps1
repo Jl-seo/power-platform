@@ -66,7 +66,10 @@ $snapshot = if (Test-Path $snapshotPath) { Read-PPJson -Path $snapshotPath -AsHa
 
 $secret = Get-PPSecret -Name $cfg.secrets.spnClientSecret
 foreach ($envUrl in $EnvironmentUrls) {
-    $envId = Get-PPEnvironmentId -EnvironmentUrl $envUrl
+    # Resolve env id: prefer config.<side>EnvId, fall back to URL-derived org name
+    $envId = if ($envUrl -eq $cfg.sourceEnvUrl) { Get-PPEnvironmentId -Config $cfg -Side source }
+             elseif ($envUrl -eq $cfg.targetEnvUrl) { Get-PPEnvironmentId -Config $cfg -Side target }
+             else { Get-PPEnvironmentId -EnvironmentUrl $envUrl }
     Write-PPLog -Level Info -Message "Processing $envUrl (envId=$envId)"
 
     # Flow management API expects token for service.flow.microsoft.com

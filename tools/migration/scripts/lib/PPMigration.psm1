@@ -154,8 +154,34 @@ function Test-PPGuid {
 }
 
 function Get-PPEnvironmentId {
-    param([Parameter(Mandatory)][string] $EnvironmentUrl)
-    # Extract the org id from the environment URL host (orgxxxx.crm.dynamics.com → orgxxxx)
+    <#
+    .SYNOPSIS
+        Returns the Power Platform environment identifier used by Power Apps RP /
+        BAP admin URLs.  Prefers an explicit GUID-form id (config.targetEnvId) when
+        provided.  Falls back to the org prefix of the Dataverse URL (orgxxxx),
+        which works for Power Apps RP only when the environment was provisioned
+        with that name as its envName.
+    .PARAMETER Config
+        Optional config hashtable (output of Read-PPConfig).
+    .PARAMETER Side
+        'source' or 'target'.  Determines which Config key to read.
+    .PARAMETER EnvironmentUrl
+        Used as fallback when Config does not carry an explicit env id.
+    #>
+    [CmdletBinding(DefaultParameterSetName = 'FromConfig')]
+    param(
+        [Parameter(ParameterSetName = 'FromConfig', Mandatory)] $Config,
+        [Parameter(ParameterSetName = 'FromConfig', Mandatory)][ValidateSet('source','target')][string] $Side,
+        [Parameter(ParameterSetName = 'FromUrl', Mandatory, Position = 0)][string] $EnvironmentUrl
+    )
+    if ($PSCmdlet.ParameterSetName -eq 'FromConfig') {
+        $idKey = "${Side}EnvId"; $urlKey = "${Side}EnvUrl"
+        if ($Config.ContainsKey($idKey) -and $Config[$idKey] -and $Config[$idKey] -notmatch '^0{8}-') {
+            return $Config[$idKey]
+        }
+        $EnvironmentUrl = $Config[$urlKey]
+    }
+    if (-not $EnvironmentUrl) { throw "Cannot resolve environment id (no GUID and no URL)" }
     $u = [Uri]$EnvironmentUrl
     return ($u.Host -split '\.')[0]
 }
