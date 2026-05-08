@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "devkit-ir-service": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/ir-server.js"],
+      "env": {}
+    }
+  }
+}

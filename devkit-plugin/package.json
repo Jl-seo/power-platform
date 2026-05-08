@@ -1,0 +1,23 @@
+{
+  "name": "@devkit/plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "DevKit Claude Code plugin — MCP IR service + skills",
+  "bin": {
+    "devkit-ir-server": "bin/ir-server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "smoke": "node bin/ir-server.js --smoke",
+    "validate-sample": "node bin/ir-server.js --validate examples/lob/order-app.ir.json"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "fast-json-patch": "^3.1.1"
+  }
+}

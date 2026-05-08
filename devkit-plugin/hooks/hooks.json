@@ -1,0 +1,27 @@
+{
+  "_comment": "DevKit hooks — 텔레메트리 수집과 Trust Gate 1차 라인. 운영 환경에선 DEVKIT_TELEMETRY_ENDPOINT 와 DEVKIT_TELEMETRY_TOKEN env로 App Insights 등 외부 엔드포인트 연결.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "mcp__devkit-ir-service__patch_ir",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/telemetry.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/telemetry.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "artifact": {
+    "id": "order-app",
+    "version": "0.1.0",
+    "owners": ["@platform-fe"]
+  },
+  "spec": {
+    "intent": "고객이 상품을 주문하면 재고가 차감되고 SMS가 발송된다.",
+    "actors": ["고객", "매장 직원", "관리자"],
+    "adr": [
+      {
+        "at": "2026-05-08T00:00:00Z",
+        "decision": "재고 차감은 주문 생성 트랜잭션 내에서 동기 처리",
+        "rationale": "오버셀 방지가 SMS 즉시성보다 우선"
+      }
+    ]
+  },
+  "roles": {
+    "roles": [
+      { "id": "user", "label": "일반 사용자", "description": "주문/조회" },
+      { "id": "admin", "label": "관리자", "description": "마스터 데이터·재고·정책" },
+      { "id": "auditor", "label": "감사자", "description": "읽기 전용" }
+    ],
+    "permissions": {
+      "data": {
+        "고객": {
+          "read": ["user", "admin", "auditor"],
+          "create": ["user", "admin"],
+          "update": ["admin"],
+          "delete": ["admin"]
+        },
+        "주문": {
+          "read": ["user", "admin", "auditor"],
+          "create": ["user", "admin"],
+          "update": ["admin"],
+          "delete": ["admin"]
+        },
+        "재고": {
+          "read": ["user", "admin", "auditor"],
+          "create": ["admin"],
+          "update": ["admin"],
+          "delete": ["admin"]
+        }
+      },
+      "screens": {
+        "admin/*": ["admin"],
+        "user/*": ["user", "admin"]
+      }
+    },
+    "rules": [
+      "user는 자기 user_id 매칭 고객 레코드만 update 가능"
+    ]
+  },
+  "data": {
+    "entities": [
+      {
+        "name": "고객",
+        "description": "주문 주체",
+        "fields": [
+          { "name": "id", "type": "string", "required": true },
+          { "name": "이름", "type": "string", "required": true },
+          { "name": "전화", "type": "string", "required": true, "pii": true,
+            "rbac": { "read": ["user", "admin"], "write": ["admin"] } },
+          { "name": "이메일", "type": "string", "pii": true }
+        ]
+      },
+      {
+        "name": "상품",
+        "fields": [
+          { "name": "id", "type": "string", "required": true },
+          { "name": "이름", "type": "string", "required": true },
+          { "name": "가격", "type": "number", "required": true }
+        ]
+      },
+      {
+        "name": "재고",
+        "fields": [
+          { "name": "상품_id", "type": "ref", "ref": "상품", "required": true },
+          { "name": "수량", "type": "integer", "required": true },
+          { "name": "최종_갱신", "type": "datetime" }
+        ]
+      },
+      {
+        "name": "주문",
+        "fields": [
+          { "name": "id", "type": "string", "required": true },
+          { "name": "고객_id", "type": "ref", "ref": "고객", "required": true },
+          { "name": "상품_id", "type": "ref", "ref": "상품", "required": true },
+          { "name": "수량", "type": "integer", "required": true },
+          { "name": "시각", "type": "datetime", "required": true }
+        ]
+      }
+    ],
+    "relations": [
+      "고객 1 ─< 주문",
+      "상품 1 ─< 주문",
+      "상품 1 ── 1 재고"
+    ]
+  },
+  "screens": {
+    "admin": [
+      { "name": "재고관리", "binds": "재고", "fields": ["상품_id", "수량", "최종_갱신"] },
+      { "name": "주문목록", "binds": "주문", "fields": ["id", "고객_id", "상품_id", "수량", "시각"] }
+    ],
+    "user": [
+      { "name": "주문폼", "binds": "주문", "fields": ["상품_id", "수량"] },
+      { "name": "내주문내역", "binds": "주문", "fields": ["id", "상품_id", "수량", "시각"] }
+    ]
+  },
+  "components": [],
+  "workflows": [
+    {
+      "id": "order_created_notify",
+      "trigger": "주문.created",
+      "steps": [
+        { "action": "재고.차감", "args": { "상품_id": "$trigger.상품_id", "수량": "$trigger.수량" } },
+        { "action": "SMS.send", "args": { "to": "$고객.전화", "body": "주문 접수: $상품.이름 ×$수량" } }
+      ]
+    }
+  ],
+  "deployment": {
+    "connections": [
+      {
+        "name": "db.primary",
+        "kind": "sql.azure",
+        "bindings": {
+          "sandbox": { "keyvault": "kv-dev/db-conn-string" },
+          "team":    { "keyvault": "kv-stg/db-conn-string" },
+          "prod":    { "keyvault": "kv-prd/db-conn-string" }
+        }
+      },
+      {
+        "name": "notify.sms",
+        "kind": "connector.twilio",
+        "bindings": {
+          "sandbox": { "keyvault": "kv-dev/twilio-token" },
+          "prod":    { "keyvault": "kv-prd/twilio-token" }
+        }
+      }
+    ],
+    "variables": [
+      { "name": "매장명", "type": "string", "required": true,
+        "overrides": { "sandbox": "테스트매장", "prod": "본점" } },
+      { "name": "알림_템플릿", "type": "text", "secret": false,
+        "default": "주문 접수: {상품}×{수량} ({매장})" }
+    ]
+  }
+}
