@@ -354,9 +354,9 @@ allowed-tools: Read, Write, mcp__ir-service__patch_ir
 - diff 미리보기 + 5초 Undo는 §4.1 그대로.
 
 **3) 다관점 리뷰 (선택, 무거운 변경 시)**
-- `critic`이 *"이 변경 영향 큼"* 판단 시 sub-agent 3개 병렬: **보안 리뷰 / UX 리뷰 / 유지보수 리뷰**.
-- 각 sub-agent는 자기 관점만 평가, 한 줄 의견 + 점수 반환. 종합 카드로 사용자에 표시.
-- 사용 hook: PostToolUse + 산출물 영향 범위 임계 초과 시.
+- `critic`이 *"이 변경 영향 큼"* 판단 시 페르소나 3개 순차: **기획자(review-pm) / 디자이너(review-designer) / UX 디자이너(review-ux)**.
+- 각 페르소나는 자기 관점만 평가, 짧은 의견 카드 반환. `multi-review` 스킬이 종합 카드로 묶어 사용자에게 표시.
+- 자동 발동: critic overall < 0.7 / high finding 3개 이상 / IR diff 30%↑ / 사용자가 *"리뷰 / 출시 전 점검"* 류 단어 사용.
 
 **4) Quality Scorecard (산출물 단위 누적)**
 - IR artifact당 6 차원 점수(0~1) + 종합 점수를 `quality.history.jsonl`에 시간 누적.

@@ -1,0 +1,72 @@
+{
+  "artifact": { "id": "approval-flow-starter", "version": "0.1.0" },
+  "spec": {
+    "intent": "신청자가 신청서를 내면 1차/2차 승인을 거쳐 결과가 통지되고 감사 로그에 남는다.",
+    "actors": ["신청자", "1차 승인자", "2차 승인자", "감사자"]
+  },
+  "roles": {
+    "roles": [
+      { "id": "user",      "label": "신청자" },
+      { "id": "approver1", "label": "1차 승인자" },
+      { "id": "approver2", "label": "2차 승인자" },
+      { "id": "auditor",   "label": "감사자" }
+    ],
+    "permissions": {
+      "data": {
+        "신청": {
+          "create": ["user"],
+          "read":   ["user", "approver1", "approver2", "auditor"],
+          "update": ["approver1", "approver2"],
+          "delete": []
+        },
+        "감사로그": {
+          "read":   ["auditor"],
+          "create": [],
+          "update": [],
+          "delete": []
+        }
+      }
+    }
+  },
+  "data": {
+    "entities": [
+      {
+        "name": "신청",
+        "fields": [
+          { "name": "id",          "type": "string",   "required": true },
+          { "name": "신청자_id",    "type": "string",   "required": true },
+          { "name": "내용",        "type": "string",   "required": true },
+          { "name": "상태",        "type": "string",   "required": true },
+          { "name": "1차_승인자",  "type": "string" },
+          { "name": "2차_승인자",  "type": "string" },
+          { "name": "최종_결과",   "type": "string" },
+          { "name": "신청_시각",   "type": "datetime", "required": true }
+        ]
+      },
+      {
+        "name": "감사로그",
+        "fields": [
+          { "name": "id",       "type": "string",   "required": true },
+          { "name": "신청_id",   "type": "ref", "ref": "신청", "required": true },
+          { "name": "행위",     "type": "string",   "required": true },
+          { "name": "행위자",   "type": "string",   "required": true },
+          { "name": "시각",     "type": "datetime", "required": true }
+        ]
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "approval_two_step",
+      "trigger": "신청.created",
+      "steps": [
+        { "action": "1차승인.요청", "args": { "to": "$1차_승인자" } },
+        { "action": "감사로그.기록", "args": { "행위": "1차_요청" } },
+        { "action": "2차승인.요청", "args": { "to": "$2차_승인자", "when": "1차==승인" } },
+        { "action": "감사로그.기록", "args": { "행위": "2차_요청" } },
+        { "action": "신청자.통지",   "args": { "to": "$신청자_id" } },
+        { "action": "감사로그.기록", "args": { "행위": "최종_결과 통지" } }
+      ]
+    }
+  ]
+}

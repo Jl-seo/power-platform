@@ -1,0 +1,52 @@
+{
+  "artifact": { "id": "auth-login-starter", "version": "0.1.0" },
+  "spec": {
+    "intent": "사내 SSO로 로그인하고 역할에 따라 화면이 갈린다.",
+    "actors": ["일반 사용자", "관리자", "감사자"]
+  },
+  "roles": {
+    "roles": [
+      { "id": "user", "label": "일반 사용자" },
+      { "id": "admin", "label": "관리자" },
+      { "id": "auditor", "label": "감사자" }
+    ],
+    "permissions": {
+      "screens": {
+        "admin/*": ["admin"],
+        "user/*": ["user", "admin"],
+        "audit/*": ["auditor", "admin"]
+      },
+      "api": {
+        "POST /auth/login": ["user", "admin", "auditor"],
+        "POST /auth/logout": ["user", "admin", "auditor"]
+      }
+    },
+    "rules": [
+      "감사자는 읽기만 가능, 어떤 데이터도 수정 불가"
+    ]
+  },
+  "screens": {
+    "user": [
+      { "name": "로그인" },
+      { "name": "내정보" }
+    ],
+    "admin": [
+      { "name": "사용자관리" }
+    ]
+  },
+  "deployment": {
+    "connections": [
+      {
+        "name": "auth.entra",
+        "kind": "connector.entra-id",
+        "bindings": {
+          "sandbox": { "keyvault": "kv-dev/entra-client-secret" },
+          "prod":    { "keyvault": "kv-prd/entra-client-secret" }
+        }
+      }
+    ],
+    "variables": [
+      { "name": "세션_시간_분", "type": "integer", "default": 480 }
+    ]
+  }
+}

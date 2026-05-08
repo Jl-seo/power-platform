@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rating PCF starter — 1~5 별점 + hover.
+  publisher-prefix는 사내 표준으로 교체할 것 (예: <yourorg>).
+-->
+<manifest>
+  <control namespace="DevKitTemplates" constructor="Rating" version="0.0.1"
+           display-name-key="Rating_Display_Key"
+           description-key="Rating_Desc_Key"
+           control-type="standard">
+    <property name="value"
+              display-name-key="Rating_Value_Display_Key"
+              description-key="Rating_Value_Desc_Key"
+              of-type="Whole.None"
+              usage="bound"
+              required="true" />
+    <property name="max"
+              display-name-key="Rating_Max_Display_Key"
+              description-key="Rating_Max_Desc_Key"
+              of-type="Whole.None"
+              usage="input"
+              default-value="5" />
+    <property name="readOnly"
+              display-name-key="Rating_ReadOnly_Display_Key"
+              description-key="Rating_ReadOnly_Desc_Key"
+              of-type="TwoOptions"
+              usage="input"
+              default-value="false" />
+    <resources>
+      <code path="index.ts" order="1" />
+      <css path="style.css" order="2" />
+      <resx path="strings/Rating.1033.resx" version="1.0.0" />
+      <resx path="strings/Rating.1042.resx" version="1.0.0" />
+    </resources>
+  </control>
+</manifest>

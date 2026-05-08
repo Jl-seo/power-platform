@@ -1,0 +1,64 @@
+# DevKit 템플릿 카탈로그 — 사용자 의도와 매칭해 비슷한 사례를 추천하기 위한 인덱스.
+# AI가 catalog-hint 스킬에서 컨텍스트로 자동 로드한다.
+
+templates:
+  - id: lob-crud
+    title: "LOB 기본형 (목록/상세/입력)"
+    summary: "주문/고객/재고 같은 일반 업무 데이터의 가장 흔한 화면 묶음"
+    tags: [lob, crud, list, detail, form, business]
+    good_for:
+      - "표 한 개에 대한 일상적 조회·입력·수정"
+      - "관리자/일반 사용자 권한이 명확히 갈리는 경우"
+    not_for:
+      - "복잡한 다단계 워크플로우"
+      - "실시간 협업 화면"
+    starter_ir: lob-crud/starter.ir.json
+    notes: "사내 인사팀·재고팀이 자주 쓴 형식"
+
+  - id: auth-login
+    title: "로그인/SSO + 권한 가드"
+    summary: "사내 SSO 연결과 화면 단위 권한 점검 묶음"
+    tags: [auth, sso, login, rbac, security]
+    good_for:
+      - "사내 인증으로 들어와야 하는 모든 앱"
+      - "역할 기반 화면 분기"
+    not_for:
+      - "외부 손님 가입(별도 sign-up 흐름 필요)"
+    starter_ir: auth-login/starter.ir.json
+    notes: "모든 신규 앱의 1순위 시작점"
+
+  - id: notify-flow
+    title: "알림 자동화 (이벤트 → SMS/메일/Teams)"
+    summary: "트리거 → 조건 → 다채널 발송 묶음. 재시도/타임아웃 기본값 포함"
+    tags: [workflow, notification, sms, email, teams]
+    good_for:
+      - "주문 접수·배송 시작·결제 완료 같은 이벤트 알림"
+      - "야간/주말 자동 발송"
+    not_for:
+      - "사용자 동의 없이 마케팅 메시지 (DLP 위반)"
+    starter_ir: notify-flow/starter.ir.json
+    notes: "워크플로우 시뮬레이션 모드 기본 ON"
+
+  - id: pcf-rating
+    title: "재사용 화면 부품 — 별점 (PCF)"
+    summary: "1~5 별점 + 호버 효과. PCF 표준 manifest+index.ts 스캐폴드"
+    tags: [component, pcf, ui, rating]
+    good_for:
+      - "리뷰/평가/만족도 화면"
+      - "PCF 표준에 맞춘 사내 부품 첫 시작"
+    not_for:
+      - "0.1 단위 정밀 평점(반쪽 별 등)이 필요한 경우"
+    starter_dir: pcf-rating/
+    notes: "사내 카탈로그 등록 후 다른 앱에서 끌어다 쓰기 가능"
+
+  - id: approval-flow
+    title: "다단계 승인 흐름"
+    summary: "신청 → 1차/2차 승인 → 결과 알림. 감사 로그 자동"
+    tags: [workflow, approval, audit, multi-step]
+    good_for:
+      - "휴가/지출/계약 같은 사내 승인"
+      - "감사 로그 필수 영역"
+    not_for:
+      - "단순 1단계 알림 (그냥 notify-flow 사용)"
+    starter_ir: approval-flow/starter.ir.json
+    notes: "BPMN 시뮬레이션 다이어그램 자동 생성"

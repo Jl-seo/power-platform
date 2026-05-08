@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Rating_Display_Key"><value>별점</value></data>
+  <data name="Rating_Desc_Key"><value>1~5 사이의 별점을 선택하는 부품</value></data>
+  <data name="Rating_Value_Display_Key"><value>점수</value></data>
+  <data name="Rating_Value_Desc_Key"><value>현재 선택된 별점</value></data>
+  <data name="Rating_Max_Display_Key"><value>최대값</value></data>
+  <data name="Rating_Max_Desc_Key"><value>표시할 별 개수 (기본 5)</value></data>
+  <data name="Rating_ReadOnly_Display_Key"><value>읽기전용</value></data>
+  <data name="Rating_ReadOnly_Desc_Key"><value>읽기전용 표시 여부</value></data>
+</root>

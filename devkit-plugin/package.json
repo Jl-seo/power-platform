@@ -11,8 +11,15 @@
     "node": ">=20"
   },
   "scripts": {
-    "smoke": "node bin/ir-server.js --smoke",
-    "validate-sample": "node bin/ir-server.js --validate examples/lob/order-app.ir.json"
+    "smoke": "node bin/ir-server.js --smoke && npm run smoke:critic && npm run smoke:eval && npm run smoke:render",
+    "smoke:critic": "node bin/critic.js examples/lob/order-app.ir.json > /dev/null && echo '[devkit] critic ok'",
+    "smoke:eval":   "node bin/eval-runner.js examples/lob/order-app.ir.json > /dev/null && echo '[devkit] eval ok'",
+    "smoke:render": "node bin/render-erd.js examples/lob/order-app.ir.json > /dev/null && node bin/render-bpmn.js examples/lob/order-app.ir.json > /dev/null && echo '[devkit] renderers ok'",
+    "validate-sample": "node bin/ir-server.js --validate examples/lob/order-app.ir.json",
+    "render-erd":  "node bin/render-erd.js examples/lob/order-app.ir.json",
+    "render-bpmn": "node bin/render-bpmn.js examples/lob/order-app.ir.json",
+    "critic":      "node bin/critic.js examples/lob/order-app.ir.json",
+    "eval":        "node bin/eval-runner.js examples/lob/order-app.ir.json"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

@@ -1,0 +1,36 @@
+{
+  "artifact": { "id": "notify-flow-starter", "version": "0.1.0" },
+  "spec": {
+    "intent": "어떤 이벤트가 일어나면 조건에 맞는 사람에게 SMS/이메일/Teams로 알린다.",
+    "actors": ["일반 사용자", "관리자"]
+  },
+  "roles": {
+    "roles": [
+      { "id": "user", "label": "일반 사용자" },
+      { "id": "admin", "label": "관리자" }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "event_to_notify",
+      "trigger": "이벤트.created",
+      "steps": [
+        { "action": "조건.확인", "args": { "예: when": "이벤트.중요도 == high" } },
+        { "action": "SMS.send",  "args": { "to": "$수신자.전화", "body": "$알림_템플릿" } },
+        { "action": "Email.send","args": { "to": "$수신자.이메일", "subject": "...", "body": "..." } },
+        { "action": "Teams.post","args": { "channel": "$팀_채널", "message": "..." } }
+      ]
+    }
+  ],
+  "deployment": {
+    "connections": [
+      { "name": "notify.sms",   "kind": "connector.twilio",    "bindings": { "prod": { "keyvault": "kv-prd/twilio" } } },
+      { "name": "notify.email", "kind": "connector.smtp",      "bindings": { "prod": { "keyvault": "kv-prd/smtp" } } },
+      { "name": "notify.teams", "kind": "connector.ms-teams",  "bindings": { "prod": { "keyvault": "kv-prd/teams-webhook" } } }
+    ],
+    "variables": [
+      { "name": "알림_템플릿", "type": "text", "default": "{이벤트} 발생: {요약}" },
+      { "name": "재시도_최대", "type": "integer", "default": 3 }
+    ]
+  }
+}
