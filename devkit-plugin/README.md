@@ -62,17 +62,40 @@ AI 바이브 코더용 SDLC 식자재. **사용자에게 슬래시 명령은 노
 - `hooks/trust-gate.sh` — W1~W4: 로그만, 차단 없음. 위험 패턴(rm -rf, force push, drop table 등)은 risk 라벨로 마킹.
 - `hooks/telemetry.sh` — `~/.devkit/telemetry.log` 에 ndjson append + (옵션) `DEVKIT_TELEMETRY_ENDPOINT` 로 forward.
 
-### Web (Admin Console + L3 Canvas + Dashboard)
+### Web (대화하며 만들기 + Admin + Canvas + Dashboard)
 
-- `web/server.js` — Express + WebSocket. 단일 서버에 세 영역 + 라이브 동시 접속.
+- `web/server.js` — Express + WebSocket. 단일 서버에 네 영역 + 라이브 동시 접속.
 - 라우트:
-  - `/`           — 진입 화면 (3개 카드)
+  - `/`           — 진입 화면 (4개 카드)
+  - `/chat`       — **대화하며 만들기** (좌 채팅 / 우 미리보기 iframe). Bolt/v0/Lovable의 LOB 버전.
   - `/admin`      — 관리 화면 (화이트리스트 / 정책 편집 / 감사 로그 / 비용)
   - `/canvas`     — 화면 미리보기 + 양방향 편집 (한눈에 / ERD / 화면 카드 / 자동화 / 자가 점검)
   - `/dashboard`  — 대시보드 3장 (Chart.js: Top 사용 / 품질 / 비용)
-  - `/api/templates`, `/policies` (GET/POST), `/audit`, `/cost`, `/dashboard`,
-    `/ir/list`, `/ir/load`, `/ir/patch` (POST)
+  - `/api/chat` (POST), `/api/chat/mode`, `/api/templates`, `/policies` (GET/POST),
+    `/audit`, `/cost`, `/dashboard`, `/ir/list`, `/ir/load`, `/ir/patch` (POST)
   - `/ws?path=<artifact>` — WebSocket presence + ir-patched 라이브 동기화
+
+#### 대화하며 만들기 (`/chat`)
+사용자가 자연어로 *"고객 표 만들어줘"* / *"주문에 결제상태 추가"* / *"점검해줘"* 식으로 말하면, AI가 우리 식자재(read_ir / patch_ir / validate_ir / list_entities / render_erd / render_bpmn / critic) 도구를 호출해 IR을 부분 수정합니다. WebSocket으로 우측 미리보기가 즉시 따라옵니다.
+
+**LLM 백엔드**: Azure AI Foundry (OpenAI-compatible endpoint). 환경변수:
+```
+AZURE_OPENAI_ENDPOINT       (예: https://<resource>.openai.azure.com)
+AZURE_OPENAI_DEPLOYMENT     (모델 배포 이름, 예: gpt-4o)
+AZURE_OPENAI_API_KEY        (또는 Entra ID 토큰)
+AZURE_OPENAI_API_VERSION    (default 2024-08-01-preview)
+```
+4개 중 하나라도 빠지면 자동으로 **시뮬레이션 모드**(스텁)로 동작 — 시연/스크린샷용 데모 시나리오 작동.
+
+#### 화면 미리 (스크린샷)
+`docs/screenshots/` 에 다음 7장이 들어있어요:
+- `01-home.png` — 진입 화면 (4개 카드)
+- `02-chat.png` — 대화하며 만들기 (시뮬 모드 표시 + 좌/우 분할)
+- `03-canvas.png` — 화면 미리보기 (한눈에)
+- `04-dashboard.png` — 대시보드 3장
+- `05-admin.png` — 관리 화면 (화이트리스트)
+- `06-chat-demo.png` — 채팅 3턴 시연 (표 목록 → 결제상태 추가 → 점검) 좌 카드 + 우 라이브 미리보기
+- `07-canvas-after-edit.png` — 데이터 탭, ERD 다이어그램 + 표·항목 편집기 + 결제상태 추가 반영 확인
 
 #### 양방향 편집 (Canvas → IR)
 - 데이터 탭에서 표 추가·이름 바꾸기·삭제 / 항목 추가·삭제. 모달로 입력 후 JSON Patch로 부분 저장.

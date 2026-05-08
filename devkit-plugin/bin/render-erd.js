@@ -17,21 +17,39 @@ const TYPE_MAP = {
   boolean: "bool",
   date: "date",
   datetime: "datetime",
-  ref: "FK",
+  ref: "string",  // 외래키 자체 타입은 referenced 엔티티의 PK 타입(보통 string). 마커 FK는 별도.
 };
 
+// 한글·특수문자가 포함된 식별자를 Mermaid가 안전하게 받도록 ASCII 별칭으로 변환.
+// 동일 원본 → 동일 별칭이 되도록 단순 hash 사용.
+const ALIAS = new Map();
 function safeName(s) {
-  // Mermaid는 한글 엔티티명을 지원하지만 공백/특수문자 회피
-  return String(s).replace(/\s+/g, "_");
+  const raw = String(s).replace(/\s+/g, "_");
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(raw)) return raw;
+  if (ALIAS.has(raw)) return ALIAS.get(raw);
+  let h = 0;
+  for (let i = 0; i < raw.length; i++) h = ((h << 5) - h + raw.charCodeAt(i)) | 0;
+  const alias = `e_${(h >>> 0).toString(36)}`;
+  ALIAS.set(raw, alias);
+  return alias;
+}
+// 실제 한글 이름을 다이어그램 라벨로 보여주려면 별도 표기 필요 — Mermaid erDiagram은
+// 식별자 바로 옆 `["라벨"]` 별칭을 지원한다. 첫 정의 시에만 적용한다.
+const DEFINED_ALIAS = new Set();
+function nameWithLabel(originalName) {
+  const id = safeName(originalName);
+  if (id === originalName) return id;
+  if (DEFINED_ALIAS.has(id)) return id;
+  DEFINED_ALIAS.add(id);
+  return `${id}["${String(originalName).replace(/"/g, "'")}"]`;
 }
 
 function renderEntity(e) {
-  const name = safeName(e.name);
+  const name = nameWithLabel(e.name);
   const lines = [`  ${name} {`];
   for (const f of e.fields ?? []) {
     const type = TYPE_MAP[f.type] || "string";
     const piiTag = f.pii ? " \"PII\"" : "";
-    // PK는 이름이 'id'인 필드만, FK는 type=ref인 필드, 외에 마커 없음
     let marker = "";
     if (f.name === "id") marker = " PK";
     else if (f.type === "ref") marker = " FK";
@@ -46,8 +64,9 @@ function renderRelations(ir) {
   for (const e of ir.data?.entities ?? []) {
     for (const f of e.fields ?? []) {
       if (f.type === "ref" && f.ref) {
-        // many-to-one: e --> f.ref
-        lines.push(`  ${safeName(e.name)} }o--|| ${safeName(f.ref)} : "${safeName(f.name)}"`);
+        // many-to-one: e --> f.ref. 라벨은 컬럼 원래 이름(따옴표로 감싸기 — 한글 OK).
+        const label = String(f.name).replace(/"/g, "'");
+        lines.push(`  ${safeName(e.name)} }o--|| ${safeName(f.ref)} : "${label}"`);
       }
     }
   }

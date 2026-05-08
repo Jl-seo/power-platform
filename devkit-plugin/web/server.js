@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 import { spawnSync } from "node:child_process";
 import http from "node:http";
+import { chat as chatHandler, modeStatus as chatMode } from "./chat-backend.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -54,10 +55,34 @@ const app = express();
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static(PUBLIC_DIR));
 
-// 친근한 URL: /admin → admin.html, /canvas → canvas.html, /dashboard → dashboard.html
+// 로컬 번들된 외부 라이브러리 (CDN 차단 환경 대응)
+app.get("/vendor/mermaid.min.js", (_req, res) =>
+  res.sendFile(resolve(ROOT, "node_modules/mermaid/dist/mermaid.min.js")));
+app.get("/vendor/chart.umd.min.js", (_req, res) =>
+  res.sendFile(resolve(ROOT, "node_modules/chart.js/dist/chart.umd.min.js")));
+
+// 친근한 URL
 app.get("/admin", (_req, res) => res.sendFile(join(PUBLIC_DIR, "admin.html")));
 app.get("/canvas", (_req, res) => res.sendFile(join(PUBLIC_DIR, "canvas.html")));
 app.get("/dashboard", (_req, res) => res.sendFile(join(PUBLIC_DIR, "dashboard.html")));
+app.get("/chat", (_req, res) => res.sendFile(join(PUBLIC_DIR, "chat.html")));
+
+// ---------------- API: chat ----------------
+app.get("/api/chat/mode", (_req, res) => res.json(chatMode()));
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { history, artifact_path } = req.body || {};
+    if (!Array.isArray(history)) return res.status(400).json({ error: "history[] 가 필요합니다." });
+    const out = await chatHandler({
+      history,
+      artifactPath: artifact_path || null,
+      broadcast,
+    });
+    res.json(out);
+  } catch (err) {
+    res.status(500).json({ error: String(err.message) });
+  }
+});
 
 // ---------------- API: templates / whitelist ----------------
 app.get("/api/templates", async (_req, res) => {
@@ -345,7 +370,7 @@ if (ENABLE_LISTEN) {
   });
 } else {
   // Smoke: 자기 점검 — public 파일 + API 라우트 등록 확인
-  const required = ["index.html", "admin.html", "canvas.html", "dashboard.html", "app.css"];
+  const required = ["index.html", "admin.html", "canvas.html", "dashboard.html", "chat.html", "chat.js", "app.css"];
   let fail = false;
   for (const f of required) {
     if (!existsSync(join(PUBLIC_DIR, f))) {

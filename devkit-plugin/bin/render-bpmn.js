@@ -28,29 +28,50 @@ function safe(s) {
   return String(s).replace(/[\r\n]+/g, " ").replace(/"/g, "'");
 }
 
+// sequenceDiagram의 participant 식별자는 ASCII alphanumeric 권장.
+// 한글/특수문자는 ASCII 별칭으로 매핑하고 ` as "한글"` 표기로 표시.
+const PALIAS = new Map();
+function pid(name) {
+  const raw = String(name);
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(raw)) return raw;
+  if (PALIAS.has(raw)) return PALIAS.get(raw);
+  let h = 0;
+  for (let i = 0; i < raw.length; i++) h = ((h << 5) - h + raw.charCodeAt(i)) | 0;
+  const alias = `p_${(h >>> 0).toString(36)}`;
+  PALIAS.set(raw, alias);
+  return alias;
+}
+function declareParticipant(name) {
+  const id = pid(name);
+  const raw = String(name);
+  if (id === raw) return `  participant ${id}`;
+  return `  participant ${id} as "${raw.replace(/"/g, "'")}"`;
+}
+
 function renderWorkflow(wf) {
   const lines = [];
   lines.push(`%% workflow: ${safe(wf.id ?? "(unnamed)")}`);
   lines.push("sequenceDiagram");
-  lines.push("  participant 사용자");
+  lines.push(declareParticipant("사용자"));
   // 액터 수집
   const actors = new Set();
   for (const s of wf.steps ?? []) {
     actors.add(actorOf(s.action));
   }
   for (const a of actors) {
-    lines.push(`  participant ${safe(a)}`);
+    lines.push(declareParticipant(a));
   }
   // 트리거
   const trigger = wf.trigger ?? "(트리거 없음)";
-  lines.push(`  사용자->>+${[...actors][0] || "시스템"}: ${safe(trigger)}`);
+  const firstActor = [...actors][0] || "시스템";
+  lines.push(`  ${pid("사용자")}->>+${pid(firstActor)}: ${safe(trigger)}`);
   // 스텝
-  let prev = [...actors][0] || "시스템";
+  let prev = firstActor;
   for (const s of wf.steps ?? []) {
     const target = actorOf(s.action);
     const v = verbOf(s.action);
-    lines.push(`  ${prev}->>+${target}: ${safe(v)}`);
-    lines.push(`  ${target}-->>-${prev}: 결과`);
+    lines.push(`  ${pid(prev)}->>+${pid(target)}: ${safe(v)}`);
+    lines.push(`  ${pid(target)}-->>-${pid(prev)}: 결과`);
     prev = target;
   }
   return "```mermaid\n" + lines.join("\n") + "\n```\n";

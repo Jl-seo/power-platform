@@ -3,7 +3,14 @@
 // window.__DATA_CANVAS 가 있으면(데모 모드) fetch 대신 그 데이터를 사용한다.
 
 const DEMO = !!window.__DATA_CANVAS;
-mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
+const HAS_MERMAID = typeof window.mermaid !== "undefined";
+if (HAS_MERMAID) {
+  try {
+    window.mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
+  } catch (e) {
+    console.warn("mermaid init 실패", e);
+  }
+}
 
 const tabs = document.querySelectorAll(".tab");
 const panes = document.querySelectorAll(".pane");
@@ -272,11 +279,22 @@ async function renderMermaid(elId, raw) {
   // ```mermaid ... ``` 블록을 벗기기
   const m = raw.match(/```mermaid\s*([\s\S]*?)```/);
   const code = m ? m[1].trim() : raw.trim();
+  if (!HAS_MERMAID) {
+    el.innerHTML = `<pre>${escapeHtml(code)}</pre>` +
+      `<p class="muted">(다이어그램 라이브러리 미로딩 — 코드만 표시)</p>`;
+    return;
+  }
+  const tempId = `m-${elId}-${Date.now()}`;
   try {
-    const { svg } = await mermaid.render(`m-${elId}-${Date.now()}`, code);
+    const { svg } = await window.mermaid.render(tempId, code);
     el.innerHTML = svg;
   } catch (err) {
-    el.innerHTML = `<pre>렌더 실패: ${escapeHtml(err.message)}\n\n${escapeHtml(code)}</pre>`;
+    el.innerHTML = `<pre>다이어그램 렌더 실패: ${escapeHtml(err.message)}\n\n${escapeHtml(code)}</pre>`;
+  } finally {
+    // Mermaid가 body 에 남기는 임시 노드/오류 SVG(bomb) 청소
+    document.querySelectorAll(
+      `body > #${tempId}, body > #d${tempId}, body > svg[aria-roledescription="error"], body > .error`
+    ).forEach((e) => e.remove());
   }
 }
 

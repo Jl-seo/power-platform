@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>대화하며 만들기 — DevKit</title>
+  <link rel="stylesheet" href="/app.css" />
+</head>
+<body class="chat-body">
+  <header class="topbar">
+    <a href="/" class="back">← DevKit</a>
+    <h1>대화하며 만들기</h1>
+    <span class="muted">왼쪽에 말하면 오른쪽 미리보기가 실시간으로 따라옵니다</span>
+    <span id="chat-mode" class="presence-pill" hidden></span>
+  </header>
+
+  <main class="chat-main">
+    <aside class="chat-side">
+      <div class="picker" style="border:0;padding:8px 12px">
+        <label>대상 설계도</label>
+        <select id="ir-target"><option>불러오는 중…</option></select>
+      </div>
+
+      <div id="chat-log" class="chat-log">
+        <div class="msg msg-bot">
+          <div class="bubble">
+            안녕하세요. 무엇을 만들고 싶으세요? 예: <em>"고객·주문·재고 표 만들어줘"</em>, <em>"주문에 결제상태 추가"</em>, <em>"점검해줘"</em>.
+          </div>
+        </div>
+      </div>
+
+      <form id="chat-form" class="chat-form">
+        <textarea id="chat-input" rows="2" placeholder="말씀해 주세요… (Shift+Enter 로 줄바꿈)"></textarea>
+        <div class="chat-actions">
+          <span id="chat-status" class="muted"></span>
+          <button id="chat-send" type="submit" class="primary">보내기</button>
+        </div>
+      </form>
+    </aside>
+
+    <section class="chat-preview">
+      <div class="preview-tabs">
+        <button class="tab is-active" data-frame="canvas">미리보기</button>
+        <button class="tab" data-frame="dashboard">대시보드</button>
+        <button class="tab" data-frame="admin">관리</button>
+      </div>
+      <iframe id="preview-frame" src="/canvas" title="미리보기"></iframe>
+    </section>
+  </main>
+
+  <script src="/chat.js" type="module"></script>
+</body>
+</html>

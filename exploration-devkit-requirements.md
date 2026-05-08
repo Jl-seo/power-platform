@@ -286,6 +286,9 @@ W1~W4 단계별:
 - [x] WebSocket presence + ir-patched 라이브 동기화 (CRDT 1차 — 본격 Yjs는 추후).
 - [x] 대시보드 3장 (Top 사용 / 품질 / 비용 — Chart.js).
 - [x] W5 Trust Gate 차단 모드 (`DEVKIT_TRUST_GATE_MODE=block`) Claude Code hook decision JSON 반환.
+- [x] **대화하며 만들기 (/chat)** — Bolt/v0/Lovable의 LOB 버전. 좌 채팅 / 우 미리보기 iframe.
+- [x] **Azure AI Foundry tool-use 백엔드** — read_ir/patch_ir/validate_ir/list_entities/render_erd/render_bpmn/critic 도구. 환경변수 4개 미설정 시 스텁 모드.
+- [x] **시연 스크린샷 7장** (`docs/screenshots/`) — 진입/채팅/캔버스/대시보드/관리/채팅 데모 3턴/편집 후 ERD 확인.
 
 ### 운영 단계 (W5+)
 - 골든셋 자동 갱신 + 회귀 알림.

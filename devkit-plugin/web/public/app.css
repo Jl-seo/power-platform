@@ -149,3 +149,77 @@ dialog.modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end
 .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
 .chart-card h3 { margin: 0 0 10px; font-size: 14px; }
 .chart-card .canvas-wrap { height: 240px; position: relative; }
+
+/* ===== Chat (대화하며 만들기) ===== */
+body.chat-body { height: 100vh; overflow: hidden; }
+.chat-main {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  height: calc(100vh - 56px);
+}
+.chat-side {
+  background: #fff;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+.chat-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  background: var(--bg);
+}
+.msg { display: flex; margin: 8px 0; }
+.msg-bot { justify-content: flex-start; }
+.msg-user { justify-content: flex-end; }
+.msg-tool { justify-content: center; }
+.bubble {
+  max-width: 88%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.msg-user .bubble {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+  border-bottom-right-radius: 4px;
+}
+.msg-bot .bubble { border-bottom-left-radius: 4px; }
+.msg-tool .bubble {
+  background: #f0f5ff; color: #1a4f8f; border-color: #cdddf3;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  max-width: 95%;
+}
+.chat-form {
+  border-top: 1px solid var(--border);
+  padding: 10px 12px;
+  background: #fff;
+}
+.chat-form textarea {
+  width: 100%; box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--border); border-radius: 8px;
+  font: inherit; resize: vertical;
+}
+.chat-actions {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px;
+}
+.chat-actions .muted { flex: 1; font-size: 12px; }
+
+.chat-preview { display: flex; flex-direction: column; min-width: 0; }
+.preview-tabs {
+  display: flex; gap: 4px; padding: 6px 12px;
+  background: #fff; border-bottom: 1px solid var(--border);
+}
+.preview-tabs .tab { padding: 6px 12px; }
+.chat-preview iframe { flex: 1; border: 0; width: 100%; }
+
+@media (max-width: 720px) {
+  .chat-main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+}

@@ -2,9 +2,19 @@
 // window.__DATA_DASHBOARD 가 있으면(데모 모드) fetch 대신 그 데이터를 사용한다.
 
 const DEMO = !!window.__DATA_DASHBOARD;
+const HAS_CHART = typeof window.Chart !== "undefined";
 const charts = {};
 
+function fallback(id, labels, data, label = "") {
+  const wrap = document.getElementById(id).closest(".canvas-wrap");
+  if (!wrap) return;
+  const total = data.reduce((a, b) => a + (Array.isArray(b) ? b.reduce((x,y)=>x+y,0) : b), 0);
+  const rows = labels.map((l, i) => `<div>${l}: <b>${Array.isArray(data[i]) ? data[i].join(" / ") : data[i]}</b></div>`).join("");
+  wrap.innerHTML = `<div class="muted" style="padding:8px">${label}</div>${rows}<div class="muted">합계: ${total}</div>`;
+}
+
 function makeBar(id, labels, data, color = "#1a73e8") {
+  if (!HAS_CHART) return fallback(id, labels, data, "(차트 라이브러리 미로딩 — 표 형태로 표시)");
   const ctx = document.getElementById(id).getContext("2d");
   if (charts[id]) charts[id].destroy();
   charts[id] = new Chart(ctx, {
@@ -20,6 +30,10 @@ function makeBar(id, labels, data, color = "#1a73e8") {
 }
 
 function makeStackedBar(id, labels, datasets) {
+  if (!HAS_CHART) {
+    const data = labels.map((_, i) => datasets.map((d) => d.data[i]));
+    return fallback(id, labels, data, "(차트 라이브러리 미로딩 — 표 형태로 표시)");
+  }
   const ctx = document.getElementById(id).getContext("2d");
   if (charts[id]) charts[id].destroy();
   charts[id] = new Chart(ctx, {
