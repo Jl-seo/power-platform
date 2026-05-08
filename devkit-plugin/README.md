@@ -62,6 +62,17 @@ AI 바이브 코더용 SDLC 식자재. **사용자에게 슬래시 명령은 노
 - `hooks/trust-gate.sh` — W1~W4: 로그만, 차단 없음. 위험 패턴(rm -rf, force push, drop table 등)은 risk 라벨로 마킹.
 - `hooks/telemetry.sh` — `~/.devkit/telemetry.log` 에 ndjson append + (옵션) `DEVKIT_TELEMETRY_ENDPOINT` 로 forward.
 
+### Web (Admin Console + L3 Canvas)
+
+- `web/server.js` — Express. 단일 서버에 두 영역.
+- 라우트:
+  - `/`        — 진입 화면
+  - `/admin`   — 관리 화면 (화이트리스트 / 정책 / 감사 로그 / 비용)
+  - `/canvas`  — 화면 미리보기 (한눈에 / ERD / 화면 카드 / 자동화 흐름 / 자가 점검)
+  - `/api/templates`, `/api/policies`, `/api/audit`, `/api/cost`, `/api/ir/list`, `/api/ir/load`
+- 실행: `npm run web` (기본 포트 5173). 헤드리스 점검: `npm run smoke:web`.
+- 인증은 W4 1차 시범 — 운영 시 사내 SSO + 추가 MFA 필수(NFR-2.4).
+
 ## 빠른 점검
 
 ```bash

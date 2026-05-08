@@ -271,13 +271,15 @@ W1~W4 단계별:
 - [x] L2 ERD/BPMN Mermaid 렌더 작동.
 - [x] screens/admin/ vs screens/user/ 자동 분리.
 - [x] 카탈로그 5종 + catalog-hint 추천 카드 작동.
-- [ ] L3 캔버스 양방향 편집 (W3 후반 또는 W4 — 추후).
+- [x] L3 캔버스 1차 (읽기 전용 뷰어 — `devkit-plugin/web/canvas`).
+- [ ] L3 캔버스 양방향 편집(드래그·드롭 편집기) — 추후.
 
 ### W4 — 거버넌스 / 컴포넌트
 - [x] PCF 스캐폴드(manifest + index.ts + css + i18n) 생성.
 - [x] PreToolUse trust-gate hook 위험 라벨링 + 로그.
 - [x] multi-review 3 페르소나 + 종합 카드 정의.
-- [ ] Admin Console 웹 UI(별도 영역 — 후속 작업).
+- [x] Admin Console 웹 UI 1차 (`devkit-plugin/web/`): 화이트리스트 / 정책 / 감사 로그 / 비용 + JSON API.
+- [x] L3 Canvas 뷰어 1차 (`devkit-plugin/web/canvas`): ERD / 화면 카드 / 자동화 흐름 / 자가 점검 (읽기 전용).
 
 ### 운영 단계 (W5+)
 - 골든셋 자동 갱신 + 회귀 알림.
