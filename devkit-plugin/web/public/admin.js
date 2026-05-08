@@ -1,5 +1,15 @@
 // Admin Console — fetches /api/* and renders.
+// window.__DATA_ADMIN 가 있으면(데모 모드) fetch 대신 그 데이터를 사용한다.
 // 사용자에게 보이는 모든 단어는 일반인 한국어. IR/RBAC/PII 같은 약어 노출 금지.
+
+const DEMO = !!window.__DATA_ADMIN;
+async function getData(key, url, parser = "json") {
+  if (DEMO && window.__DATA_ADMIN[key] !== undefined) {
+    return window.__DATA_ADMIN[key];
+  }
+  const r = await fetch(url);
+  return parser === "text" ? r.text() : r.json();
+}
 
 const tabs = document.querySelectorAll(".tab");
 const panes = document.querySelectorAll(".pane");
@@ -14,7 +24,7 @@ function activate(name) {
 async function loadTemplates() {
   const el = document.getElementById("templates-list");
   try {
-    const txt = await (await fetch("/api/templates")).text();
+    const txt = await getData("templates", "/api/templates", "text");
     // 간이 yaml 파싱: id/title/summary/tags 만 추출
     const blocks = txt.split(/\n  - id:/).slice(1);
     if (blocks.length === 0) {
@@ -48,9 +58,15 @@ let policiesOriginal = null;
 async function loadPolicies() {
   const form = document.getElementById("policies-form");
   try {
-    const data = await (await fetch("/api/policies")).json();
+    const data = await getData("policies", "/api/policies");
     policiesOriginal = JSON.parse(JSON.stringify(data));
     renderPolicyForm(data);
+    if (DEMO) {
+      const status = document.getElementById("policies-status");
+      if (status) status.textContent = "(미리보기 모드 — 저장은 서버가 있을 때만)";
+      const btn = document.getElementById("policies-save");
+      if (btn) btn.disabled = true;
+    }
   } catch (err) {
     form.textContent = "불러오지 못했어요: " + err.message;
   }
@@ -121,7 +137,7 @@ document.getElementById("policies-reset").addEventListener("click", () => {
 // ---- 감사 로그 ----
 async function loadAudit() {
   try {
-    const data = await (await fetch("/api/audit?limit=100")).json();
+    const data = await getData("audit", "/api/audit?limit=100");
     document.getElementById("trustgate-log").textContent =
       data.trustGate.length === 0
         ? "기록 없음"
@@ -150,7 +166,7 @@ function formatTm(e) {
 async function loadCost() {
   const el = document.getElementById("cost-content");
   try {
-    const data = await (await fetch("/api/cost")).json();
+    const data = await getData("cost", "/api/cost");
     const rows = Object.entries(data.byTeam || {})
       .sort((a, b) => b[1] - a[1])
       .map(([team, tok]) => `<div class="list-item"><h4>${escapeHtml(team)}</h4>

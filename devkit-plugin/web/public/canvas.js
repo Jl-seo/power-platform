@@ -1,6 +1,8 @@
 // L3 Canvas viewer — IR을 4 영역(한눈에/데이터/화면/자동화/자가점검)으로 분할 렌더.
 // 일반인 한국어. 약어 노출 금지.
+// window.__DATA_CANVAS 가 있으면(데모 모드) fetch 대신 그 데이터를 사용한다.
 
+const DEMO = !!window.__DATA_CANVAS;
 mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
 
 const tabs = document.querySelectorAll(".tab");
@@ -17,7 +19,12 @@ sel.addEventListener("change", () => loadIr(sel.value));
 
 (async function init() {
   try {
-    const { files } = await (await fetch("/api/ir/list")).json();
+    let files;
+    if (DEMO) {
+      files = window.__DATA_CANVAS.list?.files || [];
+    } else {
+      ({ files } = await (await fetch("/api/ir/list")).json());
+    }
     sel.innerHTML = "";
     if (!files || files.length === 0) {
       sel.innerHTML = `<option>설계도가 없어요</option>`;
@@ -30,6 +37,21 @@ sel.addEventListener("change", () => loadIr(sel.value));
       sel.appendChild(opt);
     }
     loadIr(sel.value);
+    if (DEMO) {
+      // 미리보기 모드 안내 + 편집 버튼 비활성화
+      const banner = document.createElement("div");
+      banner.style.cssText = "padding:10px 24px;background:#fff7e0;color:#7a5b00;font-size:12px";
+      banner.textContent = "🔍 미리보기 모드 — 변경/저장은 동작하지 않아요. 서버를 띄우면 모두 작동합니다.";
+      document.body.insertBefore(banner, document.querySelector(".picker"));
+      // 편집 버튼들 비활성화
+      const disable = () => {
+        document.querySelectorAll('button[data-act], #add-entity').forEach((b) => (b.disabled = true));
+      };
+      disable();
+      // entitiesEdit가 다시 그려질 때마다 다시 비활성화
+      const observer = new MutationObserver(disable);
+      observer.observe(document.getElementById("entities-edit"), { childList: true });
+    }
   } catch (err) {
     sel.innerHTML = `<option>오류: ${err.message}</option>`;
   }
@@ -41,10 +63,16 @@ let currentIr = null;
 async function loadIr(path) {
   if (!path) return;
   currentPath = path;
-  setupWebSocket(path);
+  if (!DEMO) setupWebSocket(path);
   try {
-    const data = await (await fetch(`/api/ir/load?path=${encodeURIComponent(path)}`)).json();
-    if (data.error) throw new Error(data.error);
+    let data;
+    if (DEMO) {
+      data = window.__DATA_CANVAS.load?.[path];
+      if (!data) throw new Error("미리보기 모드: 해당 설계도 데이터가 없어요");
+    } else {
+      data = await (await fetch(`/api/ir/load?path=${encodeURIComponent(path)}`)).json();
+      if (data.error) throw new Error(data.error);
+    }
     currentIr = data.ir;
     renderOverview(data);
     await renderMermaid("erd", data.erd_mermaid);

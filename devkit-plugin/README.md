@@ -94,15 +94,50 @@ npm run smoke:web   # 헤드리스 자기 점검
 ```
 인증은 시범 — 운영 시 사내 SSO + 추가 MFA 필수(NFR-2.4).
 
-## 빠른 점검
+## 로컬 컴퓨터에서 화면 보기 (가장 쉬운 길)
+
+> 사전 준비: 컴퓨터에 [Node.js](https://nodejs.org)(LTS 버전)와 [Git](https://git-scm.com/downloads) 두 개가 깔려 있어야 해요. 한 번만 깔면 끝.
+
+### macOS / Linux — 한 줄 복붙
+
+터미널을 열고 아래 한 줄을 붙여넣으세요:
 
 ```bash
-cd devkit-plugin
+bash <(curl -fsSL https://raw.githubusercontent.com/Jl-seo/power-platform/claude/explore-power-platform-methods-3gfYL/devkit-plugin/scripts/run-local.sh)
+```
+
+자동으로 1) PR 다운로드 → 2) 부속 설치 → 3) 자체 점검 → 4) 웹 서버 시작 → 5) 브라우저 자동 오픈까지 됩니다.
+
+### Windows — 한 번 더블클릭
+
+1. PR을 받아서 `devkit-plugin\scripts\run-local.bat` 파일을 더블클릭하면 끝.
+2. 안 받았다면 [PR 페이지](https://github.com/Jl-seo/power-platform/pull/1)에서 *Code → Download ZIP* 으로 받고, ZIP 푼 폴더에서 `run-local.bat` 더블클릭.
+
+### 한 줄 복붙이 싫다면 — 4단계 수동
+
+```bash
+git clone -b claude/explore-power-platform-methods-3gfYL https://github.com/Jl-seo/power-platform.git
+cd power-platform/devkit-plugin
+npm install
+npm run web
+```
+
+각 줄이 뭘 하는지:
+1. `git clone …` — 깃허브에서 PR 브랜치를 **다운로드**합니다.
+2. `cd …` — 다운받은 폴더 안 *devkit-plugin* 으로 **들어갑니다**.
+3. `npm install` — 도구가 쓰는 부속을 **설치**합니다(1~2분).
+4. `npm run web` — 웹 서버를 **켭니다**. 브라우저에서 `http://localhost:5173` 으로 열면 끝.
+
+## 자체 점검 (선택)
+
+서버 안 띄우고 결정적 부분만 빠르게 확인:
+
+```bash
 npm install
 npm run smoke
 ```
 
-## Claude Code에 로드
+## Claude Code에 로드 (개발자용)
 
 로컬 개발:
 

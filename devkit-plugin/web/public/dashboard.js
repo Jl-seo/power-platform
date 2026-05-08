@@ -1,5 +1,7 @@
 // 대시보드 — Chart.js로 3장. Power BI 연동은 운영에서.
+// window.__DATA_DASHBOARD 가 있으면(데모 모드) fetch 대신 그 데이터를 사용한다.
 
+const DEMO = !!window.__DATA_DASHBOARD;
 const charts = {};
 
 function makeBar(id, labels, data, color = "#1a73e8") {
@@ -37,7 +39,9 @@ function makeStackedBar(id, labels, datasets) {
 
 async function load() {
   try {
-    const data = await (await fetch("/api/dashboard")).json();
+    const data = DEMO
+      ? window.__DATA_DASHBOARD
+      : await (await fetch("/api/dashboard")).json();
     document.getElementById("sample-size").textContent = `표본 ${data.sampleSize || 0}건`;
 
     // Top 사용
