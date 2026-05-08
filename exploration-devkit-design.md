@@ -234,6 +234,62 @@ DevKit은 두 콘솔로 진입한다 — **Builder Console** (모든 사용자, 
 
 → DevKit 자체의 admin/user 분리는 **Entra 그룹 + Policy Service**로 강제. Admin Console은 별도 URL + 추가 MFA.
 
+### 3.2 구현 방식 — "Skills는 AI 식자재" 원칙
+
+Builder Console 본체는 **Claude Code Plugin**으로 패키징한다. 단, **사용자에게 슬래시 명령을 노출하지 않는다.** 모든 스킬은 AI 바이브 코더가 사용자 의도를 보고 자동으로 선택·체이닝한다.
+
+**원칙**:
+- 사용자가 보는 인터페이스는 **단일 자연어 대화창**. `/devkit:plan` 같은 명령은 없음.
+- 스킬·MCP·hook은 모두 AI의 *식자재(diet)* — description 매칭으로 모델이 알아서 발동.
+- 시민 모드/프로 모드 토글 X. 자연어 한 줄에서 시작해 AI가 4 레이어 산출물을 자동 생성·체이닝.
+
+**Frontmatter 규약**:
+```yaml
+---
+name: plan
+description: |
+  사용자가 새 앱/기능 의도를 말하고 spec이 아직 없을 때 자동 발동.
+  spec.md/roles.yaml 초안 작성, 모호점은 clarify 스킬 호출.
+user-invocable: false              # 슬래시 노출 X
+disable-model-invocation: false    # 모델은 자유 호출
+allowed-tools: Read, Write, mcp__ir-service__patch_ir
+---
+```
+
+**식자재 목록** (모두 `user-invocable: false`):
+
+| 스킬 | 발동 시점 |
+|---|---|
+| `clarify` | 의도 모호 시 — AskUserQuestion으로 1~3개 질문 + 추천 default + ADR 자동 기록, 3라운드 상한 |
+| `plan` | spec/roles 부재 시 |
+| `data` | 데이터 모델 변경 의도 감지 |
+| `api` | API/엔드포인트 언급 |
+| `screen` | 화면/UX 언급 |
+| `component` | 재사용 UI 컴포넌트(PCF) 의도 |
+| `workflow` | 자동화/이벤트/플로우 의도 |
+| `test` | 테스트/검증 의도 또는 다른 산출물 변경 후 자동 |
+| `deploy` | 환경/배포 의도 |
+| `critic` | §4.3 자동 자가 비평 (PostToolUse hook) |
+| `refine` | 사용자 피드백을 IR 부분 패치로 변환 |
+| `eval` | 모든 산출물 변경 후 3단 게이트 자동 |
+| `catalog-hint` | 컨텍스트 자동 주입 (사용자 명령 X) |
+| `trust-gate` | PreToolUse hook 기반 자동 차단/승인 |
+| `telemetry` | Session/Stop hook으로 자동 수집 |
+
+**역질문(인터뷰) 흡수**:
+트렌드의 *interview-first* 패턴(GitHub Spec-Kit `/clarify`, AWS Kiro, Cursor Plan Mode)을 **사용자 노출 없이** 흡수. `clarify`는 자동 발동 — 사용자 입장에선 그냥 *"AI가 질문을 했다"*. 모드 진입/종료 X. 같은 영역 재질문 금지(이전 답변 학습), 답변은 spec.md에 ADR로 자동 누적.
+
+**MCP·Hook 매핑**:
+| 설계서 컴포넌트 | Skills 방식 구현 |
+|---|---|
+| IR Service | MCP 서버 (`ir-service`: read/patch/validate) |
+| Sync Engine (L4↔IR) | Skill `scripts/` (TS Compiler API 등 결정적 변환) |
+| AI Gateway (L1↔IR) | Claude Code 자체 모델 호출 + Skill 컨텍스트 |
+| Template Catalog | Plugin `references/` + (선택) AI Search MCP |
+| Eval Runner | Skill `eval` + PostToolUse hook |
+| Policy / Trust Gate | PreToolUse hook + settings.json |
+| Telemetry | PostToolUse + Stop hook → App Insights HTTP |
+
 ---
 
 ## 4. 핵심 흐름 (Preview-First, IR 중심)
@@ -265,6 +321,95 @@ DevKit은 두 콘솔로 진입한다 — **Builder Console** (모든 사용자, 
 - **Circuit breaker**: Foundry 장애 시 캐시된 마지막 성공 결과만
 - **취소 안전**: 취소 시 모델 abort, 토큰 비용 발생분만 기록
 - **다중 파일 부분 실패**: 게이트 통과한 파일만 적용 가능, 미통과는 review_needed
+
+### 4.3 대화 기반 산출물 퀄리티 개선 루프
+
+산출물은 한 번에 완성되지 않는다. **AI가 자기 산출물을 자가 비평하고, 사용자 자연어 피드백을 부분 패치로 변환하며, 점수를 텔레메트리에 누적**해 시간이 갈수록 좋아지는 구조.
+
+```
+[Generate] ──► [Auto Critique]      ◄─ critic 스킬 (PostToolUse 자동)
+                  │
+                  ▼
+            [개선 제안 카드 N개]    ─ "여기가 약해 보여요. 고칠까요?"
+                  │ 사용자 자연어
+                  ▼
+              [Refine 부분 패치]    ◄─ refine 스킬 (전체 재생성 X)
+                  │
+                  ▼
+            [Quality Scorecard]     ◄─ 6 차원 자동 점수 + 텔레메트리
+                  │
+                  ▼
+              [회귀 알림 / 합격]
+```
+
+**1) 자동 자가 비평 (`critic` 스킬)**
+- 산출물 생성 직후 PostToolUse hook이 `critic` 자동 발동.
+- 6 차원 점검: **정확성 / 완전성 / 일관성(다른 IR 섹션과) / 보안(PII/role) / UX(접근성·반응형) / 유지보수성(중복·결합)**.
+- 결과는 *"여기가 약해 보여요"* 형 1~3개 개선 제안 카드. 사용자 동의 시에만 적용.
+- 비평 자체도 텔레메트리(`devkit.critique`)에 기록 — 어떤 차원이 자주 약한지 추적.
+
+**2) 사용자 자연어 피드백 → IR 부분 패치 (`refine` 스킬)**
+- *"이 화면 모바일에서 답답해"* 같은 자연어 → 영향 IR 노드 식별 → JSON Patch 생성 → 해당 노드만 재렌더.
+- **전체 재생성 금지** — 부분 변경만. 사용자 이전 수정사항 유실 방지.
+- diff 미리보기 + 5초 Undo는 §4.1 그대로.
+
+**3) 다관점 리뷰 (선택, 무거운 변경 시)**
+- `critic`이 *"이 변경 영향 큼"* 판단 시 sub-agent 3개 병렬: **보안 리뷰 / UX 리뷰 / 유지보수 리뷰**.
+- 각 sub-agent는 자기 관점만 평가, 한 줄 의견 + 점수 반환. 종합 카드로 사용자에 표시.
+- 사용 hook: PostToolUse + 산출물 영향 범위 임계 초과 시.
+
+**4) Quality Scorecard (산출물 단위 누적)**
+- IR artifact당 6 차원 점수(0~1) + 종합 점수를 `quality.history.jsonl`에 시간 누적.
+- 새 변경이 종합 점수를 깎으면 **회귀 알림** + 사용자에게 *"이전 버전이 더 좋았어요. 이대로 진행?"*.
+- 골든셋 회귀(§4 게이트3)와 통합 — 골든셋 점수 하락도 같은 알림 채널.
+
+**5) 비교 모드 (Comparison)**
+- `critic`이 *"두 안 모두 합리적"* 판단 시 A/B 두 후보 동시 생성 → 사용자가 영역별 *"여기는 A, 저기는 B"* 체리피킹.
+- 선택 패턴은 학습 신호 → 다음 호출에서 같은 사용자/팀에 우선순위 반영.
+
+**6) 안티패턴 사전 경고**
+- 사용자 의도가 사내 안티패턴 카탈로그(`antipatterns.yaml`, Admin이 큐레이션)에 매칭되면 **생성 전** 경고 카드 + 권장 대안 제시.
+- 예: *"DB 스키마에 `is_deleted` 플래그 — 사내 표준은 audit table 분리"*.
+
+**7) 대화 자체가 ADR**
+- 사용자-AI 대화의 모든 결정 라운드는 자동으로 `spec.md`의 ADR 섹션에 한 줄 추가.
+- ADR은 다음 호출의 LLM 컨텍스트에 자동 주입 → *"왜 이렇게 만들었지?"* 가 모델에게도 명확.
+
+**8) 학습 메모리 (사용자/팀별)**
+- 사용자 수정·선호(예: *"저는 항상 TypeScript strict 모드"*)는 `~/.devkit/memory.yaml`에 누적.
+- 팀 단위 공유 메모리는 Admin Console에서 큐레이션(상충하는 개인 선호 위에 우선).
+- 다음 호출에서 메모리가 시스템 프롬프트에 자동 주입.
+
+**9) 텔레메트리 보강 (§7.1에 추가)**
+```jsonc
+// devkit.critique
+{
+  "request_id": "req-...",
+  "artifact_id": "order-app",
+  "dimensions": {
+    "correctness": 0.9, "completeness": 0.8,
+    "consistency": 0.95, "security": 0.7,
+    "ux": 0.85, "maintainability": 0.8
+  },
+  "suggestions_count": 2,
+  "suggestions_accepted": 1
+}
+
+// devkit.refine
+{
+  "request_id": "req-...",
+  "feedback_text_hash": "sha256-...",   // 원문은 PII 위험 — hash만
+  "affected_nodes": ["screens/user/order-form.uischema.json#fields/3"],
+  "patch_size_lines": 12
+}
+```
+
+→ 대시보드 §7.2 *"품질"* 장에 6 차원별 평균 점수 trend, suggestion 수락율 추가.
+
+**원칙 요약**:
+- *생성 → 자가 비평 → 사용자 피드백 → 부분 패치 → 점수 누적 → 회귀 알림* 사이클을 모든 산출물에 적용.
+- 사용자는 슬래시·모드 전환 없이 **자연어 대화만** 으로 퀄리티 끌어올림.
+- 모든 비평/피드백/점수가 텔레메트리에 누적 → 시간이 갈수록 도구 자체가 더 잘 만들어줌.
 
 ---
 
@@ -398,12 +543,14 @@ preview.png           ← 카탈로그 썸네일
 - App Insights customEvent 1종(`invocation.complete`)
 - DoD: 코드 편집 → IR 갱신 + 다른 레이어는 *"미구현"* 표시라도 페이지 동작
 
-### W2 — L1↔IR(AI 변환) + AI 가정 카드 + 평가 게이트
+### W2 — L1↔IR(AI 변환) + clarify/critic/refine + 평가 게이트
 - Foundry Prompt Flow로 L1→IR 변환
-- AI 가정 카드 UI
+- `clarify` 스킬 자동 발동 (역질문, 모드 진입 X)
+- `critic` 스킬 자동 자가 비평 (6 차원 점수)
+- `refine` 스킬 — 자연어 피드백 → IR 부분 패치
 - 게이트 1단(컴파일) + 게이트 2단(JSON Schema 검증)
 - 모호성 케이스 10개로 평가 (golden set)
-- DoD: 자연어 *"고객 추가에 전화번호 필수"* → IR 패치 + 가정 카드 노출
+- DoD: 자연어 *"고객 추가에 전화번호 필수"* → IR 패치 + 가정 카드 + 자가 비평 카드 노출. 후속 *"전화번호 형식은 한국식만"* → 부분 patch만.
 
 ### W3 — L2 다이어그램 + L3 캔버스 + 4-Layer 동시 + Admin/User 화면 분리
 - Mermaid ERD, BPMN 렌더러
