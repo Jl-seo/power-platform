@@ -40,28 +40,83 @@ async function loadTemplates() {
   }
 }
 
-// ---- 정책 ----
+// ---- 정책 (편집 가능) ----
+const STAGE_ORDER = ["sandbox", "team", "prod", "external"];
+const STAGE_LABEL = { sandbox: "내 작업방", team: "팀 공용", prod: "실서비스", external: "외부 노출" };
+let policiesOriginal = null;
+
 async function loadPolicies() {
-  const el = document.getElementById("policies-content");
+  const form = document.getElementById("policies-form");
   try {
     const data = await (await fetch("/api/policies")).json();
-    const stages = data.trustGate;
-    const order = ["sandbox", "team", "prod", "external"];
-    const labelMap = { sandbox: "내 작업방", team: "팀 공용", prod: "실서비스", external: "외부 노출" };
-    const rows = order.map((k) => {
-      const s = stages[k] || {};
-      return `<div class="list-item"><h4>${labelMap[k]}</h4>
-              <div>점검: <b>${escapeHtml(s.gate || "")}</b></div>
-              <div class="muted">${escapeHtml(s.note || "")}</div></div>`;
-    }).join("");
-    el.innerHTML =
-      rows +
-      `<div class="muted-block"><b>적용 강도:</b> ${escapeHtml(data.enforcement)}</div>` +
-      `<div class="muted-block"><b>비밀번호/토큰:</b> ${escapeHtml(data.secrets)}</div>`;
+    policiesOriginal = JSON.parse(JSON.stringify(data));
+    renderPolicyForm(data);
   } catch (err) {
-    el.textContent = "불러오지 못했어요: " + err.message;
+    form.textContent = "불러오지 못했어요: " + err.message;
   }
 }
+
+function renderPolicyForm(data) {
+  const form = document.getElementById("policies-form");
+  const stages = data.trustGate || {};
+  form.innerHTML =
+    STAGE_ORDER.map((k) => {
+      const s = stages[k] || {};
+      return `
+      <div class="list-item">
+        <h4>${STAGE_LABEL[k]}</h4>
+        <label class="field"><span>점검 강도</span>
+          <input data-stage="${k}" data-key="gate" value="${escapeHtml(s.gate || "")}" />
+        </label>
+        <label class="field"><span>설명 (사용자에게 보이는 한 줄)</span>
+          <input data-stage="${k}" data-key="note" value="${escapeHtml(s.note || "")}" />
+        </label>
+      </div>`;
+    }).join("") +
+    `<div class="list-item"><h4>전반</h4>
+      <label class="field"><span>적용 강도 한 줄 안내</span>
+        <input id="enforcement" value="${escapeHtml(data.enforcement || "")}" />
+      </label>
+      <label class="field"><span>비밀번호/토큰 정책 한 줄</span>
+        <input id="secrets" value="${escapeHtml(data.secrets || "")}" />
+      </label>
+    </div>`;
+}
+
+function collectPolicyForm() {
+  const next = { trustGate: {} };
+  for (const stage of STAGE_ORDER) {
+    const gate = document.querySelector(`input[data-stage="${stage}"][data-key="gate"]`).value;
+    const note = document.querySelector(`input[data-stage="${stage}"][data-key="note"]`).value;
+    next.trustGate[stage] = { gate, note };
+  }
+  next.enforcement = document.getElementById("enforcement").value;
+  next.secrets = document.getElementById("secrets").value;
+  return next;
+}
+
+document.getElementById("policies-save").addEventListener("click", async () => {
+  const status = document.getElementById("policies-status");
+  status.textContent = "저장 중…";
+  try {
+    const next = collectPolicyForm();
+    const r = await fetch("/api/policies", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(next),
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || "저장 실패");
+    policiesOriginal = JSON.parse(JSON.stringify(j.policies));
+    status.textContent = "✅ 저장 완료";
+    setTimeout(() => (status.textContent = ""), 2000);
+  } catch (err) {
+    status.textContent = "❌ " + err.message;
+  }
+});
+document.getElementById("policies-reset").addEventListener("click", () => {
+  if (policiesOriginal) renderPolicyForm(policiesOriginal);
+});
 
 // ---- 감사 로그 ----
 async function loadAudit() {

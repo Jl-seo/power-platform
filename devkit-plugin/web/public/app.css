@@ -106,3 +106,46 @@ pre { background: var(--code-bg); padding: 12px; border-radius: 8px; overflow: a
 }
 .list-item h4 { margin: 0 0 4px; font-size: 14px; }
 .list-item .tags { font-size: 12px; color: var(--muted); }
+
+.field { display: flex; gap: 8px; align-items: center; margin: 6px 0; }
+.field span { width: 200px; color: var(--muted); font-size: 12px; }
+.field input, .field select, .field textarea {
+  flex: 1; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font: inherit;
+}
+.actions { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
+.actions button, button.primary, button.btn {
+  padding: 6px 14px; border: 1px solid var(--border); background: #fff;
+  border-radius: 8px; cursor: pointer; font: inherit;
+}
+button.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+button:hover { filter: brightness(0.97); }
+.actions .muted { font-size: 12px; }
+
+.presence-pill {
+  margin-left: auto; padding: 4px 10px; border-radius: 999px;
+  background: #eef5ff; color: #1a4f8f; font-size: 12px;
+}
+.row-edit { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
+.row-edit input { padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; font: inherit; }
+.row-edit .grow { flex: 1; }
+.row-edit button {
+  padding: 4px 8px; border: 1px solid var(--border); background: #fff;
+  border-radius: 6px; cursor: pointer; font-size: 12px;
+}
+.row-edit .danger { color: var(--bad); border-color: #f0c6c0; }
+.section-title { display: flex; align-items: center; gap: 10px; margin: 16px 0 8px; }
+.section-title h3 { margin: 0; font-size: 14px; }
+
+dialog.modal {
+  border: 0; border-radius: 12px; padding: 0; max-width: 480px; width: 92%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+dialog.modal::backdrop { background: rgba(0, 0, 0, 0.35); }
+dialog.modal .modal-body { padding: 18px; }
+dialog.modal h3 { margin: 0 0 12px; font-size: 15px; }
+dialog.modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; padding: 0 18px 18px; }
+
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+.chart-card h3 { margin: 0 0 10px; font-size: 14px; }
+.chart-card .canvas-wrap { height: 240px; position: relative; }

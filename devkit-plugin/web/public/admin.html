@@ -29,8 +29,13 @@
 
     <section id="pane-policies" class="pane">
       <h2>안전 점검 정책 (Trust Gate)</h2>
-      <p class="muted">단계별로 점검 강도가 달라져요. 현재는 <b>로그만</b> 남깁니다(차단 없음).</p>
-      <div id="policies-content">불러오는 중…</div>
+      <p class="muted">단계별로 점검 강도가 달라져요. 아래 칸은 직접 고칠 수 있고, 저장하면 도구가 그 정책을 따릅니다.</p>
+      <div id="policies-form">불러오는 중…</div>
+      <div class="actions">
+        <button id="policies-save" class="primary">저장</button>
+        <button id="policies-reset">원래대로</button>
+        <span id="policies-status" class="muted"></span>
+      </div>
     </section>
 
     <section id="pane-audit" class="pane">

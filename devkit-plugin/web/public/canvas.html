@@ -10,7 +10,8 @@
   <header class="topbar">
     <a href="/" class="back">← DevKit</a>
     <h1>화면 미리보기 (Canvas)</h1>
-    <span class="muted">설계도 한 장을 4 가지로 나눠 보여줍니다 — 읽기 전용</span>
+    <span class="muted">설계도 한 장을 5 가지로 나눠 봅니다. 데이터 탭에서 직접 고칠 수 있어요.</span>
+    <span id="presence" class="presence-pill" hidden>👤 1명</span>
   </header>
 
   <section class="picker">
@@ -35,7 +36,26 @@
     <section id="pane-data" class="pane">
       <h2>데이터 표 (ERD)</h2>
       <div id="erd" class="diagram">…</div>
+      <div class="section-title">
+        <h3>표·항목 편집</h3>
+        <button id="add-entity" class="primary">+ 표 추가</button>
+        <span id="data-status" class="muted"></span>
+      </div>
+      <div id="entities-edit"></div>
     </section>
+
+    <dialog id="modal" class="modal">
+      <form method="dialog">
+        <div class="modal-body">
+          <h3 id="modal-title">제목</h3>
+          <div id="modal-body"></div>
+        </div>
+        <div class="modal-actions">
+          <button value="cancel">취소</button>
+          <button id="modal-ok" value="ok" class="primary">확인</button>
+        </div>
+      </form>
+    </dialog>
 
     <section id="pane-screens" class="pane">
       <h2>화면</h2>

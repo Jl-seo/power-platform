@@ -42,5 +42,35 @@ if [[ -n "${DEVKIT_TELEMETRY_ENDPOINT:-}" ]]; then
     "${DEVKIT_TELEMETRY_ENDPOINT}" >/dev/null 2>&1 || true
 fi
 
-# 항상 0으로 종료 — 차단 안 함
+# ----------------------------------------------------------------------
+# W5 차단 모드 — 환경변수 DEVKIT_TRUST_GATE_MODE 로 제어
+#   log    (기본): 위 로그만 남기고 통과
+#   warn   : 위험이면 stderr 경고 + 통과
+#   block  : 위험이면 Claude Code hook 프로토콜로 ask 결정 반환
+# 위험 아니면 어느 모드든 그대로 통과.
+# ----------------------------------------------------------------------
+MODE="${DEVKIT_TRUST_GATE_MODE:-log}"
+
+if [[ "${RISK}" != "none" ]]; then
+  case "${MODE}" in
+    warn)
+      printf '[devkit trust-gate] 경고: 위험 신호 감지 (%s)\n' "${RISK}" >&2
+      ;;
+    block)
+      # Claude Code hook decision JSON (ask = 사용자 확인 후 진행)
+      # https://code.claude.com/docs/en/hooks 참조
+      cat <<JSON
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "ask",
+    "permissionDecisionReason": "DevKit Trust Gate가 위험 신호를 감지했어요: ${RISK}. 진행할까요?"
+  }
+}
+JSON
+      ;;
+  esac
+fi
+
+# 항상 0으로 종료 (block 모드도 stdout JSON으로 결정 전달, 종료 코드는 0)
 exit 0

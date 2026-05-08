@@ -271,20 +271,27 @@ W1~W4 단계별:
 - [x] L2 ERD/BPMN Mermaid 렌더 작동.
 - [x] screens/admin/ vs screens/user/ 자동 분리.
 - [x] 카탈로그 5종 + catalog-hint 추천 카드 작동.
-- [x] L3 캔버스 1차 (읽기 전용 뷰어 — `devkit-plugin/web/canvas`).
-- [ ] L3 캔버스 양방향 편집(드래그·드롭 편집기) — 추후.
+- [x] L3 캔버스 1차 (읽기 전용 뷰어).
+- [x] L3 캔버스 양방향 편집 1차: 표 추가·이름변경·삭제, 항목 추가·삭제 → JSON Patch.
+- [ ] L3 캔버스 드래그·드롭 정렬 / 화면 워크플로우 시각 편집 — 추후.
 
 ### W4 — 거버넌스 / 컴포넌트
 - [x] PCF 스캐폴드(manifest + index.ts + css + i18n) 생성.
 - [x] PreToolUse trust-gate hook 위험 라벨링 + 로그.
 - [x] multi-review 3 페르소나 + 종합 카드 정의.
-- [x] Admin Console 웹 UI 1차 (`devkit-plugin/web/`): 화이트리스트 / 정책 / 감사 로그 / 비용 + JSON API.
-- [x] L3 Canvas 뷰어 1차 (`devkit-plugin/web/canvas`): ERD / 화면 카드 / 자동화 흐름 / 자가 점검 (읽기 전용).
+- [x] Admin Console 웹 UI 1차 (화이트리스트 / 감사 로그 / 비용).
+- [x] Admin Console 정책 GUI 편집 + 영속화 (`~/.devkit/policies.json`).
+- [x] L3 Canvas 뷰어 (ERD / 화면 카드 / 자동화 / 자가 점검).
+- [x] L3 Canvas 양방향 편집 1차 (표·항목 추가·수정·삭제).
+- [x] WebSocket presence + ir-patched 라이브 동기화 (CRDT 1차 — 본격 Yjs는 추후).
+- [x] 대시보드 3장 (Top 사용 / 품질 / 비용 — Chart.js).
+- [x] W5 Trust Gate 차단 모드 (`DEVKIT_TRUST_GATE_MODE=block`) Claude Code hook decision JSON 반환.
 
 ### 운영 단계 (W5+)
 - 골든셋 자동 갱신 + 회귀 알림.
-- Power BI 3장 실데이터 연동.
-- Trust Gate 차단 강도 운영 환경 적용.
+- Power BI 3장 실데이터 연동 (현재는 로컬 Chart.js 대시보드로 1차 충족).
+- [x] Trust Gate 차단 강도 환경변수 토글 가능. 운영 환경 적용은 정책 결정 후.
+- 본격 CRDT(Yjs) 통합으로 IR 전체 동시 편집.
 
 ---
 

@@ -62,16 +62,37 @@ AI 바이브 코더용 SDLC 식자재. **사용자에게 슬래시 명령은 노
 - `hooks/trust-gate.sh` — W1~W4: 로그만, 차단 없음. 위험 패턴(rm -rf, force push, drop table 등)은 risk 라벨로 마킹.
 - `hooks/telemetry.sh` — `~/.devkit/telemetry.log` 에 ndjson append + (옵션) `DEVKIT_TELEMETRY_ENDPOINT` 로 forward.
 
-### Web (Admin Console + L3 Canvas)
+### Web (Admin Console + L3 Canvas + Dashboard)
 
-- `web/server.js` — Express. 단일 서버에 두 영역.
+- `web/server.js` — Express + WebSocket. 단일 서버에 세 영역 + 라이브 동시 접속.
 - 라우트:
-  - `/`        — 진입 화면
-  - `/admin`   — 관리 화면 (화이트리스트 / 정책 / 감사 로그 / 비용)
-  - `/canvas`  — 화면 미리보기 (한눈에 / ERD / 화면 카드 / 자동화 흐름 / 자가 점검)
-  - `/api/templates`, `/api/policies`, `/api/audit`, `/api/cost`, `/api/ir/list`, `/api/ir/load`
-- 실행: `npm run web` (기본 포트 5173). 헤드리스 점검: `npm run smoke:web`.
-- 인증은 W4 1차 시범 — 운영 시 사내 SSO + 추가 MFA 필수(NFR-2.4).
+  - `/`           — 진입 화면 (3개 카드)
+  - `/admin`      — 관리 화면 (화이트리스트 / 정책 편집 / 감사 로그 / 비용)
+  - `/canvas`     — 화면 미리보기 + 양방향 편집 (한눈에 / ERD / 화면 카드 / 자동화 / 자가 점검)
+  - `/dashboard`  — 대시보드 3장 (Chart.js: Top 사용 / 품질 / 비용)
+  - `/api/templates`, `/policies` (GET/POST), `/audit`, `/cost`, `/dashboard`,
+    `/ir/list`, `/ir/load`, `/ir/patch` (POST)
+  - `/ws?path=<artifact>` — WebSocket presence + ir-patched 라이브 동기화
+
+#### 양방향 편집 (Canvas → IR)
+- 데이터 탭에서 표 추가·이름 바꾸기·삭제 / 항목 추가·삭제. 모달로 입력 후 JSON Patch로 부분 저장.
+- 다른 사용자가 같은 IR을 보고 있으면 *"👤 N명"* 표시 + 한쪽이 patch 적용 시 다른 쪽 즉시 갱신.
+
+#### 정책 편집 (Admin → ~/.devkit/policies.json)
+- Trust Gate 4 단계 + 적용 강도 + 시크릿 정책을 GUI에서 편집·저장.
+- 도구가 다음 호출부터 새 정책을 따른다.
+
+#### Trust Gate 모드 (환경변수)
+- `DEVKIT_TRUST_GATE_MODE=log` (기본): 위험 라벨링만, 차단 없음
+- `DEVKIT_TRUST_GATE_MODE=warn`: stderr 경고 + 통과
+- `DEVKIT_TRUST_GATE_MODE=block`: 위험이면 Claude Code hook decision JSON 반환 → 사용자에게 *"진행할까요?"* 확인
+
+#### 실행 / 점검
+```bash
+npm run web         # http://localhost:5173
+npm run smoke:web   # 헤드리스 자기 점검
+```
+인증은 시범 — 운영 시 사내 SSO + 추가 MFA 필수(NFR-2.4).
 
 ## 빠른 점검
 
