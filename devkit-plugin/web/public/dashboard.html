@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>대시보드 — DevKit</title>
+  <link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a href="/" class="back">← DevKit</a>
+    <h1>대시보드</h1>
+    <span class="muted">텔레메트리 로그 기반. Power BI 연동은 운영에서.</span>
+  </header>
+
+  <main class="panes">
+    <section class="pane is-active">
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>Top 사용 — 어떤 기능이 자주 호출되었나</h3>
+          <div class="canvas-wrap"><canvas id="chart-usage"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>품질 — 게이트별 통과 vs 미통과</h3>
+          <div class="canvas-wrap"><canvas id="chart-quality"></canvas></div>
+        </div>
+      </div>
+      <div class="chart-grid" style="margin-top:16px">
+        <div class="chart-card" style="grid-column: 1 / -1">
+          <h3>비용 — 팀별 누적 토큰</h3>
+          <div class="canvas-wrap" style="height:280px"><canvas id="chart-cost"></canvas></div>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:12px"><span id="sample-size">표본 0건</span> · <button id="reload" class="btn">다시 불러오기</button></p>
+    </section>
+  </main>
+
+  <script src="/vendor/chart.umd.min.js"></script>
+  <script src="/dashboard.js" type="module"></script>
+</body>
+</html>

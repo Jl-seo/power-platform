@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>관리 화면 — DevKit</title>
+  <link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a href="/" class="back">← DevKit</a>
+    <h1>관리 화면</h1>
+    <span class="warn">⚠️ 시범 — 실 운영 시 사내 SSO + 추가 인증 필수</span>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab is-active" data-tab="whitelist">화이트리스트</button>
+    <button class="tab" data-tab="policies">정책</button>
+    <button class="tab" data-tab="audit">감사 로그</button>
+    <button class="tab" data-tab="cost">비용</button>
+  </nav>
+
+  <main class="panes">
+    <section id="pane-whitelist" class="pane is-active">
+      <h2>승인된 템플릿 / 부품</h2>
+      <p class="muted">사용자는 여기 등록된 항목만 자동 추천을 받을 수 있어요.</p>
+      <div id="templates-list">불러오는 중…</div>
+    </section>
+
+    <section id="pane-policies" class="pane">
+      <h2>안전 점검 정책 (Trust Gate)</h2>
+      <p class="muted">단계별로 점검 강도가 달라져요. 아래 칸은 직접 고칠 수 있고, 저장하면 도구가 그 정책을 따릅니다.</p>
+      <div id="policies-form">불러오는 중…</div>
+      <div class="actions">
+        <button id="policies-save" class="primary">저장</button>
+        <button id="policies-reset">원래대로</button>
+        <span id="policies-status" class="muted"></span>
+      </div>
+    </section>
+
+    <section id="pane-audit" class="pane">
+      <h2>감사 로그</h2>
+      <p class="muted">최근 100건. 누가 어떤 작업을 했는지 시간 순서로 봅니다.</p>
+      <div class="row">
+        <div class="col">
+          <h3>도구 호출 직전 점검</h3>
+          <pre id="trustgate-log" class="log">불러오는 중…</pre>
+        </div>
+        <div class="col">
+          <h3>전반 텔레메트리</h3>
+          <pre id="telemetry-log" class="log">불러오는 중…</pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="pane-cost" class="pane">
+      <h2>비용 (토큰)</h2>
+      <p class="muted">팀별 누적 토큰 사용. 모델 단가 매핑은 운영 환경에서.</p>
+      <div id="cost-content">불러오는 중…</div>
+    </section>
+  </main>
+
+  <script src="/admin.js" type="module"></script>
+</body>
+</html>

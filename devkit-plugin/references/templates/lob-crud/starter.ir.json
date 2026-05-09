@@ -1,0 +1,37 @@
+{
+  "artifact": { "id": "lob-crud-starter", "version": "0.1.0" },
+  "spec": {
+    "intent": "사용자가 한 표(예: 고객/주문/재고)를 일상적으로 조회·입력·수정한다.",
+    "actors": ["일반 사용자", "관리자"]
+  },
+  "roles": {
+    "roles": [
+      { "id": "user", "label": "일반 사용자" },
+      { "id": "admin", "label": "관리자" }
+    ],
+    "permissions": {
+      "screens": { "admin/*": ["admin"], "user/*": ["user", "admin"] }
+    }
+  },
+  "data": {
+    "entities": [
+      {
+        "name": "엔티티명_바꾸기",
+        "fields": [
+          { "name": "id", "type": "string", "required": true },
+          { "name": "이름", "type": "string", "required": true }
+        ]
+      }
+    ]
+  },
+  "screens": {
+    "user": [
+      { "name": "목록", "binds": "엔티티명_바꾸기" },
+      { "name": "상세", "binds": "엔티티명_바꾸기" },
+      { "name": "입력", "binds": "엔티티명_바꾸기" }
+    ],
+    "admin": [
+      { "name": "관리", "binds": "엔티티명_바꾸기" }
+    ]
+  }
+}

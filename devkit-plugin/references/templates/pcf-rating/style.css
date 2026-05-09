@@ -1,0 +1,16 @@
+.dk-rating { display: inline-flex; gap: 4px; }
+.dk-rating__star {
+  background: none;
+  border: 0;
+  padding: 2px 4px;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #cfcfcf;
+  transition: transform 80ms ease-out, color 80ms ease-out;
+}
+.dk-rating__star:hover { transform: scale(1.05); }
+.dk-rating__star.is-on,
+.dk-rating__star.is-preview { color: #f5b301; }
+.dk-rating__star:disabled { cursor: default; }
+.dk-rating__star:focus-visible { outline: 2px solid #1a73e8; outline-offset: 2px; }

@@ -1,0 +1,7 @@
+{
+  "name": "devkit",
+  "description": "AI 바이브 코더용 SDLC 식자재 — 자연어 한 줄로 기획→데이터→화면→워크플로우→테스트→배포까지. 사용자에게 슬래시 명령은 노출하지 않으며, 모든 스킬은 description 매칭으로 자동 발동된다.",
+  "version": "0.1.0",
+  "author": { "name": "DevKit Team" },
+  "license": "MIT"
+}

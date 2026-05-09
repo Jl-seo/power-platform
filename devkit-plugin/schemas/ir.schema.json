@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://devkit/schemas/ir.schema.json",
+  "title": "DevKit IR Root",
+  "description": "한 산출물(artifact)의 단일 IR 트리. §2.1 폴더 레이아웃을 단일 객체로 표현한 형식이다.",
+  "type": "object",
+  "required": ["artifact"],
+  "properties": {
+    "artifact": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "version": { "type": "string" },
+        "owners": { "type": "array", "items": { "type": "string" } },
+        "deps": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "intent": { "type": "string" },
+        "actors": { "type": "array", "items": { "type": "string" } },
+        "adr": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["at", "decision"],
+            "properties": {
+              "at": { "type": "string", "format": "date-time" },
+              "decision": { "type": "string" },
+              "rationale": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "label"],
+            "properties": {
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "permissions": { "type": "object" },
+        "rules": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "fields"],
+            "properties": {
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "type"],
+                  "properties": {
+                    "name": { "type": "string" },
+                    "type": { "enum": ["string", "number", "integer", "boolean", "date", "datetime", "ref"] },
+                    "required": { "type": "boolean", "default": false },
+                    "ref": { "type": "string" },
+                    "pii": { "type": "boolean", "default": false },
+                    "rbac": {
+                      "type": "object",
+                      "properties": {
+                        "read": { "type": "array", "items": { "type": "string" } },
+                        "write": { "type": "array", "items": { "type": "string" } }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "relations": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "screens": {
+      "type": "object",
+      "properties": {
+        "admin": { "type": "array", "items": { "$ref": "#/$defs/screen" } },
+        "user": { "type": "array", "items": { "$ref": "#/$defs/screen" } }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "manifest_path": { "type": "string" },
+          "version": { "type": "string" }
+        }
+      }
+    },
+    "workflows": { "type": "array", "items": { "type": "object" } },
+    "deployment": {
+      "type": "object",
+      "properties": {
+        "connections": { "type": "array", "items": { "type": "object" } },
+        "variables": { "type": "array", "items": { "type": "object" } }
+      }
+    }
+  },
+  "$defs": {
+    "screen": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "binds": { "type": "string", "description": "데이터 엔티티명" },
+        "fields": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
