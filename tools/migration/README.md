@@ -62,6 +62,19 @@ tools/migration/
 | `Microsoft.Graph` | SPN registration in `Initialize-PPMigrationSpn.ps1` | `Install-Module Microsoft.Graph -Scope CurrentUser` |
 | `Az.KeyVault` (optional) | KeyVault secret backend | `Install-Module Az.KeyVault -Scope CurrentUser` |
 
+## Per-owner Copilot migration (다대다)
+
+기본환경의 Copilot Studio 에이전트들을 **각 소유자의 개인 Developer 환경**으로 분산 이관하는 모드. 단일 src→tgt 모드와는 별도 오케스트레이터 (`Invoke-PPCopilotMigration.ps1`) 가 처리.
+
+```powershell
+.\scripts\Invoke-PPCopilotMigration.ps1 -Config .\templates\config.psd1 -Phase Inventory
+.\scripts\Initialize-PPSpnInDevEnvs.ps1   -Config .\templates\config.psd1   # 1회 SPN 일괄 등록
+.\scripts\Invoke-PPCopilotMigration.ps1 -Config .\templates\config.psd1 -Phase All
+```
+
+산출: `out/migration-report.csv` + `out/migration-report.html` 에 봇별 success/skip/fail.
+자세한 가이드는 `docs/per-owner-mode.md`.
+
 ## No-pac (REST-only) mode
 
 If `pac` CLI cannot be installed on the Windows VM, the toolkit auto-detects its absence and falls back to direct Power Platform REST APIs. Every phase still works — solution export/import via `ExportSolutionAsync`/`ImportSolutionAsync`, solution unpack/pack via .NET `ZipArchive`, Dataverse SPN connection create via Power Apps RP REST PUT.

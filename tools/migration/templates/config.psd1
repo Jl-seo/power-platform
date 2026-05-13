@@ -32,7 +32,7 @@
         # azureOpenAIKey = 'aoai-key'
     }
 
-    # Solutions to migrate, in dependency order
+    # Solutions to migrate, in dependency order (single src→tgt mode only)
     solutions = @(
         'cr_CustomConnectors',
         'cr_Core',
@@ -43,4 +43,23 @@
 
     # Output root for logs/state/artifacts
     outDir = 'C:\PPMigration\out'
+
+    # ---------- Per-owner Copilot migration mode ----------
+    # Used by Invoke-PPCopilotMigration.ps1 (default env -> each owner's Developer env).
+    # When this mode runs, targetEnvUrl/Id above are ignored and each bot's owner is
+    # auto-mapped to their personal Developer environment via BAP admin API.
+    perOwnerMode         = $true
+    ownerSlug            = 'localpart'      # email -> slug rule for solution naming
+    solutionPrefix       = 'cr_AgentMig'    # prefix for the per-owner temporary solution
+    publisherUniqueName  = 'pp_migration'
+    publisherDisplayName = 'PP Migration'
+    publisherPrefix      = 'pp'
+
+    # Bot / owner filters (all empty means migrate everyone)
+    onlyBotSchemaNames = @()
+    onlyOwnerEmails    = @()
+    excludeOwnerEmails = @()                # exclude guests / service accounts here
+
+    # Cleanup the source-env temporary solutions after a successful migration
+    cleanupSourceSolutions = $false
 }
