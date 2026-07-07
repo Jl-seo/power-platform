@@ -18,6 +18,7 @@
 param(
     [Parameter(Mandatory)][string] $Config,
     [string] $FlowOpsEnvUrl,
+    [string] $FlowOpsEnvName,
     [switch] $IncludeRuns,
     [int] $RunsPerFlow = 5,
     [int] $MaxFlowsForRuns = 20,
@@ -41,8 +42,24 @@ Import-Module (Join-Path $libDir 'PPDataverseQuery.psm1') -Force
 $cfg = Read-PPConfig -Path $Config
 Initialize-PPLogging -LogDir (Join-Path $cfg.outDir 'logs')
 Initialize-PPSecrets -Config $cfg
-if (-not $FlowOpsEnvUrl) { $FlowOpsEnvUrl = $cfg.targetEnvUrl }
 $secret = Get-PPSecret -Name $cfg.secrets.spnClientSecret
+if ($FlowOpsEnvName) {
+    Import-Module (Join-Path $libDir 'PPAdminBap.psm1') -Force
+    $bapTok = Get-PPSpnToken -TenantId $cfg.tenantId -AppId $cfg.spnAppId -Resource 'https://api.bap.microsoft.com' -ClientSecret $secret
+    $envInfo = Resolve-PPEnvironmentUrlByName -Token $bapTok -NamePattern $FlowOpsEnvName
+    $FlowOpsEnvUrl = $envInfo.envUrl
+    Write-PPLog -Level Info -Message "환경 이름 확인: $($envInfo.name) -> $FlowOpsEnvUrl"
+}
+if (-not $FlowOpsEnvUrl) { $FlowOpsEnvUrl = $cfg.targetEnvUrl }
+
+# 전사 환경 ID -> 표시 이름 맵 (화면 필터용)
+$envMap = @{}
+try {
+    Import-Module (Join-Path $libDir 'PPAdminBap.psm1') -Force
+    $bapTok2 = Get-PPSpnToken -TenantId $cfg.tenantId -AppId $cfg.spnAppId -Resource 'https://api.bap.microsoft.com' -ClientSecret $secret
+    foreach ($e in (Get-PPEnvironmentsAll -Token $bapTok2)) { $envMap[$e.name] = $e.properties.displayName }
+    Write-PPLog -Level Info -Message "환경명 맵 확보: $($envMap.Count)개 환경"
+} catch { Write-PPLog -Level Warn -Message "환경 목록 조회 실패(환경명 없이 진행): $($_.Exception.Message)" }
 
 $fwTok  = Get-PPSpnToken -TenantId $cfg.tenantId -AppId $cfg.spnAppId -Resource $FlowOpsEnvUrl -ClientSecret $secret
 $fwApi  = Get-DvApiBase $FlowOpsEnvUrl
@@ -83,10 +100,17 @@ $json = @{ meta = @{ source='live'; syncedAt=(Get-Date).ToUniversalTime().ToStri
 Write-PPLog -Level Info -Message "1/3 테넌트 인벤토리 수집 (Inventory API)"
 try {
     $ppTok = Get-PPSpnToken -TenantId $cfg.tenantId -AppId $cfg.spnAppId -Resource 'https://api.powerplatform.com' -ClientSecret $secret
-    $inv = Invoke-PPRest -Method POST -Uri 'https://api.powerplatform.com/resourcequery/resources/query?api-version=2024-10-01' `
-        -Headers @{ Authorization = "Bearer $ppTok"; Accept = 'application/json' } `
-        -Body @{ TableName='PowerPlatformResources'; Clauses=@(); Options=@{ Top=1000 } }
-    foreach ($row in $inv.data) {
+    $rows = @(); $skip = $null
+    do {
+        $opt = @{ Top = 1000 }; if ($skip) { $opt.SkipToken = $skip }
+        $inv = Invoke-PPRest -Method POST -Uri 'https://api.powerplatform.com/resourcequery/resources/query?api-version=2024-10-01' `
+            -Headers @{ Authorization = "Bearer $ppTok"; Accept = 'application/json' } `
+            -Body @{ TableName='PowerPlatformResources'; Clauses=@(); Options=$opt }
+        if ($inv.data) { $rows += $inv.data }
+        $skip = if ($inv.PSObject.Properties.Name -contains 'skipToken') { $inv.skipToken } else { $null }
+    } while ($skip)
+    Write-PPLog -Level Info -Message "전사 리소스 수집: $($rows.Count)건 (전체 환경)"
+    foreach ($row in $rows) {
         $type = switch -Wildcard ($row.type) {
             'microsoft.powerautomate/*' { $json.kpi.totalFlows++;  'flow' }
             'microsoft.powerapps/*'     { $json.kpi.totalApps++;   'app' }
@@ -99,9 +123,10 @@ try {
                   env = ($(if ($p.PSObject.Properties.Name -contains 'environmentId') { $p.environmentId } else { '' }))
                   owner = ($(if ($p.PSObject.Properties.Name -contains 'ownerId') { $p.ownerId } else { '' }))
                   createdAt = ($(if ($p.PSObject.Properties.Name -contains 'createdAt') { [string]$p.createdAt } else { '' })) }
-        $json.inventory += @{ name=$rec.name; type=$rec.type; env=$rec.env; owner=$rec.owner; createdAt=$rec.createdAt; registered=$false }
+        $envNm = if ($envMap.ContainsKey($rec.env)) { $envMap[$rec.env] } else { $rec.env }
+        $json.inventory += @{ name=$rec.name; type=$rec.type; env=$rec.env; envName=$envNm; owner=$rec.owner; createdAt=$rec.createdAt; registered=$false }
         Upsert $setInv 'fw_inventory' $rec.sourceid @{ fw_name=$rec.name.Substring(0,[Math]::Min(390,$rec.name.Length)); fw_sourceid=$rec.sourceid
-            fw_type=$rec.type; fw_envid=$rec.env; fw_owner=$rec.owner; fw_createdat=$rec.createdAt; fw_registered='false' } $stats.inv
+            fw_type=$rec.type; fw_envid=$rec.env; fw_envname=$envNm; fw_owner=$rec.owner; fw_createdat=$rec.createdAt; fw_registered='false' } $stats.inv
     }
     $json.kpi.unregistered = $json.inventory.Count
 } catch {

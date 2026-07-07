@@ -19,6 +19,7 @@
 param(
     [Parameter(Mandatory)][string] $Config,
     [string] $FlowOpsEnvUrl,
+    [string] $FlowOpsEnvName,
     [string] $SolutionUniqueName = 'fw_FlowOps'
 )
 
@@ -40,8 +41,15 @@ Import-Module (Join-Path $libDir 'PPSolutionAuthor.psm1') -Force
 $cfg = Read-PPConfig -Path $Config
 Initialize-PPLogging -LogDir (Join-Path $cfg.outDir 'logs')
 Initialize-PPSecrets -Config $cfg
-if (-not $FlowOpsEnvUrl) { $FlowOpsEnvUrl = $cfg.targetEnvUrl }
 $secret = Get-PPSecret -Name $cfg.secrets.spnClientSecret
+if ($FlowOpsEnvName) {
+    Import-Module (Join-Path $libDir 'PPAdminBap.psm1') -Force
+    $bapTok = Get-PPSpnToken -TenantId $cfg.tenantId -AppId $cfg.spnAppId -Resource 'https://api.bap.microsoft.com' -ClientSecret $secret
+    $envInfo = Resolve-PPEnvironmentUrlByName -Token $bapTok -NamePattern $FlowOpsEnvName
+    $FlowOpsEnvUrl = $envInfo.envUrl
+    Write-PPLog -Level Info -Message "환경 이름 확인: $($envInfo.name) -> $FlowOpsEnvUrl"
+}
+if (-not $FlowOpsEnvUrl) { $FlowOpsEnvUrl = $cfg.targetEnvUrl }
 $tok = Get-PPSpnToken -TenantId $cfg.tenantId -AppId $cfg.spnAppId -Resource $FlowOpsEnvUrl -ClientSecret $secret
 $apiBase = Get-DvApiBase $FlowOpsEnvUrl
 
@@ -74,7 +82,7 @@ function _StrAttr([string] $schema, [string] $label, [int] $max = 400, [bool] $p
 $tables = @(
     @{ Schema='fw_inventory'; Display='FW 인벤토리'; Plural='FW 인벤토리 목록'; Attrs=@(
         (_StrAttr 'fw_name' '리소스명' 400 $true), (_StrAttr 'fw_sourceid' '원본 ID' 200),
-        (_StrAttr 'fw_type' '유형' 50), (_StrAttr 'fw_envid' '환경 ID' 200),
+        (_StrAttr 'fw_type' '유형' 50), (_StrAttr 'fw_envid' '환경 ID' 200), (_StrAttr 'fw_envname' '환경명' 200),
         (_StrAttr 'fw_owner' '소유자' 300), (_StrAttr 'fw_createdat' '생성일' 60),
         (_StrAttr 'fw_registered' '과제 등록 여부' 10) ) },
     @{ Schema='fw_task'; Display='FW 과제'; Plural='FW 과제 대장'; Attrs=@(

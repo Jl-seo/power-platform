@@ -114,4 +114,20 @@ function Get-PPDeveloperEnvironments {
     return $result
 }
 
-Export-ModuleMember -Function Get-PPEnvironmentsAll, Get-PPEnvironment, Get-PPDeveloperEnvironments
+function Resolve-PPEnvironmentUrlByName {
+    <# .SYNOPSIS 환경 표시 이름(부분 일치)으로 환경 ID와 Dataverse URL을 조회한다. #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string] $Token, [Parameter(Mandatory)][string] $NamePattern)
+    $envs = Get-PPEnvironmentsAll -Token $Token
+    $hits = @($envs | Where-Object { $_.properties.displayName -like "*$NamePattern*" })
+    if ($hits.Count -eq 0) { throw "환경을 찾을 수 없음: '$NamePattern' (테넌트 환경 $($envs.Count)개 중 일치 없음)" }
+    if ($hits.Count -gt 1) {
+        $names = ($hits | ForEach-Object { $_.properties.displayName }) -join ' / '
+        throw "환경 이름이 여러 개 일치: $names — 더 구체적으로 지정 필요"
+    }
+    $e = $hits[0]
+    return @{ envId = $e.name; name = $e.properties.displayName
+              envUrl = $e.properties.linkedEnvironmentMetadata.instanceUrl }
+}
+
+Export-ModuleMember -Function Get-PPEnvironmentsAll, Get-PPEnvironment, Get-PPDeveloperEnvironments, Resolve-PPEnvironmentUrlByName

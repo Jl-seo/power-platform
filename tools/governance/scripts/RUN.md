@@ -22,15 +22,15 @@ Get-ChildItem ..\..\ -Recurse -Include *.ps1,*.psm1,*.psd1 | Unblock-File
 powershell -ExecutionPolicy Bypass -File ..\..\migration\Test-PPSmokeTest.ps1
 
 # [1] FlowOps 데이터베이스 초기화 — 테이블 3종 생성 (멱등: 재실행 시 건너뜀)
-#     -FlowOpsEnvUrl: FlowOps 테이블을 생성할 환경 (미지정 시 config의 targetEnvUrl)
+#     -FlowOpsEnvName: 환경 표시 이름(부분 일치)으로 자동 조회 — URL 몰라도 됨
 powershell -ExecutionPolicy Bypass -File .\Initialize-FlowOpsDb.ps1 `
     -Config ..\..\migration\templates\config.psd1 `
-    -FlowOpsEnvUrl https://orgXXXX.crm.dynamics.com
+    -FlowOpsEnvName 'DEX_DEV_Asia'
 
 # [2] 실데이터 수집 및 DB 반영 — 인벤토리/과제 (실행 이력 포함 시 -IncludeRuns)
 powershell -ExecutionPolicy Bypass -File .\Sync-FlowOpsData.ps1 `
     -Config ..\..\migration\templates\config.psd1 `
-    -FlowOpsEnvUrl https://orgXXXX.crm.dynamics.com `
+    -FlowOpsEnvName 'DEX_DEV_Asia' `
     -IncludeRuns
 
 # [3] 결과 검증 (자동 출력 외 수동 확인)
@@ -61,7 +61,7 @@ powershell -ExecutionPolicy Bypass -File .\Sync-FlowOpsData.ps1 `
 
 ```powershell
 schtasks /Create /TN "FlowOps-DailySync" /SC DAILY /ST 06:00 /TR `
-  "powershell -ExecutionPolicy Bypass -File D:\jlseo\PPMigration\tools\governance\scripts\Sync-FlowOpsData.ps1 -Config D:\jlseo\PPMigration\tools\migration\templates\config.psd1 -FlowOpsEnvUrl https://orgXXXX.crm.dynamics.com"
+  "powershell -ExecutionPolicy Bypass -File D:\jlseo\PPMigration\tools\governance\scripts\Sync-FlowOpsData.ps1 -Config D:\jlseo\PPMigration\tools\migration\templates\config.psd1 -FlowOpsEnvName 'DEX_DEV_Asia'"
 ```
 
 이후 단계(4단계 양방향 연동)에서는 이 스크립트를 클라우드 흐름으로 대체하여 플랫폼 내부에서 자체 실행하도록 전환한다.
