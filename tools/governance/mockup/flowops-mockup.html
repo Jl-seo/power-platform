@@ -39,6 +39,8 @@
   .logo b { color: #fff; font-size: 17px; letter-spacing: .3px; }
   .logo small { display:block; font-size: 10.5px; color: #8fa0c0; font-weight: 400; }
   .grp { padding: 12px 12px 2px; font-size: 10.5px; letter-spacing: .12em; color: #7d8fb4; text-transform: uppercase; }
+  .ni { width: 17px; height: 17px; flex-shrink: 0; fill: none; stroke: currentColor;
+        stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; opacity: .92; }
   .nav a { display: flex; align-items: center; gap: 10px; padding: 8px 14px; margin: 1px 8px;
            color: #cdd6e8; text-decoration: none; border-radius: 8px; font-size: 13.5px; cursor: pointer; }
   .nav a:hover { background: rgba(255,255,255,.07); }
@@ -126,6 +128,30 @@
   .note b { color: var(--accent); }
 </style>
 
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <g id="i-home"><path d="M3 9.5L10 3.5L17 9.5M5 8.5V16.5H15V8.5"/></g>
+    <g id="i-chart"><path d="M4 16V10M8.5 16V6M13 16V12M3 17H17"/></g>
+    <g id="i-doc"><path d="M6 3H12L15 6V17H6Z M12 3V6H15M8 9.5H13M8 12.5H13"/></g>
+    <g id="i-clip"><path d="M7 3.5H13V6H7Z M13 4.5H14.5V17H5.5V4.5H7M8 9.5H12M8 12.5H12"/></g>
+    <g id="i-cal"><path d="M4 5H16V16H4Z M4 8.5H16M7 3.5V6M13 3.5V6"/></g>
+    <g id="i-people"><circle cx="6.8" cy="7" r="2.1"/><path d="M3 15.5C3 13.3 4.6 11.8 6.8 11.8S10.5 13.3 10.5 15.5M13.2 9.1A2.1 2.1 0 1 0 13.2 4.9M12.5 12C14.8 12 17 13.4 17 15.5"/></g>
+    <g id="i-grid"><path d="M4 4H9V9H4Z M11 4H16V9H11Z M4 11H9V16H4Z M11 11H16V16H11Z"/></g>
+    <g id="i-check"><circle cx="10" cy="10" r="7"/><path d="M7 10.3L9.2 12.4L13.4 7.8"/></g>
+    <g id="i-eye"><path d="M2.5 10C4.5 6.5 7 5 10 5S15.5 6.5 17.5 10C15.5 13.5 13 15 10 15S4.5 13.5 2.5 10Z"/><circle cx="10" cy="10" r="2"/></g>
+    <g id="i-cube"><path d="M10 3L16.5 6.5V13.5L10 17L3.5 13.5V6.5Z M3.5 6.5L10 10L16.5 6.5M10 10V17"/></g>
+    <g id="i-up"><circle cx="10" cy="10" r="7"/><path d="M10 13.5V7M7.5 9.5L10 7L12.5 9.5"/></g>
+    <g id="i-bell"><path d="M10 3.5C7.2 3.5 5.5 5.5 5.5 8V11L4 13.5H16L14.5 11V8C14.5 5.5 12.8 3.5 10 3.5Z M8.5 15.5A1.5 1.5 0 0 0 11.5 15.5"/></g>
+    <g id="i-flask"><path d="M8 3.5H12M9 3.5V8L4.8 15A1.4 1.4 0 0 0 6 17H14A1.4 1.4 0 0 0 15.2 15L11 8V3.5M6.6 12.5H13.4"/></g>
+    <g id="i-pulse"><path d="M3 10.5H6L8 5.5L11.5 14.5L13.5 10.5H17"/></g>
+    <g id="i-mon"><path d="M3.5 4.5H16.5V13H3.5Z M8 16.5H12M10 13V16.5"/></g>
+    <g id="i-warn"><path d="M10 3.5L17.5 16H2.5Z M10 8.5V12M10 14.1V14.5"/></g>
+    <g id="i-folder"><path d="M3 5.5C3 5 3.4 4.5 4 4.5H8L9.5 6.5H16C16.6 6.5 17 7 17 7.5V15C17 15.6 16.6 16 16 16H4C3.4 16 3 15.6 3 15V5.5Z"/></g>
+    <g id="i-shield"><path d="M10 3L16 5.2V10C16 13.8 13.5 16 10 17C6.5 16 4 13.8 4 10V5.2L10 3Z"/></g>
+    <g id="i-lock"><path d="M5.5 9H14.5V16H5.5Z M7.5 9V6.8A2.5 2.5 0 0 1 12.5 6.8V9"/></g>
+    <g id="i-person"><circle cx="10" cy="6.5" r="2.7"/><path d="M4.5 16.5C4.5 13.5 6.9 11.5 10 11.5S15.5 13.5 15.5 16.5"/></g>
+  </defs>
+</svg>
 <div class="app">
   <!-- ══ Sidebar ══ -->
   <aside class="side">
@@ -134,43 +160,43 @@
       <div><b>FlowOps</b><small>PA 개발관리 플랫폼</small></div>
     </div>
     <nav class="nav">
-      <a class="on" data-v="dash">🏠 홈</a>
+      <a class="on" data-v="dash"><svg class="ni" viewBox="0 0 20 20"><use href="#i-home"/></svg>홈</a>
       <div class="grp">성과</div>
-      <a data-v="roi">📊 ROI 대시보드</a>
-      <a>📰 주간보고 <span class="cnt">🤖</span></a>
+      <a data-v="roi"><svg class="ni" viewBox="0 0 20 20"><use href="#i-chart"/></svg>ROI 대시보드</a>
+      <a><svg class="ni" viewBox="0 0 20 20"><use href="#i-doc"/></svg>주간보고 <span class="cnt">자동</span></a>
       <div class="grp">계획</div>
-      <a data-v="tasks">📋 과제 대장</a>
-      <a data-v="plan">🗓 일정 보드</a>
-      <a>👥 리소스 부하</a>
+      <a data-v="tasks"><svg class="ni" viewBox="0 0 20 20"><use href="#i-clip"/></svg>과제 대장</a>
+      <a data-v="plan"><svg class="ni" viewBox="0 0 20 20"><use href="#i-cal"/></svg>일정 보드</a>
+      <a><svg class="ni" viewBox="0 0 20 20"><use href="#i-people"/></svg>리소스 부하</a>
       <div class="grp">개발</div>
-      <a>🧩 템플릿·라이브러리</a>
-      <a data-v="comply">✅ 준수 검사 <span class="cnt">3</span></a>
-      <a>👀 코드리뷰</a>
+      <a><svg class="ni" viewBox="0 0 20 20"><use href="#i-grid"/></svg>템플릿·라이브러리</a>
+      <a data-v="comply"><svg class="ni" viewBox="0 0 20 20"><use href="#i-check"/></svg>준수 검사 <span class="cnt">3</span></a>
+      <a><svg class="ni" viewBox="0 0 20 20"><use href="#i-eye"/></svg>코드 리뷰</a>
       <div class="grp">형상·배포</div>
-      <a data-v="code">📦 코드 저장소</a>
-      <a>🚀 배포 요청</a>
-      <a>🔔 승인함 <span class="cnt">1</span></a>
+      <a data-v="code"><svg class="ni" viewBox="0 0 20 20"><use href="#i-cube"/></svg>코드 저장소</a>
+      <a><svg class="ni" viewBox="0 0 20 20"><use href="#i-up"/></svg>배포 요청</a>
+      <a><svg class="ni" viewBox="0 0 20 20"><use href="#i-bell"/></svg>승인함 <span class="cnt">1</span></a>
       <div class="grp">테스트</div>
-      <a>🧪 테스트 케이스</a>
+      <a><svg class="ni" viewBox="0 0 20 20"><use href="#i-flask"/></svg>테스트 케이스</a>
       <div class="grp">운영</div>
-      <a data-v="mon">📡 실행 현황 <span class="cnt">1</span></a>
-      <a data-v="queue">🖥 실행 큐·머신</a>
-      <a>🧾 오류 대장</a>
+      <a data-v="mon"><svg class="ni" viewBox="0 0 20 20"><use href="#i-pulse"/></svg>실행 현황 <span class="cnt">1</span></a>
+      <a data-v="queue"><svg class="ni" viewBox="0 0 20 20"><use href="#i-mon"/></svg>실행 큐·머신</a>
+      <a><svg class="ni" viewBox="0 0 20 20"><use href="#i-warn"/></svg>오류 대장</a>
       <div class="grp">산출물·문서</div>
-      <a data-v="deliv">📁 산출물함 <span class="cnt">🤖 12</span></a>
+      <a data-v="deliv"><svg class="ni" viewBox="0 0 20 20"><use href="#i-folder"/></svg>산출물함 <span class="cnt">12</span></a>
       <div class="grp">관리</div>
-      <a data-v="gov">🛡 테넌트 인벤토리</a>
-      <a>🔐 환경·DLP</a>
-      <a>👤 권한·감사</a>
+      <a data-v="gov"><svg class="ni" viewBox="0 0 20 20"><use href="#i-shield"/></svg>테넌트 인벤토리</a>
+      <a><svg class="ni" viewBox="0 0 20 20"><use href="#i-lock"/></svg>환경·DLP</a>
+      <a><svg class="ni" viewBox="0 0 20 20"><use href="#i-person"/></svg>권한·감사</a>
     </nav>
-    <div class="foot">v0.1 목업 · 데이터는 예시<br>수동 입력 0 — 전부 자동 수집</div>
+    <div class="foot">UI 프로토타입 · 예시 데이터<br>데이터 수동 입력 없음 — 전량 자동 수집</div>
   </aside>
 
   <!-- ══ Main ══ -->
   <main class="main">
     <div class="topbar">
       <div class="crumb"><b id="crumbTitle">홈</b></div>
-      <span class="chip warn" title="실데이터 연동: scripts/Get-FlowOpsData.ps1 (S1 읽기 어댑터)">🔌 Mock 데이터</span>
+      <span class="chip warn" title="읽기 전용 데이터 연동 스크립트(Get-FlowOpsData.ps1) 실행 시 실데이터로 대체됩니다">예시 데이터</span>
       <input class="search" placeholder="🔍 과제·산출물·오류 검색" />
       <div class="iconbtn">🔔<span class="dot"></span></div>
       <div class="iconbtn" onclick="toggleTheme()">🌓</div>
@@ -219,9 +245,9 @@
             <div class="card">
               <h3>조치 필요</h3>
               <ul class="feed">
-                <li><span class="st warn">🔔</span>PROD 배포 승인 대기 <b>1건</b><button class="btn p" style="margin-left:auto">승인함</button></li>
-                <li><span class="st warn">⚠</span>템플릿 준수 위반 <b>3건</b><button class="btn" style="margin-left:auto">보기</button></li>
-                <li><span class="st err">💔</span>Heartbeat 누락 <b>1건</b> — [DKS-SC-002]<button class="btn" style="margin-left:auto">보기</button></li>
+                <li><span class="st warn">!</span>PROD 배포 승인 대기 <b>1건</b><button class="btn p" style="margin-left:auto">승인함</button></li>
+                <li><span class="st warn">!</span>템플릿 준수 위반 <b>3건</b><button class="btn" style="margin-left:auto">보기</button></li>
+                <li><span class="st err">✕</span>미실행 감지(Heartbeat) 누락 <b>1건</b> — [DKS-SC-002]<button class="btn" style="margin-left:auto">보기</button></li>
               </ul>
             </div>
           </div>
@@ -262,15 +288,15 @@
       <!-- ── 산출물함 ── -->
       <section class="view" id="v-deliv">
         <h2 class="vh">산출물함 — [DKS-HR-001] 입사자 온보딩</h2>
-        <p class="vd">🤖 뱃지 = 시스템 자동 생성. 목표: 표준 산출물의 70%를 자동 생성.</p>
+        <p class="vd">'자동 생성' 배지는 시스템이 생성한 산출물임. 목표: 표준 산출물의 70%를 자동 생성.</p>
         <div class="card tbl-wrap">
           <table>
             <thead><tr><th>산출물</th><th>생성 방식</th><th>원천 데이터</th><th>버전</th><th>생성일</th><th></th></tr></thead>
             <tbody>
-              <tr><td>📄 흐름정의서_v1.2.docx</td><td><span class="chip auto">🤖 자동생성</span></td><td>솔루션 메타데이터</td><td>v1.2</td><td>05-01</td><td><button class="btn">열기</button></td></tr>
-              <tr><td>📄 테스트결과서_v1.2.xlsx</td><td><span class="chip auto">🤖 자동생성</span></td><td>실행 이력 (TEST 3회)</td><td>v1.2</td><td>04-28</td><td><button class="btn">열기</button></td></tr>
-              <tr><td>📄 배포이력서.pdf</td><td><span class="chip auto">🤖 자동생성</span></td><td>Pipelines 기록</td><td>누적</td><td>05-01</td><td><button class="btn">열기</button></td></tr>
-              <tr><td>📄 과제정의서_v1.0.pptx</td><td><span class="chip">✋ 수동</span></td><td>담당자 업로드</td><td>v1.0</td><td>04-01</td><td><button class="btn">열기</button></td></tr>
+              <tr><td>흐름정의서_v1.2.docx</td><td><span class="chip auto">자동 생성</span></td><td>솔루션 메타데이터</td><td>v1.2</td><td>05-01</td><td><button class="btn">열기</button></td></tr>
+              <tr><td>테스트결과서_v1.2.xlsx</td><td><span class="chip auto">자동 생성</span></td><td>실행 이력 (TEST 3회)</td><td>v1.2</td><td>04-28</td><td><button class="btn">열기</button></td></tr>
+              <tr><td>배포이력서.pdf</td><td><span class="chip auto">자동 생성</span></td><td>Pipelines 기록</td><td>누적</td><td>05-01</td><td><button class="btn">열기</button></td></tr>
+              <tr><td>과제정의서_v1.0.pptx</td><td><span class="chip">수동</span></td><td>담당자 업로드</td><td>v1.0</td><td>04-01</td><td><button class="btn">열기</button></td></tr>
             </tbody>
           </table>
         </div>
@@ -315,7 +341,7 @@
       <!-- ── 실행 현황 ── -->
       <section class="view" id="v-mon">
         <h2 class="vh">실행 현황</h2>
-        <p class="vd">과제가 직접 기록하는 중앙 로그(LogFunc v2) + Heartbeat 감시 — 죽은 과제도 30분 내 감지.</p>
+        <p class="vd">과제가 직접 기록하는 중앙 로그(LogFunc v2) + Heartbeat 감시 — 미실행 과제도 30분 이내 감지.</p>
         <div class="kpis">
           <div class="kpi"><div class="lb">오늘 실행</div><div class="v">25</div><span class="chip ok">성공 24</span></div>
           <div class="kpi"><div class="lb">실행 중</div><div class="v">1</div><span class="chip info">[DKS-CS-004]</span></div>
@@ -343,7 +369,7 @@
           <div class="kpi"><div class="lb">이번 달 절감</div><div class="v">1,240h</div><span class="chip ok">= 7.2 FTE</span></div>
           <div class="kpi"><div class="lb">환산 금액 (선택 단가)</div><div class="v">₩58.1M</div><span class="chip info">누적 ₩312M</span></div>
           <div class="kpi"><div class="lb">자동 처리 건수 (월)</div><div class="v">48,205</div><span class="chip ok">▲ 전월 +12%</span></div>
-          <div class="kpi"><div class="lb">주간보고</div><div class="v">🤖</div><span class="chip auto">금요일 07:00 자동 생성</span></div>
+          <div class="kpi"><div class="lb">주간보고</div><div class="v">자동</div><span class="chip auto">금요일 07:00 자동 생성</span></div>
         </div>
         <div class="grid2">
           <div class="card">
@@ -355,9 +381,9 @@
             <div class="proj"><div class="r1"><span>[HR-005] 급여명세 발송</span><b>105h</b></div><div class="bar"><i style="width:23%"></i></div></div>
           </div>
           <div class="card">
-            <h3>주간보고 미리보기 <span class="sub">🤖 자동 생성 → PM 검토 → 발송</span></h3>
+            <h3>주간보고 미리보기 <span class="sub">자동 자동 생성 → PM 검토 → 발송</span></h3>
             <ul class="feed">
-              <li><span class="st ok">📄</span>2026-W18 주간보고.docx <span class="chip auto" style="margin-left:auto">🤖 오늘 07:00</span></li>
+              <li><span class="st ok">📄</span>2026-W18 주간보고.docx <span class="chip auto" style="margin-left:auto">자동 · 오늘 07:00</span></li>
               <li><span class="st ok">📄</span>2026-W17 주간보고.docx <span class="chip ok" style="margin-left:auto">발송됨</span></li>
               <li><span class="st ok">📄</span>2026-W16 주간보고.docx <span class="chip ok" style="margin-left:auto">발송됨</span></li>
             </ul>
