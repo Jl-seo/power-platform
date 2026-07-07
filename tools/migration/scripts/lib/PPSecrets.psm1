@@ -15,7 +15,7 @@ $Script:SecretsConfig = @{
     Backend     = 'CredentialManager'
     Prefix      = 'PPMigration:'
     KeyVaultName = $null
-    DpapiDir    = (Join-Path $env:LOCALAPPDATA 'PPMigration')
+    DpapiDir    = (Join-Path ($(if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } elseif ($env:HOME) { $env:HOME } else { $env:TEMP })) 'PPMigration')
 }
 
 function Initialize-PPSecrets {
