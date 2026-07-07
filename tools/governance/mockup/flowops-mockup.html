@@ -1,0 +1,371 @@
+<title>FlowOps — PA 개발관리 플랫폼</title>
+<style>
+  :root {
+    --bg: #f4f6fa; --surface: #ffffff; --surface2: #f8fafc;
+    --text: #1a2233; --text2: #5b6577; --line: #e4e8ef;
+    --navy: #1b2a4a; --navy2: #24365e; --accent: #0fa3a3; --accent-soft: #e0f4f4;
+    --ok: #107c10; --ok-soft: #e6f4e6; --err: #d13438; --err-soft: #fbeaea;
+    --warn: #b46a00; --warn-soft: #fdf3e0; --late: #cc5500; --late-soft: #ffefe2;
+    --auto: #5c2e91; --auto-soft: #f0e9f8;
+    --shadow: 0 1px 3px rgba(20,30,60,.08), 0 4px 14px rgba(20,30,60,.05);
+    --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#12161f; --surface:#1a202c; --surface2:#1f2735; --text:#e7ebf2; --text2:#93a0b5;
+      --line:#2a3345; --navy:#151d31; --navy2:#1d2a47; --accent-soft:#12343a;
+      --ok-soft:#12331a; --err-soft:#3a1b1d; --warn-soft:#382b10; --late-soft:#3a2410; --auto-soft:#2a1e3f;
+      --shadow: 0 1px 3px rgba(0,0,0,.4); }
+  }
+  :root[data-theme="dark"] { --bg:#12161f; --surface:#1a202c; --surface2:#1f2735; --text:#e7ebf2; --text2:#93a0b5;
+      --line:#2a3345; --navy:#151d31; --navy2:#1d2a47; --accent-soft:#12343a;
+      --ok-soft:#12331a; --err-soft:#3a1b1d; --warn-soft:#382b10; --late-soft:#3a2410; --auto-soft:#2a1e3f;
+      --shadow: 0 1px 3px rgba(0,0,0,.4); }
+  :root[data-theme="light"] { --bg:#f4f6fa; --surface:#ffffff; --surface2:#f8fafc; --text:#1a2233; --text2:#5b6577;
+      --line:#e4e8ef; --navy:#1b2a4a; --navy2:#24365e; --accent-soft:#e0f4f4;
+      --ok-soft:#e6f4e6; --err-soft:#fbeaea; --warn-soft:#fdf3e0; --late-soft:#ffefe2; --auto-soft:#f0e9f8;
+      --shadow: 0 1px 3px rgba(20,30,60,.08), 0 4px 14px rgba(20,30,60,.05); }
+
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: "Pretendard", "Malgun Gothic", -apple-system, "Segoe UI", sans-serif;
+         background: var(--bg); color: var(--text); font-size: 14px; }
+  .app { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ── */
+  .side { width: 236px; flex-shrink: 0; background: linear-gradient(180deg, var(--navy), var(--navy2));
+          color: #cdd6e8; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .logo { padding: 20px 20px 14px; display: flex; align-items: center; gap: 10px; }
+  .logo .mark { width: 32px; height: 32px; border-radius: 9px; background: var(--accent);
+                display: grid; place-items: center; font-weight: 800; color: #fff; font-size: 15px; }
+  .logo b { color: #fff; font-size: 17px; letter-spacing: .3px; }
+  .logo small { display:block; font-size: 10.5px; color: #8fa0c0; font-weight: 400; }
+  .grp { padding: 12px 12px 2px; font-size: 10.5px; letter-spacing: .12em; color: #7d8fb4; text-transform: uppercase; }
+  .nav a { display: flex; align-items: center; gap: 10px; padding: 8px 14px; margin: 1px 8px;
+           color: #cdd6e8; text-decoration: none; border-radius: 8px; font-size: 13.5px; cursor: pointer; }
+  .nav a:hover { background: rgba(255,255,255,.07); }
+  .nav a.on { background: var(--accent); color: #fff; font-weight: 600; }
+  .nav .cnt { margin-left: auto; background: rgba(255,255,255,.16); border-radius: 10px;
+              padding: 1px 7px; font-size: 11px; }
+  .nav a.on .cnt { background: rgba(255,255,255,.25); }
+  .side .foot { margin-top: auto; padding: 14px 20px; font-size: 11px; color: #7d8fb4; border-top: 1px solid rgba(255,255,255,.08); }
+
+  /* ── Main ── */
+  .main { flex: 1; min-width: 0; }
+  .topbar { display: flex; align-items: center; gap: 14px; padding: 14px 26px;
+            background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+  .crumb { font-size: 13px; color: var(--text2); }
+  .crumb b { color: var(--text); font-size: 15px; }
+  .search { margin-left: auto; background: var(--surface2); border: 1px solid var(--line); border-radius: 8px;
+            padding: 7px 12px; width: 240px; color: var(--text2); font-size: 13px; }
+  .iconbtn { position: relative; width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line);
+             background: var(--surface2); display: grid; place-items: center; cursor: pointer; font-size: 15px; }
+  .iconbtn .dot { position: absolute; top: 6px; right: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--err); }
+  .me { display: flex; align-items: center; gap: 8px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color:#fff;
+            display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+
+  .page { padding: 24px 26px 60px; max-width: 1240px; }
+  .view { display: none; }
+  .view.on { display: block; }
+  h2.vh { font-size: 19px; margin-bottom: 4px; }
+  p.vd { color: var(--text2); font-size: 13px; margin-bottom: 20px; }
+
+  /* cards & grids */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+         padding: 16px 18px; box-shadow: var(--shadow); }
+  .kpi .lb { font-size: 12.5px; color: var(--text2); }
+  .kpi .v { font-size: 30px; font-weight: 800; margin: 4px 0 6px; letter-spacing: -.5px; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600;
+          border-radius: 20px; padding: 2px 9px; }
+  .chip.ok { background: var(--ok-soft); color: var(--ok); }
+  .chip.err { background: var(--err-soft); color: var(--err); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.late { background: var(--late-soft); color: var(--late); }
+  .chip.auto { background: var(--auto-soft); color: var(--auto); }
+  .chip.info { background: var(--accent-soft); color: var(--accent); }
+
+  .grid2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+  @media (max-width: 980px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+          box-shadow: var(--shadow); padding: 18px; margin-bottom: 14px; }
+  .card h3 { font-size: 14.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .card h3 .sub { font-weight: 400; font-size: 12px; color: var(--text2); margin-left: auto; }
+
+  .proj { margin-bottom: 12px; }
+  .proj .r1 { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+  .bar { height: 8px; border-radius: 6px; background: var(--surface2); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--accent), #2bc0c0); }
+
+  .feed { list-style: none; padding: 0; }
+  .feed li { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13px; align-items: center; }
+  .feed li:last-child { border-bottom: 0; }
+  .feed .t { color: var(--text2); font-size: 12px; width: 44px; flex-shrink: 0; }
+  .st { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 12px; flex-shrink: 0; }
+  .st.ok { background: var(--ok-soft); } .st.err { background: var(--err-soft); } .st.warn { background: var(--warn-soft); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--text2); font-weight: 600; font-size: 12px; padding: 8px 10px;
+       border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  tr:last-child td { border-bottom: 0; }
+  tr:hover td { background: var(--surface2); }
+  .tbl-wrap { overflow-x: auto; }
+  .stage { letter-spacing: 2px; font-size: 13px; color: var(--accent); white-space: nowrap; }
+  .stage .off { color: var(--line); }
+  .mono { font-family: Consolas, monospace; font-size: 12.5px; }
+  .btn { border: 1px solid var(--line); background: var(--surface2); color: var(--text);
+         border-radius: 7px; padding: 5px 12px; font-size: 12.5px; cursor: pointer; }
+  .btn.p { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .fchip { border: 1px solid var(--line); border-radius: 20px; padding: 4px 13px; font-size: 12.5px;
+           cursor: pointer; color: var(--text2); background: var(--surface); }
+  .fchip.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+  .note { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 10px;
+          padding: 10px 14px; font-size: 12.5px; color: var(--text); margin-bottom: 16px; }
+  .note b { color: var(--accent); }
+</style>
+
+<div class="app">
+  <!-- ══ Sidebar ══ -->
+  <aside class="side">
+    <div class="logo">
+      <div class="mark">F</div>
+      <div><b>FlowOps</b><small>PA 개발관리 플랫폼</small></div>
+    </div>
+    <nav class="nav">
+      <a class="on" data-v="dash">🏠 홈 대시보드</a>
+      <div class="grp">프로젝트 관리</div>
+      <a data-v="tasks">📋 과제 대장</a>
+      <a>🗓 일정 보드</a>
+      <a data-v="deliv">📁 산출물함 <span class="cnt">🤖 12</span></a>
+      <div class="grp">개발</div>
+      <a>🧩 템플릿·라이브러리</a>
+      <a data-v="comply">✅ 준수 검사 <span class="cnt">3</span></a>
+      <div class="grp">릴리스</div>
+      <a>🚀 배포 요청</a>
+      <a>🔔 승인함 <span class="cnt">1</span></a>
+      <a data-v="code">📦 코드 저장소</a>
+      <div class="grp">운영</div>
+      <a data-v="mon">📡 실행 현황 <span class="cnt">1</span></a>
+      <a>🧾 오류 대장</a>
+      <div class="grp">거버넌스</div>
+      <a data-v="gov">🛡 테넌트 인벤토리</a>
+      <a>🔐 DLP·정책</a>
+    </nav>
+    <div class="foot">v0.1 목업 · 데이터는 예시<br>수동 입력 0 — 전부 자동 수집</div>
+  </aside>
+
+  <!-- ══ Main ══ -->
+  <main class="main">
+    <div class="topbar">
+      <div class="crumb"><b id="crumbTitle">홈 대시보드</b></div>
+      <input class="search" placeholder="🔍 과제·산출물·오류 검색" />
+      <div class="iconbtn">🔔<span class="dot"></span></div>
+      <div class="iconbtn" onclick="toggleTheme()">🌓</div>
+      <div class="me"><div class="avatar">공</div></div>
+    </div>
+
+    <div class="page">
+
+      <!-- ── 홈 대시보드 ── -->
+      <section class="view on" id="v-dash">
+        <div class="note"><b>이 화면의 모든 숫자는 수동 입력이 없습니다.</b> 배포(Pipelines)·실행(LogFunc)·검사(준수 흐름)가 만든 데이터가 실시간 반영됩니다.</div>
+        <div class="kpis">
+          <div class="kpi"><div class="lb">진행 중 과제</div><div class="v">24</div><span class="chip info">▲ 이번 주 +3</span></div>
+          <div class="kpi"><div class="lb">오늘 실행 성공률</div><div class="v">96%</div><span class="chip ok">24/25 성공</span></div>
+          <div class="kpi"><div class="lb">지연 과제</div><div class="v">2</div><span class="chip late">계획일 초과</span></div>
+          <div class="kpi"><div class="lb">템플릿 준수율</div><div class="v">91%</div><span class="chip warn">위반 3건</span></div>
+        </div>
+        <div class="grid2">
+          <div>
+            <div class="card">
+              <h3>프로젝트별 진척 <span class="sub">배포 이벤트 기준 자동 산출</span></h3>
+              <div class="proj"><div class="r1"><span>A고객사 — 구매업무 자동화</span><b>72%</b></div><div class="bar"><i style="width:72%"></i></div></div>
+              <div class="proj"><div class="r1"><span>B고객사 — 인사 온보딩</span><b>95%</b></div><div class="bar"><i style="width:95%"></i></div></div>
+              <div class="proj"><div class="r1"><span>C고객사 — 재무 결산</span><b>31%</b></div><div class="bar"><i style="width:31%"></i></div></div>
+              <div class="proj"><div class="r1"><span>사내 — 거버넌스 플랫폼</span><b>58%</b></div><div class="bar"><i style="width:58%"></i></div></div>
+            </div>
+            <div class="card">
+              <h3>최근 배포 <span class="sub">Pipelines 자동 기록</span></h3>
+              <ul class="feed">
+                <li><span class="st ok">✓</span>[DKS-HR-001] 입사자온보딩 v1.2 → <b>PROD</b><span class="t" style="margin-left:auto">14:30</span></li>
+                <li><span class="st ok">✓</span>[DKS-FI-003] 전표자동기표 v2.0 → <b>TEST</b><span class="t" style="margin-left:auto">11:05</span></li>
+                <li><span class="st warn">⏳</span>[DKS-SC-002] 재고일일마감 v1.1 → PROD <span class="chip warn">승인 대기</span><span class="t" style="margin-left:auto">09:40</span></li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <h3>오늘 실행 타임라인 <span class="sub">LogFunc 중앙 기록</span></h3>
+              <ul class="feed">
+                <li><span class="t">09:00</span><span class="st ok">✓</span>[DKS-HR-001] 입사자온보딩 <span class="chip ok" style="margin-left:auto">412건</span></li>
+                <li><span class="t">09:30</span><span class="st ok">✓</span>[DKS-FI-003] 전표자동기표 <span class="chip ok" style="margin-left:auto">88건</span></li>
+                <li><span class="t">10:00</span><span class="st err">✕</span>[DKS-SC-002] 재고일일마감 <span class="chip err" style="margin-left:auto">S-오류</span></li>
+                <li><span class="t">10:30</span><span class="st ok">✓</span>[DKS-CS-004] 고객응대분류 <span class="chip ok" style="margin-left:auto">156건</span></li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>조치 필요</h3>
+              <ul class="feed">
+                <li><span class="st warn">🔔</span>PROD 배포 승인 대기 <b>1건</b><button class="btn p" style="margin-left:auto">승인함</button></li>
+                <li><span class="st warn">⚠</span>템플릿 준수 위반 <b>3건</b><button class="btn" style="margin-left:auto">보기</button></li>
+                <li><span class="st err">💔</span>Heartbeat 누락 <b>1건</b> — [DKS-SC-002]<button class="btn" style="margin-left:auto">보기</button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 과제 대장 ── -->
+      <section class="view" id="v-tasks">
+        <h2 class="vh">과제 대장</h2>
+        <p class="vd">단계(●)는 실제 배포 이벤트로 자동 전환됩니다 — 실적일을 사람이 입력하지 않습니다.</p>
+        <div class="filters">
+          <span class="fchip on">전체 24</span><span class="fchip">개발중 9</span><span class="fchip">테스트 6</span>
+          <span class="fchip">운영 7</span><span class="fchip">지연 2</span>
+          <button class="btn" style="margin-left:auto">Excel 내보내기</button>
+          <button class="btn p">+ 과제 등록 (채번 자동)</button>
+        </div>
+        <div class="card tbl-wrap">
+          <table>
+            <thead><tr><th>과제코드</th><th>과제명</th><th>담당</th><th>단계</th><th>계획오픈</th><th>실적</th><th>상태</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">DKS-HR-001</td><td>입사자 온보딩</td><td>김개발</td>
+                  <td><span class="stage" title="PROD 배포 2026-05-01 14:30 (자동 기록)">●●●●●</span> 운영</td>
+                  <td>05-01</td><td>05-01 ✔</td><td><span class="chip ok">정상</span></td></tr>
+              <tr><td class="mono">DKS-FI-003</td><td>전표 자동 기표</td><td>이개발</td>
+                  <td><span class="stage">●●●●<span class="off">●</span></span> 테스트</td>
+                  <td>05-10</td><td>—</td><td><span class="chip info">진행</span></td></tr>
+              <tr><td class="mono">DKS-SC-002</td><td>재고 일일 마감</td><td>박개발</td>
+                  <td><span class="stage">●●●<span class="off">●●</span></span> 개발중</td>
+                  <td>05-15</td><td>—</td><td><span class="chip late">지연 D+2</span></td></tr>
+              <tr><td class="mono">DKS-CS-004</td><td>고객응대 자동분류</td><td>최개발</td>
+                  <td><span class="stage">●●●●●</span> 운영</td>
+                  <td>04-20</td><td>04-18 ✔</td><td><span class="chip ok">정상</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 산출물함 ── -->
+      <section class="view" id="v-deliv">
+        <h2 class="vh">산출물함 — [DKS-HR-001] 입사자 온보딩</h2>
+        <p class="vd">🤖 뱃지 = 시스템 자동 생성. 목표: 표준 산출물의 70%를 자동 생성.</p>
+        <div class="card tbl-wrap">
+          <table>
+            <thead><tr><th>산출물</th><th>생성 방식</th><th>원천 데이터</th><th>버전</th><th>생성일</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>📄 흐름정의서_v1.2.docx</td><td><span class="chip auto">🤖 자동생성</span></td><td>솔루션 메타데이터</td><td>v1.2</td><td>05-01</td><td><button class="btn">열기</button></td></tr>
+              <tr><td>📄 테스트결과서_v1.2.xlsx</td><td><span class="chip auto">🤖 자동생성</span></td><td>실행 이력 (TEST 3회)</td><td>v1.2</td><td>04-28</td><td><button class="btn">열기</button></td></tr>
+              <tr><td>📄 배포이력서.pdf</td><td><span class="chip auto">🤖 자동생성</span></td><td>Pipelines 기록</td><td>누적</td><td>05-01</td><td><button class="btn">열기</button></td></tr>
+              <tr><td>📄 과제정의서_v1.0.pptx</td><td><span class="chip">✋ 수동</span></td><td>담당자 업로드</td><td>v1.0</td><td>04-01</td><td><button class="btn">열기</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 준수 검사 ── -->
+      <section class="view" id="v-comply">
+        <h2 class="vh">템플릿 준수 검사</h2>
+        <p class="vd">일 1회 자동 검사 — 흐름 정의(clientdata)를 분석해 템플릿 v2 준수 여부를 판정합니다.</p>
+        <div class="card tbl-wrap">
+          <table>
+            <thead><tr><th>과제</th><th>검사 항목</th><th>결과</th><th>상세</th><th>검사일</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">DKS-SC-002</td><td>LogFunc 호출 존재</td><td><span class="chip err">위반</span></td><td>본프로세스 흐름에 LogFunc 호출 없음</td><td>오늘 06:00</td></tr>
+              <tr><td class="mono">DKS-SC-002</td><td>하드코딩 검출</td><td><span class="chip err">위반</span></td><td>URL 하드코딩 의심 2곳 → 환경변수 전환 필요</td><td>오늘 06:00</td></tr>
+              <tr><td class="mono">DKS-FI-003</td><td>명명 규칙</td><td><span class="chip warn">경고</span></td><td>변수 3개 명명 규칙 불일치</td><td>오늘 06:00</td></tr>
+              <tr><td class="mono">DKS-HR-001</td><td>전체 12항목</td><td><span class="chip ok">통과</span></td><td>—</td><td>오늘 06:00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 코드 저장소 ── -->
+      <section class="view" id="v-code">
+        <h2 class="vh">코드 저장소 — [DKS-HR-001] 버전 이력</h2>
+        <p class="vd">배포할 때마다 솔루션이 자동 아카이브됩니다. 어느 시점이든 다운로드·복원 가능 — PROD 보존율 100%.</p>
+        <div class="card tbl-wrap">
+          <table>
+            <thead><tr><th>버전</th><th>배포일</th><th>환경</th><th>승인자</th><th>아카이브</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="mono"><b>v1.2</b></td><td>2026-05-01 14:30</td><td><span class="chip err" style="background:var(--navy);color:#fff">PROD</span></td><td>서팀장</td><td class="mono">솔루션.zip · 2.1MB</td>
+                  <td><button class="btn">다운로드</button> <button class="btn p">이 버전으로 복원 요청</button></td></tr>
+              <tr><td class="mono">v1.1</td><td>2026-04-20 10:12</td><td><span class="chip info">TEST</span></td><td>—</td><td class="mono">솔루션.zip · 2.0MB</td>
+                  <td><button class="btn">다운로드</button></td></tr>
+              <tr><td class="mono">v1.0</td><td>2026-04-10 16:44</td><td><span class="chip info">TEST</span></td><td>—</td><td class="mono">솔루션.zip · 1.8MB</td>
+                  <td><button class="btn">다운로드</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 실행 현황 ── -->
+      <section class="view" id="v-mon">
+        <h2 class="vh">실행 현황</h2>
+        <p class="vd">과제가 직접 기록하는 중앙 로그(LogFunc v2) + Heartbeat 감시 — 죽은 과제도 30분 내 감지.</p>
+        <div class="kpis">
+          <div class="kpi"><div class="lb">오늘 실행</div><div class="v">25</div><span class="chip ok">성공 24</span></div>
+          <div class="kpi"><div class="lb">실행 중</div><div class="v">1</div><span class="chip info">[DKS-CS-004]</span></div>
+          <div class="kpi"><div class="lb">실패</div><div class="v">1</div><span class="chip err">S-오류 (재시도 초과)</span></div>
+          <div class="kpi"><div class="lb">Heartbeat 누락</div><div class="v">1</div><span class="chip err">09:00 예정 미실행</span></div>
+        </div>
+        <div class="card tbl-wrap">
+          <table>
+            <thead><tr><th>runId</th><th>과제</th><th>머신</th><th>시작</th><th>종료</th><th>처리</th><th>skip</th><th>상태</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">r-0501-09a</td><td>[DKS-HR-001] 입사자온보딩</td><td>RPA-VM-01</td><td>09:00</td><td>09:22</td><td>412</td><td>0</td><td><span class="chip ok">성공</span></td></tr>
+              <tr><td class="mono">r-0501-09b</td><td>[DKS-FI-003] 전표자동기표</td><td>RPA-VM-02</td><td>09:30</td><td>09:47</td><td>85</td><td>3</td><td><span class="chip warn">부분성공 (B-오류 3건)</span></td></tr>
+              <tr><td class="mono">r-0501-10a</td><td>[DKS-SC-002] 재고일일마감</td><td>RPA-VM-01</td><td>10:00</td><td>10:04</td><td>12</td><td>0</td><td><span class="chip err">실패 (S-오류)</span></td></tr>
+              <tr><td class="mono">r-0501-10b</td><td>[DKS-CS-004] 고객응대분류</td><td>RPA-VM-03</td><td>10:30</td><td>—</td><td>93…</td><td>1</td><td><span class="chip info">실행 중</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 거버넌스 ── -->
+      <section class="view" id="v-gov">
+        <h2 class="vh">테넌트 인벤토리</h2>
+        <p class="vd">Power Platform Inventory API (15분 신선도) — 과제 대장과 자동 대사해 미등록 리소스를 찾아냅니다.</p>
+        <div class="kpis">
+          <div class="kpi"><div class="lb">테넌트 전체 흐름</div><div class="v">318</div><span class="chip info">15분 전 동기화</span></div>
+          <div class="kpi"><div class="lb">앱</div><div class="v">67</div><span class="chip info">캔버스 52 · 모델 15</span></div>
+          <div class="kpi"><div class="lb">에이전트</div><div class="v">21</div><span class="chip info">Copilot Studio</span></div>
+          <div class="kpi"><div class="lb">미등록 리소스</div><div class="v">14</div><span class="chip warn">과제 대장에 없음</span></div>
+        </div>
+        <div class="card tbl-wrap">
+          <h3>미등록 리소스 (거버넌스 사각지대)</h3>
+          <table>
+            <thead><tr><th>리소스</th><th>유형</th><th>환경</th><th>소유자</th><th>생성일</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>휴가신청 자동화(테스트)</td><td>클라우드 흐름</td><td>Default</td><td>정사원</td><td>04-28</td><td><button class="btn p">과제 등록 요청</button></td></tr>
+              <tr><td>영수증 처리 봇</td><td>에이전트</td><td>Default</td><td>한사원</td><td>04-25</td><td><button class="btn p">과제 등록 요청</button></td></tr>
+              <tr><td>주간보고 취합</td><td>클라우드 흐름</td><td>Default</td><td><span class="chip err">퇴사자</span></td><td>02-11</td><td><button class="btn">소유권 이전</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const navLinks = document.querySelectorAll('.nav a[data-v]');
+  const views = document.querySelectorAll('.view');
+  const titles = { dash:'홈 대시보드', tasks:'과제 대장', deliv:'산출물함', comply:'준수 검사', code:'코드 저장소', mon:'실행 현황', gov:'테넌트 인벤토리' };
+  navLinks.forEach(a => a.addEventListener('click', () => {
+    navLinks.forEach(x => x.classList.remove('on'));
+    a.classList.add('on');
+    const v = a.dataset.v;
+    views.forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
+    document.getElementById('crumbTitle').textContent = titles[v] || 'FlowOps';
+    window.scrollTo(0, 0);
+  }));
+  function toggleTheme() {
+    const r = document.documentElement;
+    const cur = r.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    r.dataset.theme = cur === 'dark' ? 'light' : 'dark';
+  }
+</script>
