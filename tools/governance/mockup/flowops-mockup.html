@@ -134,24 +134,34 @@
       <div><b>FlowOps</b><small>PA 개발관리 플랫폼</small></div>
     </div>
     <nav class="nav">
-      <a class="on" data-v="dash">🏠 홈 대시보드</a>
-      <div class="grp">프로젝트 관리</div>
+      <a class="on" data-v="dash">🏠 홈</a>
+      <div class="grp">성과</div>
+      <a data-v="roi">📊 ROI 대시보드</a>
+      <a>📰 주간보고 <span class="cnt">🤖</span></a>
+      <div class="grp">계획</div>
       <a data-v="tasks">📋 과제 대장</a>
-      <a>🗓 일정 보드</a>
-      <a data-v="deliv">📁 산출물함 <span class="cnt">🤖 12</span></a>
+      <a data-v="plan">🗓 일정 보드</a>
+      <a>👥 리소스 부하</a>
       <div class="grp">개발</div>
       <a>🧩 템플릿·라이브러리</a>
       <a data-v="comply">✅ 준수 검사 <span class="cnt">3</span></a>
-      <div class="grp">릴리스</div>
+      <a>👀 코드리뷰</a>
+      <div class="grp">형상·배포</div>
+      <a data-v="code">📦 코드 저장소</a>
       <a>🚀 배포 요청</a>
       <a>🔔 승인함 <span class="cnt">1</span></a>
-      <a data-v="code">📦 코드 저장소</a>
+      <div class="grp">테스트</div>
+      <a>🧪 테스트 케이스</a>
       <div class="grp">운영</div>
       <a data-v="mon">📡 실행 현황 <span class="cnt">1</span></a>
+      <a data-v="queue">🖥 실행 큐·머신</a>
       <a>🧾 오류 대장</a>
-      <div class="grp">거버넌스</div>
+      <div class="grp">산출물·문서</div>
+      <a data-v="deliv">📁 산출물함 <span class="cnt">🤖 12</span></a>
+      <div class="grp">관리</div>
       <a data-v="gov">🛡 테넌트 인벤토리</a>
-      <a>🔐 DLP·정책</a>
+      <a>🔐 환경·DLP</a>
+      <a>👤 권한·감사</a>
     </nav>
     <div class="foot">v0.1 목업 · 데이터는 예시<br>수동 입력 0 — 전부 자동 수집</div>
   </aside>
@@ -159,7 +169,8 @@
   <!-- ══ Main ══ -->
   <main class="main">
     <div class="topbar">
-      <div class="crumb"><b id="crumbTitle">홈 대시보드</b></div>
+      <div class="crumb"><b id="crumbTitle">홈</b></div>
+      <span class="chip warn" title="실데이터 연동: scripts/Get-FlowOpsData.ps1 (S1 읽기 어댑터)">🔌 Mock 데이터</span>
       <input class="search" placeholder="🔍 과제·산출물·오류 검색" />
       <div class="iconbtn">🔔<span class="dot"></span></div>
       <div class="iconbtn" onclick="toggleTheme()">🌓</div>
@@ -324,6 +335,102 @@
         </div>
       </section>
 
+      <!-- ── ROI 대시보드 ── -->
+      <section class="view" id="v-roi">
+        <h2 class="vh">ROI 대시보드</h2>
+        <p class="vd">절감시간 = Σ(성공 처리건수 × 건당 수작업분) — 실행이력에서 매일 자동 집계. 건당 시간은 과제 등록 시 1회만 입력.</p>
+        <div class="kpis">
+          <div class="kpi"><div class="lb">이번 달 절감</div><div class="v">1,240h</div><span class="chip ok">= 7.2 FTE</span></div>
+          <div class="kpi"><div class="lb">환산 금액 (선택 단가)</div><div class="v">₩58.1M</div><span class="chip info">누적 ₩312M</span></div>
+          <div class="kpi"><div class="lb">자동 처리 건수 (월)</div><div class="v">48,205</div><span class="chip ok">▲ 전월 +12%</span></div>
+          <div class="kpi"><div class="lb">주간보고</div><div class="v">🤖</div><span class="chip auto">금요일 07:00 자동 생성</span></div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <h3>과제별 절감 기여 Top 5 <span class="sub">이번 달</span></h3>
+            <div class="proj"><div class="r1"><span>[HR-001] 입사자 온보딩</span><b>412h</b></div><div class="bar"><i style="width:92%"></i></div></div>
+            <div class="proj"><div class="r1"><span>[FI-003] 전표 자동 기표</span><b>305h</b></div><div class="bar"><i style="width:68%"></i></div></div>
+            <div class="proj"><div class="r1"><span>[CS-004] 고객응대 분류</span><b>248h</b></div><div class="bar"><i style="width:55%"></i></div></div>
+            <div class="proj"><div class="r1"><span>[SC-002] 재고 일일 마감</span><b>170h</b></div><div class="bar"><i style="width:38%"></i></div></div>
+            <div class="proj"><div class="r1"><span>[HR-005] 급여명세 발송</span><b>105h</b></div><div class="bar"><i style="width:23%"></i></div></div>
+          </div>
+          <div class="card">
+            <h3>주간보고 미리보기 <span class="sub">🤖 자동 생성 → PM 검토 → 발송</span></h3>
+            <ul class="feed">
+              <li><span class="st ok">📄</span>2026-W18 주간보고.docx <span class="chip auto" style="margin-left:auto">🤖 오늘 07:00</span></li>
+              <li><span class="st ok">📄</span>2026-W17 주간보고.docx <span class="chip ok" style="margin-left:auto">발송됨</span></li>
+              <li><span class="st ok">📄</span>2026-W16 주간보고.docx <span class="chip ok" style="margin-left:auto">발송됨</span></li>
+            </ul>
+            <p style="font-size:12px;color:var(--text2);margin-top:10px">포함 내용: 과제별 절감·실행 안정성·지연 현황·차주 배포 예정 — 전부 실행이력/배포이력에서 자동 취합</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 일정 보드 ── -->
+      <section class="view" id="v-plan">
+        <h2 class="vh">일정 보드 — 간트</h2>
+        <p class="vd">계획(baseline)은 착수 시 1회 수립, 실적 막대는 배포 이벤트가 자동으로 그립니다.</p>
+        <div class="filters"><span class="fchip on">간트</span><span class="fchip">칸반</span><span class="fchip">리소스 부하</span></div>
+        <div class="card">
+          <div style="display:grid;grid-template-columns:210px 1fr;gap:6px;font-size:12.5px;align-items:center">
+            <div style="color:var(--text2)"></div>
+            <div style="display:flex;color:var(--text2);font-size:11px"><span style="flex:1">4월</span><span style="flex:1">5월 1주</span><span style="flex:1">5월 2주</span><span style="flex:1">5월 3주</span><span style="flex:1">5월 4주</span></div>
+            <div>[HR-001] 입사자 온보딩</div>
+            <div class="bar" style="height:16px;position:relative"><i style="width:52%;background:linear-gradient(90deg,var(--ok),#2da52d)"></i><span style="position:absolute;left:53%;top:0;font-size:10.5px;color:var(--ok)">✔ 오픈 05-01</span></div>
+            <div>[FI-003] 전표 자동 기표</div>
+            <div class="bar" style="height:16px;position:relative"><i style="width:60%"></i><span style="position:absolute;left:61%;top:0;font-size:10.5px;color:var(--text2)">테스트 중 · 계획 05-10</span></div>
+            <div>[SC-002] 재고 일일 마감 <span class="chip late">D+2</span></div>
+            <div class="bar" style="height:16px;position:relative"><i style="width:38%;background:linear-gradient(90deg,var(--late),#ff9d40)"></i><span style="position:absolute;left:39%;top:0;font-size:10.5px;color:var(--late)">개발 지연 · 계획 05-15</span></div>
+            <div>[HR-005] 급여명세 발송</div>
+            <div class="bar" style="height:16px;position:relative"><i style="width:80%"></i><span style="position:absolute;left:81%;top:0;font-size:10.5px;color:var(--text2)">UAT · 계획 05-08</span></div>
+          </div>
+          <p style="font-size:12px;color:var(--text2);margin-top:14px">막대 끝 = 최근 배포 이벤트 시점 (Pipelines 자동 기록) · 지연 판정 = 오늘 &gt; 단계별 계획일</p>
+        </div>
+        <div class="card">
+          <h3>리소스 부하 <span class="sub">담당자별 진행 과제</span></h3>
+          <div class="proj"><div class="r1"><span>김개발</span><b>2건</b></div><div class="bar"><i style="width:40%"></i></div></div>
+          <div class="proj"><div class="r1"><span>이개발</span><b>3건</b></div><div class="bar"><i style="width:60%"></i></div></div>
+          <div class="proj"><div class="r1"><span>박개발 <span class="chip warn">과부하</span></span><b>5건</b></div><div class="bar"><i style="width:100%;background:linear-gradient(90deg,var(--warn),#e0a030)"></i></div></div>
+        </div>
+      </section>
+
+      <!-- ── 실행 큐·머신 ── -->
+      <section class="view" id="v-queue">
+        <h2 class="vh">실행 큐 · 머신 관리</h2>
+        <p class="vd">오케스트레이터 대체 — 디스패처 흐름이 큐 우선순위에 따라 머신에 과제를 배정합니다 (동시 실행 제어).</p>
+        <div class="kpis">
+          <div class="kpi"><div class="lb">대기 큐</div><div class="v">3</div><span class="chip info">우선순위순 대기</span></div>
+          <div class="kpi"><div class="lb">실행 중</div><div class="v">2</div><span class="chip ok">머신 2대 가동</span></div>
+          <div class="kpi"><div class="lb">머신 풀</div><div class="v">3/4</div><span class="chip warn">RPA-VM-04 오프라인</span></div>
+          <div class="kpi"><div class="lb">오늘 가동률</div><div class="v">67%</div><span class="chip info">피크 09~11시</span></div>
+        </div>
+        <div class="grid2">
+          <div class="card tbl-wrap">
+            <h3>실행 큐</h3>
+            <table>
+              <thead><tr><th>순위</th><th>과제</th><th>유형</th><th>대기 시작</th><th>상태</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>[FI-003] 전표 자동 기표</td><td>스케줄</td><td>10:40</td><td><span class="chip info">머신 대기</span></td></tr>
+                <tr><td>2</td><td>[HR-005] 급여명세 발송</td><td>수동 요청</td><td>10:42</td><td><span class="chip info">머신 대기</span></td></tr>
+                <tr><td>3</td><td>[SC-002] 재고 마감 <b>재실행</b></td><td>오류 재시도</td><td>10:45</td><td><span class="chip warn">우선순위 상향 요청</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card tbl-wrap">
+            <h3>머신 풀</h3>
+            <table>
+              <thead><tr><th>머신</th><th>상태</th><th>현재 작업</th><th>오늘 가동</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">RPA-VM-01</td><td><span class="chip ok">실행 중</span></td><td>[HR-001]</td><td>4h 12m</td></tr>
+                <tr><td class="mono">RPA-VM-02</td><td><span class="chip ok">실행 중</span></td><td>[CS-004]</td><td>3h 40m</td></tr>
+                <tr><td class="mono">RPA-VM-03</td><td><span class="chip info">유휴</span></td><td>—</td><td>2h 05m</td></tr>
+                <tr><td class="mono">RPA-VM-04</td><td><span class="chip err">오프라인</span></td><td>—</td><td>0h</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <!-- ── 거버넌스 ── -->
       <section class="view" id="v-gov">
         <h2 class="vh">테넌트 인벤토리</h2>
@@ -354,7 +461,7 @@
 <script>
   const navLinks = document.querySelectorAll('.nav a[data-v]');
   const views = document.querySelectorAll('.view');
-  const titles = { dash:'홈 대시보드', tasks:'과제 대장', deliv:'산출물함', comply:'준수 검사', code:'코드 저장소', mon:'실행 현황', gov:'테넌트 인벤토리' };
+  const titles = { dash:'홈', roi:'ROI 대시보드', plan:'일정 보드', tasks:'과제 대장', deliv:'산출물함', comply:'준수 검사', code:'코드 저장소', mon:'실행 현황', queue:'실행 큐 · 머신 관리', gov:'테넌트 인벤토리' };
   navLinks.forEach(a => a.addEventListener('click', () => {
     navLinks.forEach(x => x.classList.remove('on'));
     a.classList.add('on');
