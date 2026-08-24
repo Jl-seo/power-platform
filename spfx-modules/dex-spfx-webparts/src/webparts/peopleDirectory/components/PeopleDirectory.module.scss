@@ -1,0 +1,99 @@
+.peopleDirectory {
+  overflow: hidden;
+  padding: 1em;
+  color: "[theme:bodyText, default: #323130]";
+  color: var(--bodyText);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.searchBox {
+  flex: 1 1 220px;
+  max-width: 320px;
+}
+
+.personGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.personCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid #edebe9;
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--bodyBackground, #ffffff);
+
+  &:hover {
+    border-color: #1b3a6b;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.personCardMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #605e5c;
+}
+
+.departmentChip {
+  font-size: 11px;
+  line-height: 18px;
+  padding: 0 8px;
+  border-radius: 9px;
+  background: #f0f4fa;
+  color: #1b3a6b;
+  align-self: flex-start;
+}
+
+.panelSection {
+  margin-top: 20px;
+}
+
+.panelSectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #edebe9;
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+.contactIcon {
+  color: #1b3a6b;
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
+}
+
+.orgPerson {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: #faf9f8;
+  }
+}

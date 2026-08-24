@@ -1,0 +1,29 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "ee2bddd4-ad57-4162-98cc-cc8a525cf69c",
+  "alias": "PeopleDirectoryWebPart",
+  "componentType": "WebPart",
+
+  // The "*" signifies that the version should be taken from the package.json
+  "version": "*",
+  "manifestVersion": 2,
+
+  // If true, the component can only be installed on sites where Custom Script is allowed.
+  // Components that allow authors to embed arbitrary script code should set this to true.
+  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart", "TeamsPersonalApp", "TeamsTab", "SharePointFullPage"],
+  "supportsThemeVariants": true,
+
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Advanced
+    "group": { "default": "Advanced" },
+    "title": { "default": "People Directory", "ko-kr": "조직도/직원 검색" },
+    "description": { "default": "Search people across the organization via Microsoft Graph, with manager and direct reports.", "ko-kr": "Microsoft Graph 기반 직원 검색과 상급자/직속 구성원 조회를 제공합니다." },
+    "officeFabricIconFontName": "People",
+    "properties": {
+      "title": "",
+      "pageSize": 12
+    }
+  }]
+}

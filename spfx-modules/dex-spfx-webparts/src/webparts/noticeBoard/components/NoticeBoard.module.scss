@@ -1,0 +1,123 @@
+.noticeBoard {
+  overflow: hidden;
+  padding: 1em;
+  color: "[theme:bodyText, default: #323130]";
+  color: var(--bodyText);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.searchBox {
+  flex: 1 1 220px;
+  max-width: 320px;
+}
+
+.pinnedSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pinnedCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid #d7e0ee;
+  border-left: 3px solid #1b3a6b;
+  border-radius: 4px;
+  background: #f7f9fc;
+  cursor: pointer;
+
+  &:hover {
+    background: #eef3fa;
+  }
+}
+
+.pinnedIcon {
+  color: #1b3a6b;
+  font-size: 14px;
+}
+
+.pinnedTitle {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noticeRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 6px;
+  border-bottom: 1px solid #edebe9;
+  cursor: pointer;
+
+  &:hover {
+    background: #faf9f8;
+  }
+}
+
+.noticeTitle {
+  flex: 1;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.categoryChip {
+  flex-shrink: 0;
+  font-size: 11px;
+  line-height: 18px;
+  padding: 0 8px;
+  border-radius: 9px;
+  background: #f0f4fa;
+  color: #1b3a6b;
+}
+
+.metaText {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #605e5c;
+}
+
+.newBadge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: #c8102e;
+  color: #ffffff;
+}
+
+.panelMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #edebe9;
+}
+
+.panelBody {
+  font-size: 14px;
+  line-height: 1.6;
+  word-break: break-word;
+
+  img {
+    max-width: 100%;
+  }
+}

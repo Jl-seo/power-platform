@@ -1,0 +1,36 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "notice-board-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/noticeBoard/NoticeBoardWebPart.js",
+          "manifest": "./src/webparts/noticeBoard/NoticeBoardWebPart.manifest.json"
+        }
+      ]
+    },
+    "document-hub-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/documentHub/DocumentHubWebPart.js",
+          "manifest": "./src/webparts/documentHub/DocumentHubWebPart.manifest.json"
+        }
+      ]
+    },
+    "people-directory-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/peopleDirectory/PeopleDirectoryWebPart.js",
+          "manifest": "./src/webparts/peopleDirectory/PeopleDirectoryWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "NoticeBoardWebPartStrings": "lib/webparts/noticeBoard/loc/{locale}.js",
+    "DocumentHubWebPartStrings": "lib/webparts/documentHub/loc/{locale}.js",
+    "PeopleDirectoryWebPartStrings": "lib/webparts/peopleDirectory/loc/{locale}.js"
+  }
+}
