@@ -1,0 +1,77 @@
+/* DEX Consulting design-system tokens (from DigitalExpertsConsulting/design-system
+   colors_and_type.css — Bright SaaS edition). Keep values in sync with dexTokens.ts. */
+
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
+}
+
+/* Brand blue ramp */
+$dex-brand-700: #145AD0;
+$dex-brand-600: #1F6FEB;
+$dex-brand-500: #3B84F2;
+$dex-brand-200: #B9D6FD;
+$dex-brand-100: #DCEAFE;
+$dex-brand-50: #F0F6FF;
+
+/* Ink navy */
+$dex-navy-800: #0E2A57;
+
+/* Neutrals (cool gray) */
+$dex-fg-primary: #111827;
+$dex-fg-secondary: #374151;
+$dex-fg-tertiary: #6B7280;
+$dex-border-default: #E4E8EF;
+$dex-border-strong: #D1D6DE;
+$dex-bg-subtle: #F8FAFC;
+$dex-bg-muted: #F1F4F8;
+
+/* Status */
+$dex-danger-700: #D92D20;
+$dex-danger-100: #FEE4E2;
+
+/* Radii */
+$dex-radius-xs: 6px;
+$dex-radius-sm: 10px;
+$dex-radius-md: 14px;
+
+/* Shadows */
+$dex-shadow-xs: 0 1px 2px rgba(16, 63, 145, 0.05);
+$dex-shadow-sm: 0 2px 8px rgba(16, 63, 145, 0.06);
+$dex-shadow-md: 0 8px 24px rgba(16, 63, 145, 0.08);
+
+/* Type */
+$dex-font-sans: 'Pretendard Variable', Pretendard, 'Segoe UI', 'Malgun Gothic', sans-serif;
+
+@mixin dex-root {
+  font-family: $dex-font-sans;
+  color: $dex-fg-primary;
+}
+
+@mixin dex-card {
+  background: var(--bodyBackground, #ffffff);
+  border: 1px solid $dex-border-default;
+  border-radius: $dex-radius-md;
+  box-shadow: $dex-shadow-sm;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+@mixin dex-card-hover {
+  border-color: $dex-brand-200;
+  box-shadow: $dex-shadow-md;
+  transform: translateY(-2px);
+}
+
+@mixin dex-chip {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 20px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: $dex-brand-100;
+  color: $dex-brand-700;
+  white-space: nowrap;
+}

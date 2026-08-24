@@ -12,6 +12,9 @@ Fluent UI 기반으로, 엔터프라이즈 디자인 시스템 패턴(PageHeader
 | **조직도/직원 검색 (People Directory)** | 직원 검색, 부서 필터, 상급자/직속 구성원 조회 | Microsoft Graph |
 | **현황 대시보드 (Insights Dashboard)** | KPI 타일 4종 + 월별 문서 추이/파일 형식별/분류별 차트 | SharePoint 목록 + 문서 라이브러리 |
 
+모든 웹파트의 색·타이포·라운드·그림자는 [DEX 디자인 시스템](https://github.com/DigitalExpertsConsulting/design-system) 토큰을 따릅니다
+(`src/common/styles/_dex.scss`, `src/common/dexTokens.ts` — 브랜드 블루 `#1F6FEB`, Pretendard, 카드 radius 14px, StatCard/PageHeader/Chip/BarChart 컴포넌트 스펙).
+
 ## 사전 준비
 
 - Node.js **v22.14 이상 v23 미만** (SPFx 1.23)

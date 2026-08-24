@@ -3,6 +3,7 @@ import {
   IChartDatum,
   CHART_ACCENT,
   CHART_ACCENT_HOVER,
+  CHART_DIM,
   CHART_GRID,
   CHART_TEXT_MUTED
 } from './ChartTypes';
@@ -17,7 +18,7 @@ const PADDING_LEFT: number = 34;
 const PADDING_RIGHT: number = 8;
 const PADDING_TOP: number = 16;
 const PADDING_BOTTOM: number = 22;
-const CORNER_RADIUS: number = 4;
+const CORNER_RADIUS: number = 5;
 const GRID_STEPS: number = 3;
 
 const niceMax = (value: number): number => {
@@ -101,18 +102,18 @@ export const ColumnChart: React.FC<IColumnChartProps> = (props: IColumnChartProp
       aria-label={props.ariaLabel}
       style={{ display: 'block' }}
     >
-      <defs>
-        <linearGradient id='dexColumnGradient' x1='0' y1='0' x2='0' y2='1'>
-          <stop offset='0%' stopColor='#4a90e2' />
-          <stop offset='100%' stopColor={CHART_ACCENT} />
-        </linearGradient>
-      </defs>
       {gridLines}
       {data.map((d: IChartDatum, i: number) => {
         const barHeight: number = maxValue > 0 ? (plotHeight * d.value) / maxValue : 0;
         const x: number = PADDING_LEFT + slot * i + (slot - barWidth) / 2;
         const y: number = PADDING_TOP + plotHeight - barHeight;
-        const showLabel: boolean = i === maxIndex || hovered === i;
+        const isLast: boolean = i === data.length - 1;
+        const showLabel: boolean = i === maxIndex || isLast || hovered === i;
+        // DEX BarChart highlight-last pattern: the current period carries the
+        // brand color, earlier periods sit back in brand-200.
+        const fill: string = hovered === i
+          ? CHART_ACCENT_HOVER
+          : isLast ? CHART_ACCENT : CHART_DIM;
         return (
           <g
             key={d.label}
@@ -127,10 +128,7 @@ export const ColumnChart: React.FC<IColumnChartProps> = (props: IColumnChartProp
               fill='transparent'
             />
             {barHeight > 0 ? (
-              <path
-                d={barPath(x, y, barWidth, barHeight)}
-                fill={hovered === i ? CHART_ACCENT_HOVER : 'url(#dexColumnGradient)'}
-              >
+              <path d={barPath(x, y, barWidth, barHeight)} fill={fill}>
                 <title>{`${d.label}: ${d.value}`}</title>
               </path>
             ) : undefined}

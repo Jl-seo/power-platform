@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Icon, mergeStyleSets } from '@fluentui/react';
+import { DEX } from '../dexTokens';
 
 export interface IStatCardProps {
   iconName: string;
@@ -7,68 +8,68 @@ export interface IStatCardProps {
   value: string;
 }
 
+// DEX design-system StatCard: uppercase micro label on top, large tabular value.
 const classNames = mergeStyleSets({
   root: {
     display: 'flex',
-    alignItems: 'center',
-    gap: 14,
+    flexDirection: 'column',
+    gap: 8,
     flex: '1 1 0',
     minWidth: 150,
-    padding: '16px 18px',
-    border: '1px solid #e6e9ef',
-    borderRadius: 10,
+    padding: 20,
+    border: `1px solid ${DEX.borderDefault}`,
+    borderRadius: DEX.radiusMd,
     background: 'var(--bodyBackground, #ffffff)',
-    boxShadow: '0 1px 2px rgba(16, 24, 40, 0.04)',
+    boxShadow: DEX.shadowSm,
     transition: 'box-shadow .15s ease, transform .15s ease, border-color .15s ease',
     selectors: {
       ':hover': {
-        borderColor: '#c9d7ec',
-        boxShadow: '0 6px 16px rgba(27, 58, 107, 0.10)',
+        borderColor: DEX.brand200,
+        boxShadow: DEX.shadowMd,
         transform: 'translateY(-1px)'
       }
     }
   },
-  iconWrap: {
+  labelRow: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    width: 42,
-    height: 42,
-    borderRadius: 10,
-    background: 'linear-gradient(135deg, #eef4fd 0%, #dcE9fb 100%)',
-    color: '#1b3a6b',
-    fontSize: 18,
+    justifyContent: 'space-between',
+    gap: 8
+  },
+  label: {
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    color: DEX.fgTertiary,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
+  },
+  icon: {
+    fontSize: 14,
+    color: DEX.brand600,
     flexShrink: 0
   },
-  textWrap: {
-    display: 'flex',
-    flexDirection: 'column',
-    minWidth: 0
-  },
   value: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: 700,
-    lineHeight: '28px',
-    letterSpacing: '-0.3px',
-    color: 'var(--bodyText, #1f2430)',
+    lineHeight: '32px',
+    letterSpacing: '-0.02em',
+    fontVariantNumeric: 'tabular-nums',
+    color: `var(--bodyText, ${DEX.fgPrimary})`,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
-  },
-  label: {
-    fontSize: 12,
-    color: '#7a8394'
   }
 });
 
 export const StatCard: React.FC<IStatCardProps> = (props: IStatCardProps) => (
   <div className={classNames.root}>
-    <div className={classNames.iconWrap}>
-      <Icon iconName={props.iconName} />
-    </div>
-    <div className={classNames.textWrap}>
-      <span className={classNames.value}>{props.value}</span>
+    <div className={classNames.labelRow}>
       <span className={classNames.label}>{props.label}</span>
+      <Icon iconName={props.iconName} className={classNames.icon} />
     </div>
+    <span className={classNames.value}>{props.value}</span>
   </div>
 );

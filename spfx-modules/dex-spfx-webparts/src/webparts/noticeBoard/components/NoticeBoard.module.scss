@@ -1,8 +1,11 @@
+@import '../../../common/styles/dex';
+
 .noticeBoard {
   overflow: hidden;
   padding: 1em;
-  color: "[theme:bodyText, default: #323130]";
+  color: "[theme:bodyText, default: #111827]";
   color: var(--bodyText);
+  @include dex-root;
 }
 
 .toolbar {
@@ -30,15 +33,15 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border: 1px solid #d7e0ee;
-  border-left: 4px solid #1b3a6b;
-  border-radius: 8px;
-  background: linear-gradient(90deg, #f4f8fe 0%, #ffffff 70%);
+  border: 1px solid $dex-brand-200;
+  border-left: 4px solid $dex-brand-600;
+  border-radius: $dex-radius-sm;
+  background: $dex-brand-50;
   cursor: pointer;
   transition: box-shadow 0.15s ease, transform 0.15s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(27, 58, 107, 0.12);
+    box-shadow: $dex-shadow-md;
     transform: translateY(-1px);
   }
 }
@@ -50,8 +53,8 @@
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: #e5eefb;
-  color: #1b3a6b;
+  background: $dex-brand-100;
+  color: $dex-brand-700;
   font-size: 13px;
   flex-shrink: 0;
 }
@@ -70,13 +73,13 @@
   align-items: center;
   gap: 12px;
   padding: 11px 10px;
-  border-radius: 6px;
-  border-bottom: 1px solid #eef0f4;
+  border-radius: $dex-radius-xs;
+  border-bottom: 1px solid $dex-bg-muted;
   cursor: pointer;
   transition: background 0.1s ease;
 
   &:hover {
-    background: #f5f8fc;
+    background: $dex-bg-muted;
   }
 }
 
@@ -90,20 +93,14 @@
 
 .categoryChip {
   flex-shrink: 0;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 20px;
-  padding: 0 10px;
-  border-radius: 10px;
-  background: #eef4fd;
-  border: 1px solid #d9e6f8;
-  color: #1b3a6b;
+  @include dex-chip;
 }
 
 .metaText {
   flex-shrink: 0;
   font-size: 12px;
-  color: #7a8394;
+  color: $dex-fg-tertiary;
+  font-variant-numeric: tabular-nums;
 }
 
 .newBadge {
@@ -111,11 +108,11 @@
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.3px;
-  line-height: 17px;
-  padding: 0 7px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, #e5484d 0%, #c8102e 100%);
-  color: #ffffff;
+  line-height: 18px;
+  padding: 0 8px;
+  border-radius: $dex-radius-xs;
+  background: $dex-danger-100;
+  color: $dex-danger-700;
 }
 
 .panelMeta {
@@ -124,9 +121,9 @@
   gap: 12px;
   padding: 12px 14px;
   margin-bottom: 16px;
-  border-radius: 8px;
-  background: #f6f8fb;
-  border: 1px solid #e6e9ef;
+  border-radius: $dex-radius-sm;
+  background: $dex-bg-subtle;
+  border: 1px solid $dex-border-default;
 }
 
 .panelBody {
@@ -136,6 +133,6 @@
 
   img {
     max-width: 100%;
-    border-radius: 6px;
+    border-radius: $dex-radius-xs;
   }
 }

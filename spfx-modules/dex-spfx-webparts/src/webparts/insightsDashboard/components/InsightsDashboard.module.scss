@@ -1,8 +1,11 @@
+@import '../../../common/styles/dex';
+
 .insightsDashboard {
   overflow: hidden;
   padding: 1em;
-  color: "[theme:bodyText, default: #323130]";
+  color: "[theme:bodyText, default: #111827]";
   color: var(--bodyText);
+  @include dex-root;
 }
 
 .statRow {
@@ -22,17 +25,13 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 16px 18px;
-  border: 1px solid #e6e9ef;
-  border-radius: 10px;
-  background: var(--bodyBackground, #ffffff);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  padding: 18px 20px;
   min-width: 0;
+  @include dex-card;
 
   &:hover {
-    border-color: #c9d7ec;
-    box-shadow: 0 4px 12px rgba(27, 58, 107, 0.08);
+    border-color: $dex-brand-200;
+    box-shadow: $dex-shadow-md;
   }
 }
 
@@ -42,7 +41,8 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--bodyText, #1f2430);
+  letter-spacing: -0.01em;
+  color: var(--bodyText, #111827);
 
   &::before {
     content: "";
@@ -50,13 +50,13 @@
     width: 8px;
     height: 8px;
     border-radius: 3px;
-    background: linear-gradient(135deg, #4a90e2 0%, #1b3a6b 100%);
+    background: $dex-brand-600;
   }
 }
 
 .chartSubtitle {
   font-size: 11px;
-  color: #7a8394;
+  color: $dex-fg-tertiary;
   margin-top: -6px;
   padding-left: 16px;
 }

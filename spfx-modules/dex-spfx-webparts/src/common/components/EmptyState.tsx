@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Icon, mergeStyleSets } from '@fluentui/react';
+import { DEX } from '../dexTokens';
 
 export interface IEmptyStateProps {
   iconName?: string;
@@ -23,21 +24,21 @@ const classNames = mergeStyleSets({
     width: 56,
     height: 56,
     borderRadius: '50%',
-    background: 'linear-gradient(135deg, #f2f6fc 0%, #e6eefa 100%)',
+    background: DEX.brand50,
     marginBottom: 14
   },
   icon: {
     fontSize: 24,
-    color: '#8ba4c9'
+    color: DEX.brand500
   },
   title: {
     fontSize: 14,
     fontWeight: 600,
-    color: 'var(--bodyText, #1f2430)'
+    color: `var(--bodyText, ${DEX.fgPrimary})`
   },
   description: {
     fontSize: 12,
-    color: '#7a8394',
+    color: DEX.fgTertiary,
     marginTop: 4
   }
 });

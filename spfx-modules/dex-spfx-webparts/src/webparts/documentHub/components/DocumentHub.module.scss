@@ -1,8 +1,11 @@
+@import '../../../common/styles/dex';
+
 .documentHub {
   overflow: hidden;
   padding: 1em;
-  color: "[theme:bodyText, default: #323130]";
+  color: "[theme:bodyText, default: #111827]";
   color: var(--bodyText);
+  @include dex-root;
 }
 
 .statRow {
@@ -36,17 +39,11 @@
   align-items: flex-start;
   gap: 12px;
   padding: 14px 16px;
-  border: 1px solid #e6e9ef;
-  border-radius: 10px;
   cursor: pointer;
-  background: var(--bodyBackground, #ffffff);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  @include dex-card;
 
   &:hover {
-    border-color: #c9d7ec;
-    box-shadow: 0 6px 16px rgba(27, 58, 107, 0.12);
-    transform: translateY(-2px);
+    @include dex-card-hover;
   }
 }
 
@@ -57,7 +54,8 @@
   width: 38px;
   height: 38px;
   border-radius: 9px;
-  background: #f2f6fc;
+  background: $dex-bg-subtle;
+  border: 1px solid $dex-bg-muted;
   flex-shrink: 0;
 }
 
@@ -74,12 +72,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--bodyText, #1f2430);
+  color: var(--bodyText, #111827);
 }
 
 .docCardMeta {
   font-size: 11px;
-  color: #7a8394;
+  color: $dex-fg-tertiary;
+  font-variant-numeric: tabular-nums;
 }
 
 .fileNameCell {
