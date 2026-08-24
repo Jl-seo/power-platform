@@ -18,6 +18,14 @@
         }
       ]
     },
+    "insights-dashboard-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/insightsDashboard/InsightsDashboardWebPart.js",
+          "manifest": "./src/webparts/insightsDashboard/InsightsDashboardWebPart.manifest.json"
+        }
+      ]
+    },
     "people-directory-web-part": {
       "components": [
         {
@@ -31,6 +39,7 @@
   "localizedResources": {
     "NoticeBoardWebPartStrings": "lib/webparts/noticeBoard/loc/{locale}.js",
     "DocumentHubWebPartStrings": "lib/webparts/documentHub/loc/{locale}.js",
-    "PeopleDirectoryWebPartStrings": "lib/webparts/peopleDirectory/loc/{locale}.js"
+    "PeopleDirectoryWebPartStrings": "lib/webparts/peopleDirectory/loc/{locale}.js",
+    "InsightsDashboardWebPartStrings": "lib/webparts/insightsDashboard/loc/{locale}.js"
   }
 }

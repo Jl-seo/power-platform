@@ -1,0 +1,46 @@
+.insightsDashboard {
+  overflow: hidden;
+  padding: 1em;
+  color: "[theme:bodyText, default: #323130]";
+  color: var(--bodyText);
+}
+
+.statRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.chartCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid #edebe9;
+  border-radius: 4px;
+  background: var(--bodyBackground, #ffffff);
+  min-width: 0;
+}
+
+.chartTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bodyText, #323130);
+}
+
+.chartSubtitle {
+  font-size: 11px;
+  color: #605e5c;
+  margin-top: -6px;
+}
+
+.sectionError {
+  margin-bottom: 12px;
+}
