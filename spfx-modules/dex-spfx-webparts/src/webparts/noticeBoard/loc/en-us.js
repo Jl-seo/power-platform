@@ -15,6 +15,7 @@ define([], function() {
     "EmptyTitle": "No notices found",
     "EmptyDescription": "Try clearing the search keyword or category filter.",
     "NoBodyLabel": "This notice has no body content.",
+    "LoadErrorTitle": "Load failed",
     "LoadErrorPrefix": "Failed to load the list"
   }
 });

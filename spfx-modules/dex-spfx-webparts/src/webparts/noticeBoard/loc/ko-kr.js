@@ -15,6 +15,7 @@ define([], function() {
     "EmptyTitle": "공지사항이 없습니다",
     "EmptyDescription": "검색어 또는 분류 필터를 해제해 보세요.",
     "NoBodyLabel": "본문이 없는 공지입니다.",
+    "LoadErrorTitle": "불러오기 실패",
     "LoadErrorPrefix": "목록을 불러오지 못했습니다"
   }
 });

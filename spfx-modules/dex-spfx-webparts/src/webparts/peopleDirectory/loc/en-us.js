@@ -12,6 +12,8 @@ define([], function() {
     "CloseLabel": "Close",
     "EmptyTitle": "No people found",
     "EmptyDescription": "Try a different keyword or clear the department filter.",
+    "LoadErrorTitle": "Load failed",
+    "OrgSectionTitle": "Organization",
     "LoadErrorPrefix": "Failed to load people from Microsoft Graph. Check that the User.Read.All permission is approved.",
     "DetailPanelTitle": "Profile",
     "DetailLoadingLabel": "Loading profile...",

@@ -3,28 +3,28 @@ import styles from './InsightsDashboard.module.scss';
 import type { IInsightsDashboardProps } from './IInsightsDashboardProps';
 import { NoticeService, INotice } from '../../noticeBoard/services/NoticeService';
 import { DocumentService, IDocumentItem } from '../../documentHub/services/DocumentService';
-import { PageHeader } from '../../../common/components/PageHeader';
-import { StatCard } from '../../../common/components/StatCard';
-import { EmptyState } from '../../../common/components/EmptyState';
-import { ColumnChart } from '../../../common/components/charts/ColumnChart';
-import { HBarChart } from '../../../common/components/charts/HBarChart';
-import { IChartDatum } from '../../../common/components/charts/ChartTypes';
+import {
+  Alert,
+  BarChart,
+  Donut,
+  EmptyState,
+  IBarChartDatum,
+  IDonutDatum,
+  PageHeader,
+  Skeleton,
+  StatCard
+} from '../../../common/dex';
 import { formatFileSize, isWithinDays } from '../../../common/format';
 import * as strings from 'InsightsDashboardWebPartStrings';
-import {
-  IconButton,
-  MessageBar,
-  MessageBarType,
-  Shimmer
-} from '@fluentui/react';
+import { IconButton } from '@fluentui/react';
 
 const TOP_TYPES: number = 5;
 
 const monthKey = (d: Date): string => `${d.getFullYear()}-${d.getMonth()}`;
 
-const buildMonthlyTrend = (documents: IDocumentItem[], monthsBack: number): IChartDatum[] => {
+const buildMonthlyTrend = (documents: IDocumentItem[], monthsBack: number): IBarChartDatum[] => {
   const now: Date = new Date();
-  const buckets: IChartDatum[] = [];
+  const buckets: IBarChartDatum[] = [];
   const bucketIndex: { [key: string]: number } = {};
 
   for (let i: number = monthsBack - 1; i >= 0; i--) {
@@ -46,37 +46,37 @@ const buildMonthlyTrend = (documents: IDocumentItem[], monthsBack: number): ICha
   return buckets;
 };
 
-const buildTypeDistribution = (documents: IDocumentItem[]): IChartDatum[] => {
+const buildTypeDistribution = (documents: IDocumentItem[]): IDonutDatum[] => {
   const counts: { [ext: string]: number } = {};
   documents.forEach((doc: IDocumentItem) => {
     const ext: string = doc.extension ? doc.extension.toUpperCase() : strings.OtherLabel;
     counts[ext] = (counts[ext] || 0) + 1;
   });
 
-  const sorted: IChartDatum[] = Object.keys(counts)
-    .map((ext: string): IChartDatum => ({ label: ext, value: counts[ext] }))
-    .sort((a: IChartDatum, b: IChartDatum) => b.value - a.value);
+  const sorted: IDonutDatum[] = Object.keys(counts)
+    .map((ext: string): IDonutDatum => ({ label: ext, value: counts[ext] }))
+    .sort((a: IDonutDatum, b: IDonutDatum) => b.value - a.value);
 
   if (sorted.length <= TOP_TYPES + 1) {
     return sorted;
   }
-  const top: IChartDatum[] = sorted.slice(0, TOP_TYPES);
+  const top: IDonutDatum[] = sorted.slice(0, TOP_TYPES);
   const otherTotal: number = sorted
     .slice(TOP_TYPES)
-    .reduce((sum: number, d: IChartDatum) => sum + d.value, 0);
+    .reduce((sum: number, d: IDonutDatum) => sum + d.value, 0);
   top.push({ label: strings.OtherLabel, value: otherTotal });
   return top;
 };
 
-const buildCategoryDistribution = (notices: INotice[]): IChartDatum[] => {
+const buildCategoryDistribution = (notices: INotice[]): IBarChartDatum[] => {
   const counts: { [category: string]: number } = {};
   notices.forEach((n: INotice) => {
     const category: string = n.category || strings.UncategorizedLabel;
     counts[category] = (counts[category] || 0) + 1;
   });
   return Object.keys(counts)
-    .map((category: string): IChartDatum => ({ label: category, value: counts[category] }))
-    .sort((a: IChartDatum, b: IChartDatum) => b.value - a.value);
+    .map((category: string): IBarChartDatum => ({ label: category, value: counts[category] }))
+    .sort((a: IBarChartDatum, b: IBarChartDatum) => b.value - a.value);
 };
 
 const InsightsDashboard: React.FC<IInsightsDashboardProps> = (props: IInsightsDashboardProps) => {
@@ -120,17 +120,17 @@ const InsightsDashboard: React.FC<IInsightsDashboardProps> = (props: IInsightsDa
     load().catch(() => { /* handled per-source in load */ });
   }, [load]);
 
-  const monthlyTrend: IChartDatum[] = React.useMemo(
+  const monthlyTrend: IBarChartDatum[] = React.useMemo(
     () => buildMonthlyTrend(documents, monthsBack),
     [documents, monthsBack]
   );
 
-  const typeDistribution: IChartDatum[] = React.useMemo(
+  const typeDistribution: IDonutDatum[] = React.useMemo(
     () => buildTypeDistribution(documents),
     [documents]
   );
 
-  const categoryDistribution: IChartDatum[] = React.useMemo(
+  const categoryDistribution: IBarChartDatum[] = React.useMemo(
     () => buildCategoryDistribution(notices),
     [notices]
   );
@@ -152,39 +152,51 @@ const InsightsDashboard: React.FC<IInsightsDashboardProps> = (props: IInsightsDa
 
   return (
     <section className={styles.insightsDashboard}>
-      <PageHeader title={props.title || strings.DefaultTitle} subtitle={`${listTitle} · ${libraryTitle}`}>
-        <IconButton
-          iconProps={{ iconName: 'Refresh' }}
-          title={strings.RefreshLabel}
-          ariaLabel={strings.RefreshLabel}
-          onClick={() => { load().catch(() => { /* handled per-source in load */ }); }}
-        />
-      </PageHeader>
+      <PageHeader
+        title={props.title || strings.DefaultTitle}
+        subtitle={`${listTitle} · ${libraryTitle}`}
+        actions={(
+          <IconButton
+            iconProps={{ iconName: 'Refresh' }}
+            title={strings.RefreshLabel}
+            ariaLabel={strings.RefreshLabel}
+            onClick={() => { load().catch(() => { /* handled per-source in load */ }); }}
+          />
+        )}
+      />
 
       {loading ? (
         <div>
-          <Shimmer style={{ marginBottom: 10 }} />
-          <Shimmer style={{ marginBottom: 10 }} width='90%' />
-          <Shimmer width='80%' />
+          <div className={styles.statRow}>
+            <Skeleton variant='rect' height={96} />
+            <Skeleton variant='rect' height={96} />
+            <Skeleton variant='rect' height={96} />
+            <Skeleton variant='rect' height={96} />
+          </div>
+          <Skeleton lines={4} />
         </div>
       ) : (
         <div>
           {noticeError ? (
-            <MessageBar className={styles.sectionError} messageBarType={MessageBarType.warning}>
-              {noticeError}
-            </MessageBar>
+            <div className={styles.sectionError}>
+              <Alert tone='warning' title={strings.LoadErrorTitle}>{noticeError}</Alert>
+            </div>
           ) : undefined}
           {documentError ? (
-            <MessageBar className={styles.sectionError} messageBarType={MessageBarType.warning}>
-              {documentError}
-            </MessageBar>
+            <div className={styles.sectionError}>
+              <Alert tone='warning' title={strings.LoadErrorTitle}>{documentError}</Alert>
+            </div>
           ) : undefined}
 
           <div className={styles.statRow}>
-            <StatCard iconName='DocumentSet' label={strings.StatTotalDocs} value={`${documents.length}`} />
-            <StatCard iconName='Recent' label={strings.StatRecentDocs} value={`${recentDocs}`} />
-            <StatCard iconName='Megaphone' label={strings.StatRecentNotices} value={`${recentNotices}`} />
-            <StatCard iconName='Database' label={strings.StatTotalSize} value={formatFileSize(totalSize)} />
+            <StatCard
+              label={strings.StatTotalDocs}
+              value={documents.length}
+              sparkline={monthlyTrend.map((d: IBarChartDatum) => d.value)}
+            />
+            <StatCard label={strings.StatRecentDocs} value={recentDocs} unit={strings.CountUnit} />
+            <StatCard label={strings.StatRecentNotices} value={recentNotices} unit={strings.CountUnit} />
+            <StatCard label={strings.StatTotalSize} value={formatFileSize(totalSize)} />
           </div>
 
           <div className={styles.chartGrid}>
@@ -192,9 +204,9 @@ const InsightsDashboard: React.FC<IInsightsDashboardProps> = (props: IInsightsDa
               <span className={styles.chartTitle}>{strings.TrendChartTitle}</span>
               <span className={styles.chartSubtitle}>{strings.TrendChartSubtitle}</span>
               {documents.length > 0 ? (
-                <ColumnChart data={monthlyTrend} ariaLabel={strings.TrendChartTitle} />
+                <BarChart data={monthlyTrend} height={150} showValues={true} />
               ) : (
-                <EmptyState iconName='BarChartVertical' title={strings.NoDataLabel} />
+                <EmptyState title={strings.NoDataLabel} />
               )}
             </div>
 
@@ -202,9 +214,15 @@ const InsightsDashboard: React.FC<IInsightsDashboardProps> = (props: IInsightsDa
               <span className={styles.chartTitle}>{strings.TypeChartTitle}</span>
               <span className={styles.chartSubtitle}>{strings.TypeChartSubtitle}</span>
               {typeDistribution.length > 0 ? (
-                <HBarChart data={typeDistribution} ariaLabel={strings.TypeChartTitle} />
+                <Donut
+                  data={typeDistribution}
+                  size={150}
+                  thickness={20}
+                  centerValue={`${documents.length}`}
+                  centerLabel={strings.DonutCenterLabel}
+                />
               ) : (
-                <EmptyState iconName='BarChartHorizontal' title={strings.NoDataLabel} />
+                <EmptyState title={strings.NoDataLabel} />
               )}
             </div>
 
@@ -212,9 +230,9 @@ const InsightsDashboard: React.FC<IInsightsDashboardProps> = (props: IInsightsDa
               <span className={styles.chartTitle}>{strings.CategoryChartTitle}</span>
               <span className={styles.chartSubtitle}>{strings.CategoryChartSubtitle}</span>
               {categoryDistribution.length > 0 ? (
-                <HBarChart data={categoryDistribution} ariaLabel={strings.CategoryChartTitle} />
+                <BarChart data={categoryDistribution} height={150} showValues={true} highlightLast={false} />
               ) : (
-                <EmptyState iconName='BarChartHorizontal' title={strings.NoDataLabel} />
+                <EmptyState title={strings.NoDataLabel} />
               )}
             </div>
           </div>

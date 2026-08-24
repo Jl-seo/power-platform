@@ -23,6 +23,9 @@ define([], function() {
     "MonthSuffix": "",
     "OtherLabel": "Other",
     "UncategorizedLabel": "Uncategorized",
+    "LoadErrorTitle": "Load failed",
+    "CountUnit": "items",
+    "DonutCenterLabel": "documents",
     "NoDataLabel": "No data to display",
     "NoticeLoadErrorPrefix": "Failed to load the notice list",
     "DocumentLoadErrorPrefix": "Failed to load the document library"

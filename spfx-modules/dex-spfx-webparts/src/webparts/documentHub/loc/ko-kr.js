@@ -22,6 +22,7 @@ define([], function() {
     "StatTotalSize": "총 용량",
     "EmptyTitle": "문서가 없습니다",
     "EmptyDescription": "다른 검색어로 시도해 보세요.",
+    "LoadErrorTitle": "불러오기 실패",
     "LoadErrorPrefix": "라이브러리를 불러오지 못했습니다"
   }
 });

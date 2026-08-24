@@ -10,10 +10,16 @@ Fluent UI 기반으로, 엔터프라이즈 디자인 시스템 패턴(PageHeader
 | **공지사항 (Notice Board)** | 고정 공지, 분류 필터, 검색, 페이지네이션, 상세 Panel | SharePoint 목록 |
 | **문서 허브 (Document Hub)** | 카드/테이블 보기 전환, 검색, 사용 현황 StatCard | 문서 라이브러리 |
 | **조직도/직원 검색 (People Directory)** | 직원 검색, 부서 필터, 상급자/직속 구성원 조회 | Microsoft Graph |
-| **현황 대시보드 (Insights Dashboard)** | KPI 타일 4종 + 월별 문서 추이/파일 형식별/분류별 차트 | SharePoint 목록 + 문서 라이브러리 |
+| **현황 대시보드 (Insights Dashboard)** | KPI 타일 4종 + 월별 문서 추이(BarChart)/파일 형식별(Donut)/분류별 차트 | SharePoint 목록 + 문서 라이브러리 |
+| **DEX 컴포넌트 갤러리 (DEX Component Gallery)** | 포팅된 DEX 컴포넌트 18종 라이브 스타일 가이드 | 없음(정적) |
 
 모든 웹파트의 색·타이포·라운드·그림자는 [DEX 디자인 시스템](https://github.com/DigitalExpertsConsulting/design-system) 토큰을 따릅니다
-(`src/common/styles/_dex.scss`, `src/common/dexTokens.ts` — 브랜드 블루 `#1F6FEB`, Pretendard, 카드 radius 14px, StatCard/PageHeader/Chip/BarChart 컴포넌트 스펙).
+(`src/common/styles/_dex.scss`, `src/common/dexTokens.ts` — 브랜드 블루 `#1F6FEB`, Pretendard, 카드 radius 14px).
+
+디자인 시스템의 컴포넌트 18종이 `src/common/dex/`에 TSX로 포팅되어 있어 웹파트에서 직접 사용합니다:
+Alert · Avatar · AvatarGroup · Badge · BarChart · Card · Chip · Donut · EmptyState · OrgChart ·
+PageHeader · Progress · ProgressRing · Skeleton · StatCard · Steps · Tabs · Timeline.
+`var(--…)` 토큰은 각 웹파트 루트의 `dex-root` 믹스인이 주입합니다.
 
 ## 사전 준비
 

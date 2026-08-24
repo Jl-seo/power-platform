@@ -2,8 +2,16 @@ import * as React from 'react';
 import styles from './PeopleDirectory.module.scss';
 import type { IPeopleDirectoryProps } from './IPeopleDirectoryProps';
 import { PeopleService, IPerson, IPersonDetail } from '../services/PeopleService';
-import { PageHeader } from '../../../common/components/PageHeader';
-import { EmptyState } from '../../../common/components/EmptyState';
+import {
+  Alert,
+  Avatar,
+  Chip,
+  EmptyState,
+  IOrgNode,
+  OrgChart,
+  PageHeader,
+  Skeleton
+} from '../../../common/dex';
 import { Pagination } from '../../../common/components/Pagination';
 import * as strings from 'PeopleDirectoryWebPartStrings';
 import { MSGraphClientV3 } from '@microsoft/sp-http';
@@ -13,13 +21,8 @@ import {
   IDropdownOption,
   IconButton,
   Icon,
-  MessageBar,
-  MessageBarType,
-  Shimmer,
   Panel,
   PanelType,
-  Persona,
-  PersonaSize,
   Spinner,
   SpinnerSize,
   Link
@@ -112,37 +115,49 @@ const PeopleDirectory: React.FC<IPeopleDirectoryProps> = (props: IPeopleDirector
     return filtered.slice(start, start + pageSize);
   }, [filtered, page, pageSize]);
 
-  const renderOrgPerson = (person: IPerson): React.ReactElement => (
-    <div
-      key={person.id}
-      className={styles.orgPerson}
-      role='button'
-      tabIndex={0}
-      onClick={() => openDetail(person.id)}
-      onKeyDown={(ev: React.KeyboardEvent<HTMLDivElement>) => {
-        if (ev.key === 'Enter' || ev.key === ' ') {
-          openDetail(person.id);
-        }
-      }}
-    >
-      <Persona
-        text={person.displayName}
-        secondaryText={person.jobTitle}
-        size={PersonaSize.size32}
-      />
-    </div>
-  );
+  // Manager → selected person → direct reports, rendered with the DEX OrgChart.
+  const orgRoot: IOrgNode | undefined = React.useMemo(() => {
+    if (!detail) {
+      return undefined;
+    }
+    const selfNode: IOrgNode = {
+      name: detail.displayName,
+      title: detail.jobTitle,
+      tone: 'brand',
+      children: detail.directReports.map((p: IPerson): IOrgNode => ({
+        name: p.displayName,
+        title: p.jobTitle,
+        tone: 'neutral',
+        onClick: () => openDetail(p.id)
+      }))
+    };
+    if (detail.manager) {
+      const manager: IPerson = detail.manager;
+      return {
+        name: manager.displayName,
+        title: manager.jobTitle,
+        tone: 'light',
+        onClick: () => openDetail(manager.id),
+        children: [selfNode]
+      };
+    }
+    return selfNode;
+  }, [detail, openDetail]);
 
   return (
     <section className={styles.peopleDirectory}>
-      <PageHeader title={props.title || strings.DefaultTitle} subtitle={strings.HeaderSubtitle}>
-        <IconButton
-          iconProps={{ iconName: 'Refresh' }}
-          title={strings.RefreshLabel}
-          ariaLabel={strings.RefreshLabel}
-          onClick={() => { load(query).catch(() => { /* handled in load */ }); }}
-        />
-      </PageHeader>
+      <PageHeader
+        title={props.title || strings.DefaultTitle}
+        subtitle={strings.HeaderSubtitle}
+        actions={(
+          <IconButton
+            iconProps={{ iconName: 'Refresh' }}
+            title={strings.RefreshLabel}
+            ariaLabel={strings.RefreshLabel}
+            onClick={() => { load(query).catch(() => { /* handled in load */ }); }}
+          />
+        )}
+      />
 
       <div className={styles.toolbar}>
         <SearchBox
@@ -172,23 +187,13 @@ const PeopleDirectory: React.FC<IPeopleDirectoryProps> = (props: IPeopleDirector
       </div>
 
       {error ? (
-        <MessageBar messageBarType={MessageBarType.error}>{error}</MessageBar>
+        <Alert tone='danger' title={strings.LoadErrorTitle}>{error}</Alert>
       ) : undefined}
 
-      {loading ? (
-        <div>
-          <Shimmer style={{ marginBottom: 10 }} />
-          <Shimmer style={{ marginBottom: 10 }} width='90%' />
-          <Shimmer width='80%' />
-        </div>
-      ) : undefined}
+      {loading ? <Skeleton lines={4} /> : undefined}
 
       {!loading && !error && filtered.length === 0 ? (
-        <EmptyState
-          iconName='People'
-          title={strings.EmptyTitle}
-          description={strings.EmptyDescription}
-        />
+        <EmptyState title={strings.EmptyTitle} description={strings.EmptyDescription} />
       ) : undefined}
 
       {!loading && !error && filtered.length > 0 ? (
@@ -207,14 +212,14 @@ const PeopleDirectory: React.FC<IPeopleDirectoryProps> = (props: IPeopleDirector
                   }
                 }}
               >
-                <Persona
-                  text={person.displayName}
-                  secondaryText={person.jobTitle}
-                  size={PersonaSize.size40}
-                />
-                {person.department ? (
-                  <span className={styles.departmentChip}>{person.department}</span>
-                ) : undefined}
+                <div className={styles.personIdentity}>
+                  <Avatar name={person.displayName} size={40} />
+                  <div className={styles.personText}>
+                    <span className={styles.personName}>{person.displayName}</span>
+                    {person.jobTitle ? <span className={styles.personTitle}>{person.jobTitle}</span> : undefined}
+                  </div>
+                </div>
+                {person.department ? <Chip tone='brand'>{person.department}</Chip> : undefined}
                 {person.mail ? (
                   <span className={styles.personCardMeta}>
                     <Icon iconName='Mail' /> {person.mail}
@@ -246,12 +251,14 @@ const PeopleDirectory: React.FC<IPeopleDirectoryProps> = (props: IPeopleDirector
 
         {!detailLoading && detail ? (
           <div>
-            <Persona
-              text={detail.displayName}
-              secondaryText={detail.jobTitle}
-              tertiaryText={detail.department}
-              size={PersonaSize.size72}
-            />
+            <div className={styles.personIdentity}>
+              <Avatar name={detail.displayName} size={64} />
+              <div className={styles.personText}>
+                <span className={styles.personName}>{detail.displayName}</span>
+                {detail.jobTitle ? <span className={styles.personTitle}>{detail.jobTitle}</span> : undefined}
+                {detail.department ? <Chip tone='brand' style={{ alignSelf: 'flex-start', marginTop: 4 }}>{detail.department}</Chip> : undefined}
+              </div>
+            </div>
 
             <div className={styles.panelSection}>
               <div className={styles.panelSectionTitle}>{strings.ContactSectionTitle}</div>
@@ -275,28 +282,17 @@ const PeopleDirectory: React.FC<IPeopleDirectoryProps> = (props: IPeopleDirector
               ) : undefined}
             </div>
 
-            {detail.manager ? (
+            {orgRoot && (detail.manager || detail.directReports.length > 0) ? (
               <div className={styles.panelSection}>
-                <div className={styles.panelSectionTitle}>{strings.ManagerSectionTitle}</div>
-                {renderOrgPerson(detail.manager)}
-              </div>
-            ) : undefined}
-
-            {detail.directReports.length > 0 ? (
-              <div className={styles.panelSection}>
-                <div className={styles.panelSectionTitle}>
-                  {strings.DirectReportsSectionTitle} ({detail.directReports.length})
-                </div>
-                {detail.directReports.map(renderOrgPerson)}
+                <div className={styles.panelSectionTitle}>{strings.OrgSectionTitle}</div>
+                <OrgChart root={orgRoot} />
               </div>
             ) : undefined}
           </div>
         ) : undefined}
 
         {!detailLoading && !detail ? (
-          <MessageBar messageBarType={MessageBarType.warning}>
-            {strings.DetailLoadError}
-          </MessageBar>
+          <Alert tone='warning'>{strings.DetailLoadError}</Alert>
         ) : undefined}
       </Panel>
     </section>

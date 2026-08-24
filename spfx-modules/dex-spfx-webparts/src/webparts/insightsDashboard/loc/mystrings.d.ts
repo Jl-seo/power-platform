@@ -22,6 +22,9 @@ declare interface IInsightsDashboardWebPartStrings {
   MonthSuffix: string;
   OtherLabel: string;
   UncategorizedLabel: string;
+  LoadErrorTitle: string;
+  CountUnit: string;
+  DonutCenterLabel: string;
   NoDataLabel: string;
   NoticeLoadErrorPrefix: string;
   DocumentLoadErrorPrefix: string;

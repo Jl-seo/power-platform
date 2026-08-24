@@ -22,6 +22,7 @@ define([], function() {
     "StatTotalSize": "Total size",
     "EmptyTitle": "No documents found",
     "EmptyDescription": "Try a different search keyword.",
+    "LoadErrorTitle": "Load failed",
     "LoadErrorPrefix": "Failed to load the library"
   }
 });

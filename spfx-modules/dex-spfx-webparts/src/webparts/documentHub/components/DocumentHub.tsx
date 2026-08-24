@@ -2,19 +2,14 @@ import * as React from 'react';
 import styles from './DocumentHub.module.scss';
 import type { IDocumentHubProps, DocumentHubView } from './IDocumentHubProps';
 import { DocumentService, IDocumentItem } from '../services/DocumentService';
-import { PageHeader } from '../../../common/components/PageHeader';
-import { EmptyState } from '../../../common/components/EmptyState';
+import { Alert, EmptyState, PageHeader, Skeleton, StatCard, Tabs } from '../../../common/dex';
 import { Pagination } from '../../../common/components/Pagination';
-import { StatCard } from '../../../common/components/StatCard';
 import { formatDate, formatFileSize, isWithinDays } from '../../../common/format';
 import * as strings from 'DocumentHubWebPartStrings';
 import {
   SearchBox,
   IconButton,
   Icon,
-  MessageBar,
-  MessageBarType,
-  Shimmer,
   DetailsList,
   DetailsListLayoutMode,
   SelectionMode,
@@ -125,34 +120,34 @@ const DocumentHub: React.FC<IDocumentHubProps> = (props: IDocumentHubProps) => {
 
   return (
     <section className={styles.documentHub}>
-      <PageHeader title={props.title || strings.DefaultTitle} subtitle={libraryTitle}>
-        <IconButton
-          iconProps={{ iconName: 'GridViewMedium' }}
-          title={strings.CardViewLabel}
-          ariaLabel={strings.CardViewLabel}
-          checked={view === 'card'}
-          onClick={() => setView('card')}
-        />
-        <IconButton
-          iconProps={{ iconName: 'BulletedList' }}
-          title={strings.TableViewLabel}
-          ariaLabel={strings.TableViewLabel}
-          checked={view === 'table'}
-          onClick={() => setView('table')}
-        />
-        <IconButton
-          iconProps={{ iconName: 'Refresh' }}
-          title={strings.RefreshLabel}
-          ariaLabel={strings.RefreshLabel}
-          onClick={() => { load().catch(() => { /* handled in load */ }); }}
-        />
-      </PageHeader>
+      <PageHeader
+        title={props.title || strings.DefaultTitle}
+        subtitle={libraryTitle}
+        actions={(
+          <IconButton
+            iconProps={{ iconName: 'Refresh' }}
+            title={strings.RefreshLabel}
+            ariaLabel={strings.RefreshLabel}
+            onClick={() => { load().catch(() => { /* handled in load */ }); }}
+          />
+        )}
+        tabs={(
+          <Tabs
+            items={[
+              { id: 'card', label: strings.CardViewLabel },
+              { id: 'table', label: strings.TableViewLabel, count: filtered.length }
+            ]}
+            active={view}
+            onChange={(id: string) => setView(id as DocumentHubView)}
+          />
+        )}
+      />
 
       {!loading && !error ? (
         <div className={styles.statRow}>
-          <StatCard iconName='DocumentSet' label={strings.StatTotalDocs} value={`${documents.length}`} />
-          <StatCard iconName='Recent' label={strings.StatRecentDocs} value={`${recentCount}`} />
-          <StatCard iconName='Database' label={strings.StatTotalSize} value={formatFileSize(totalSize)} />
+          <StatCard label={strings.StatTotalDocs} value={documents.length} />
+          <StatCard label={strings.StatRecentDocs} value={recentCount} />
+          <StatCard label={strings.StatTotalSize} value={formatFileSize(totalSize)} />
         </div>
       ) : undefined}
 
@@ -169,23 +164,13 @@ const DocumentHub: React.FC<IDocumentHubProps> = (props: IDocumentHubProps) => {
       </div>
 
       {error ? (
-        <MessageBar messageBarType={MessageBarType.error}>{error}</MessageBar>
+        <Alert tone='danger' title={strings.LoadErrorTitle}>{error}</Alert>
       ) : undefined}
 
-      {loading ? (
-        <div>
-          <Shimmer style={{ marginBottom: 10 }} />
-          <Shimmer style={{ marginBottom: 10 }} width='90%' />
-          <Shimmer width='80%' />
-        </div>
-      ) : undefined}
+      {loading ? <Skeleton lines={4} /> : undefined}
 
       {!loading && !error && filtered.length === 0 ? (
-        <EmptyState
-          iconName='DocLibrary'
-          title={strings.EmptyTitle}
-          description={strings.EmptyDescription}
-        />
+        <EmptyState title={strings.EmptyTitle} description={strings.EmptyDescription} />
       ) : undefined}
 
       {!loading && !error && filtered.length > 0 && view === 'card' ? (

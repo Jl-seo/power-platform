@@ -1,0 +1,38 @@
+@import '../../../common/styles/dex';
+
+.dexGallery {
+  overflow: hidden;
+  padding: 1em;
+  color: "[theme:bodyText, default: #111827]";
+  color: var(--bodyText);
+  @include dex-root;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.statRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}

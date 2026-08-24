@@ -21,6 +21,7 @@ declare interface IDocumentHubWebPartStrings {
   StatTotalSize: string;
   EmptyTitle: string;
   EmptyDescription: string;
+  LoadErrorTitle: string;
   LoadErrorPrefix: string;
 }
 

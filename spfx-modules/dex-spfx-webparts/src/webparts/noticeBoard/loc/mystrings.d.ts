@@ -14,6 +14,7 @@ declare interface INoticeBoardWebPartStrings {
   EmptyTitle: string;
   EmptyDescription: string;
   NoBodyLabel: string;
+  LoadErrorTitle: string;
   LoadErrorPrefix: string;
 }
 

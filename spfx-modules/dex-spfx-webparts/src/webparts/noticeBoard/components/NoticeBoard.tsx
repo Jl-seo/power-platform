@@ -2,8 +2,7 @@ import * as React from 'react';
 import styles from './NoticeBoard.module.scss';
 import type { INoticeBoardProps } from './INoticeBoardProps';
 import { NoticeService, INotice } from '../services/NoticeService';
-import { PageHeader } from '../../../common/components/PageHeader';
-import { EmptyState } from '../../../common/components/EmptyState';
+import { Alert, Avatar, Badge, EmptyState, PageHeader, Skeleton } from '../../../common/dex';
 import { Pagination } from '../../../common/components/Pagination';
 import { formatDate, formatDateTime, isWithinDays } from '../../../common/format';
 import * as strings from 'NoticeBoardWebPartStrings';
@@ -13,13 +12,8 @@ import {
   IDropdownOption,
   IconButton,
   Icon,
-  MessageBar,
-  MessageBarType,
-  Shimmer,
   Panel,
-  PanelType,
-  Persona,
-  PersonaSize
+  PanelType
 } from '@fluentui/react';
 
 const ALL_CATEGORIES: string = '__all__';
@@ -112,9 +106,9 @@ const NoticeBoard: React.FC<INoticeBoardProps> = (props: INoticeBoardProps) => {
         }
       }}
     >
-      {notice.category ? <span className={styles.categoryChip}>{notice.category}</span> : undefined}
+      {notice.category ? <Badge tone='brand'>{notice.category}</Badge> : undefined}
       <span className={styles.noticeTitle}>{notice.title}</span>
-      {isWithinDays(notice.created, 7) ? <span className={styles.newBadge}>N</span> : undefined}
+      {isWithinDays(notice.created, 7) ? <Badge tone='danger' dot={true}>N</Badge> : undefined}
       {notice.author ? <span className={styles.metaText}>{notice.author}</span> : undefined}
       <span className={styles.metaText}>{formatDate(notice.created)}</span>
     </div>
@@ -122,14 +116,18 @@ const NoticeBoard: React.FC<INoticeBoardProps> = (props: INoticeBoardProps) => {
 
   return (
     <section className={styles.noticeBoard}>
-      <PageHeader title={props.title || strings.DefaultTitle} subtitle={listTitle}>
-        <IconButton
-          iconProps={{ iconName: 'Refresh' }}
-          title={strings.RefreshLabel}
-          ariaLabel={strings.RefreshLabel}
-          onClick={() => { load().catch(() => { /* handled in load */ }); }}
-        />
-      </PageHeader>
+      <PageHeader
+        title={props.title || strings.DefaultTitle}
+        subtitle={listTitle}
+        actions={(
+          <IconButton
+            iconProps={{ iconName: 'Refresh' }}
+            title={strings.RefreshLabel}
+            ariaLabel={strings.RefreshLabel}
+            onClick={() => { load().catch(() => { /* handled in load */ }); }}
+          />
+        )}
+      />
 
       <div className={styles.toolbar}>
         <SearchBox
@@ -157,16 +155,10 @@ const NoticeBoard: React.FC<INoticeBoardProps> = (props: INoticeBoardProps) => {
       </div>
 
       {error ? (
-        <MessageBar messageBarType={MessageBarType.error}>{error}</MessageBar>
+        <Alert tone='danger' title={strings.LoadErrorTitle}>{error}</Alert>
       ) : undefined}
 
-      {loading ? (
-        <div>
-          <Shimmer style={{ marginBottom: 10 }} />
-          <Shimmer style={{ marginBottom: 10 }} width='90%' />
-          <Shimmer width='80%' />
-        </div>
-      ) : undefined}
+      {loading ? <Skeleton lines={4} /> : undefined}
 
       {!loading && !error && pinned.length > 0 ? (
         <div className={styles.pinnedSection}>
@@ -192,11 +184,7 @@ const NoticeBoard: React.FC<INoticeBoardProps> = (props: INoticeBoardProps) => {
       ) : undefined}
 
       {!loading && !error && filtered.length === 0 ? (
-        <EmptyState
-          iconName='Megaphone'
-          title={strings.EmptyTitle}
-          description={strings.EmptyDescription}
-        />
+        <EmptyState title={strings.EmptyTitle} description={strings.EmptyDescription} />
       ) : undefined}
 
       {!loading && !error ? (
@@ -222,11 +210,10 @@ const NoticeBoard: React.FC<INoticeBoardProps> = (props: INoticeBoardProps) => {
         {selected ? (
           <div>
             <div className={styles.panelMeta}>
-              <Persona text={selected.author || ' '} size={PersonaSize.size32} />
+              <Avatar name={selected.author || '?'} size={32} />
+              {selected.author ? <span className={styles.metaText}>{selected.author}</span> : undefined}
               <span className={styles.metaText}>{formatDateTime(selected.created)}</span>
-              {selected.category ? (
-                <span className={styles.categoryChip}>{selected.category}</span>
-              ) : undefined}
+              {selected.category ? <Badge tone='brand'>{selected.category}</Badge> : undefined}
             </div>
             {selected.body ? (
               <div
@@ -234,7 +221,7 @@ const NoticeBoard: React.FC<INoticeBoardProps> = (props: INoticeBoardProps) => {
                 dangerouslySetInnerHTML={{ __html: selected.body }}
               />
             ) : (
-              <EmptyState iconName='TextDocument' title={strings.NoBodyLabel} />
+              <EmptyState title={strings.NoBodyLabel} />
             )}
           </div>
         ) : undefined}

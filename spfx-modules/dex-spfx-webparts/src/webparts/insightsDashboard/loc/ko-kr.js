@@ -23,6 +23,9 @@ define([], function() {
     "MonthSuffix": "월",
     "OtherLabel": "기타",
     "UncategorizedLabel": "미분류",
+    "LoadErrorTitle": "불러오기 실패",
+    "CountUnit": "건",
+    "DonutCenterLabel": "전체 문서",
     "NoDataLabel": "표시할 데이터가 없습니다",
     "NoticeLoadErrorPrefix": "공지사항 목록을 불러오지 못했습니다",
     "DocumentLoadErrorPrefix": "문서 라이브러리를 불러오지 못했습니다"

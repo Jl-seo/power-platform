@@ -11,6 +11,8 @@ declare interface IPeopleDirectoryWebPartStrings {
   CloseLabel: string;
   EmptyTitle: string;
   EmptyDescription: string;
+  LoadErrorTitle: string;
+  OrgSectionTitle: string;
   LoadErrorPrefix: string;
   DetailPanelTitle: string;
   DetailLoadingLabel: string;
