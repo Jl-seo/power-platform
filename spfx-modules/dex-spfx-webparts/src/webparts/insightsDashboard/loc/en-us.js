@@ -1,0 +1,33 @@
+define([], function() {
+  return {
+    "PropertyPaneDescription": "Configure the insights dashboard web part.",
+    "BasicGroupName": "Settings",
+    "TitleFieldLabel": "Web part title",
+    "ListTitleFieldLabel": "Notice list title",
+    "LibraryTitleFieldLabel": "Document library title",
+    "MonthsBackFieldLabel": "Trend months",
+    "DefaultTitle": "Insights Dashboard",
+    "DefaultListTitle": "Notices",
+    "DefaultLibraryTitle": "Documents",
+    "RefreshLabel": "Refresh",
+    "StatTotalDocs": "Total documents",
+    "StatRecentDocs": "Updated in 7 days",
+    "StatRecentNotices": "Notices in 30 days",
+    "StatTotalSize": "Total size",
+    "TrendChartTitle": "Documents updated by month",
+    "TrendChartSubtitle": "Number of documents last modified in each month",
+    "TypeChartTitle": "Documents by file type",
+    "TypeChartSubtitle": "Top file types in the library",
+    "CategoryChartTitle": "Notices by category",
+    "CategoryChartSubtitle": "Number of notices in each category",
+    "MonthSuffix": "",
+    "OtherLabel": "Other",
+    "UncategorizedLabel": "Uncategorized",
+    "LoadErrorTitle": "Load failed",
+    "CountUnit": "items",
+    "DonutCenterLabel": "documents",
+    "NoDataLabel": "No data to display",
+    "NoticeLoadErrorPrefix": "Failed to load the notice list",
+    "DocumentLoadErrorPrefix": "Failed to load the document library"
+  }
+});

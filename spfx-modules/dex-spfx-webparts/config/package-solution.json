@@ -1,0 +1,46 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "dex-spfx-webparts-client-side-solution",
+    "id": "7825469b-7268-491f-b435-7d708306d946",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "webApiPermissionRequests": [
+      {
+        "resource": "Microsoft Graph",
+        "scope": "User.Read.All"
+      }
+    ],
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.23.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "Enterprise intranet web parts: notice board, document hub, people directory"
+      },
+      "longDescription": {
+        "default": "SPFx web parts for enterprise intranet portals: a SharePoint list-based notice board, a document library hub with card/table views, and a Microsoft Graph-based people directory."
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "dex-spfx-webparts Feature",
+        "description": "The feature that activates elements of the dex-spfx-webparts solution.",
+        "id": "4d3dff3c-6d4a-4e84-87c6-ffbe9febd625",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/dex-spfx-webparts.sppkg"
+  }
+}

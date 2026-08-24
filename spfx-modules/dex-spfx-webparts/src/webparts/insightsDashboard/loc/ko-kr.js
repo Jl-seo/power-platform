@@ -1,0 +1,33 @@
+define([], function() {
+  return {
+    "PropertyPaneDescription": "현황 대시보드 웹파트를 설정합니다.",
+    "BasicGroupName": "설정",
+    "TitleFieldLabel": "웹파트 제목",
+    "ListTitleFieldLabel": "공지사항 목록 이름",
+    "LibraryTitleFieldLabel": "문서 라이브러리 이름",
+    "MonthsBackFieldLabel": "추이 표시 개월 수",
+    "DefaultTitle": "현황 대시보드",
+    "DefaultListTitle": "공지사항",
+    "DefaultLibraryTitle": "문서",
+    "RefreshLabel": "새로 고침",
+    "StatTotalDocs": "전체 문서",
+    "StatRecentDocs": "최근 7일 업데이트",
+    "StatRecentNotices": "최근 30일 공지",
+    "StatTotalSize": "총 용량",
+    "TrendChartTitle": "월별 문서 업데이트",
+    "TrendChartSubtitle": "각 월에 마지막으로 수정된 문서 수",
+    "TypeChartTitle": "파일 형식별 문서",
+    "TypeChartSubtitle": "라이브러리 내 상위 파일 형식",
+    "CategoryChartTitle": "분류별 공지",
+    "CategoryChartSubtitle": "분류별 공지사항 수",
+    "MonthSuffix": "월",
+    "OtherLabel": "기타",
+    "UncategorizedLabel": "미분류",
+    "LoadErrorTitle": "불러오기 실패",
+    "CountUnit": "건",
+    "DonutCenterLabel": "전체 문서",
+    "NoDataLabel": "표시할 데이터가 없습니다",
+    "NoticeLoadErrorPrefix": "공지사항 목록을 불러오지 못했습니다",
+    "DocumentLoadErrorPrefix": "문서 라이브러리를 불러오지 못했습니다"
+  }
+});

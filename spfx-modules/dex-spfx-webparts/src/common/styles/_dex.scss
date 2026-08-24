@@ -1,0 +1,147 @@
+/* DEX Consulting design-system tokens (from DigitalExpertsConsulting/design-system
+   colors_and_type.css — Bright SaaS edition). Keep values in sync with dexTokens.ts. */
+
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
+}
+
+/* Brand blue ramp */
+$dex-brand-700: #145AD0;
+$dex-brand-600: #1F6FEB;
+$dex-brand-500: #3B84F2;
+$dex-brand-200: #B9D6FD;
+$dex-brand-100: #DCEAFE;
+$dex-brand-50: #F0F6FF;
+
+/* Ink navy */
+$dex-navy-800: #0E2A57;
+
+/* Neutrals (cool gray) */
+$dex-fg-primary: #111827;
+$dex-fg-secondary: #374151;
+$dex-fg-tertiary: #6B7280;
+$dex-border-default: #E4E8EF;
+$dex-border-strong: #D1D6DE;
+$dex-bg-subtle: #F8FAFC;
+$dex-bg-muted: #F1F4F8;
+
+/* Status */
+$dex-danger-700: #D92D20;
+$dex-danger-100: #FEE4E2;
+
+/* Radii */
+$dex-radius-xs: 6px;
+$dex-radius-sm: 10px;
+$dex-radius-md: 14px;
+
+/* Shadows */
+$dex-shadow-xs: 0 1px 2px rgba(16, 63, 145, 0.05);
+$dex-shadow-sm: 0 2px 8px rgba(16, 63, 145, 0.06);
+$dex-shadow-md: 0 8px 24px rgba(16, 63, 145, 0.08);
+
+/* Type */
+$dex-font-sans: 'Pretendard Variable', Pretendard, 'Segoe UI', 'Malgun Gothic', sans-serif;
+
+/* Skeleton pulse — global so TSX components can reference it by name. */
+:global {
+  @keyframes ds-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+}
+
+@mixin dex-root {
+  font-family: $dex-font-sans;
+  color: $dex-fg-primary;
+
+  /* DEX design-system custom properties, scoped to the web part root so the
+     ported components' var(--…) references resolve on SharePoint pages. */
+  --font-sans: #{$dex-font-sans};
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --brand-50: #F0F6FF;
+  --brand-100: #DCEAFE;
+  --brand-200: #B9D6FD;
+  --brand-500: #3B84F2;
+  --brand-600: #1F6FEB;
+  --brand-700: #145AD0;
+  --neutral-50: #F8FAFC;
+  --neutral-100: #F1F4F8;
+  --neutral-200: #E4E8EF;
+  --neutral-300: #D1D6DE;
+  --neutral-400: #9CA3AF;
+  --neutral-600: #4B5563;
+  --purple-100: #ECE9FE;
+  --purple-600: #7A5AF8;
+  --purple-700: #6941F5;
+  --teal-100: #CFF9FE;
+  --teal-600: #06AED4;
+  --teal-700: #0788A5;
+  --pink-100: #FCE7F6;
+  --pink-600: #EE46BC;
+  --pink-700: #D42BA2;
+  --orange-100: #FFEAD5;
+  --orange-600: #FB6514;
+  --orange-700: #DC5303;
+  --indigo-100: #E0EAFF;
+  --indigo-700: #444CE7;
+  --sky-100: #E0F2FE;
+  --sky-700: #026AA2;
+  --lime-100: #E9FBD3;
+  --lime-700: #4CA30D;
+  --gold-100: #FEF7C3;
+  --gold-700: #A15C07;
+  --success-100: #D9F6E7;
+  --success-200: #B2E9CD;
+  --success-600: #12B76A;
+  --success-700: #0E9355;
+  --warning-100: #FEF0C7;
+  --warning-200: #FDDF9B;
+  --warning-600: #F79009;
+  --warning-700: #B95E04;
+  --danger-100: #FEE4E2;
+  --danger-200: #FEC9C5;
+  --danger-600: #F04438;
+  --danger-700: #D92D20;
+  --color-fg-primary: #111827;
+  --color-fg-secondary: #374151;
+  --color-fg-tertiary: #6B7280;
+  --color-fg-on-brand: #FFFFFF;
+  --color-bg-elevated: #FFFFFF;
+  --color-border-default: #E4E8EF;
+  --shadow-sm: #{$dex-shadow-sm};
+  --chart-1: var(--brand-600);
+  --chart-2: var(--purple-600);
+  --chart-3: var(--teal-600);
+  --chart-4: var(--orange-600);
+  --chart-5: var(--pink-600);
+  --chart-6: var(--success-600);
+}
+
+@mixin dex-card {
+  background: var(--bodyBackground, #ffffff);
+  border: 1px solid $dex-border-default;
+  border-radius: $dex-radius-md;
+  box-shadow: $dex-shadow-sm;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+@mixin dex-card-hover {
+  border-color: $dex-brand-200;
+  box-shadow: $dex-shadow-md;
+  transform: translateY(-2px);
+}
+
+@mixin dex-chip {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 20px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: $dex-brand-100;
+  color: $dex-brand-700;
+  white-space: nowrap;
+}

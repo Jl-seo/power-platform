@@ -1,0 +1,24 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "739866da-8d3e-464e-aec4-45f848c53911",
+  "alias": "DexGalleryWebPart",
+  "componentType": "WebPart",
+
+  "version": "*",
+  "manifestVersion": 2,
+
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart", "TeamsPersonalApp", "TeamsTab", "SharePointFullPage"],
+  "supportsThemeVariants": true,
+
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+    "group": { "default": "Advanced" },
+    "title": { "default": "DEX Component Gallery", "ko-kr": "DEX 컴포넌트 갤러리" },
+    "description": { "default": "Living style guide showcasing the ported DEX design-system components.", "ko-kr": "포팅된 DEX 디자인 시스템 컴포넌트를 한눈에 보는 라이브 스타일 가이드입니다." },
+    "officeFabricIconFontName": "Color",
+    "properties": {
+      "title": ""
+    }
+  }]
+}

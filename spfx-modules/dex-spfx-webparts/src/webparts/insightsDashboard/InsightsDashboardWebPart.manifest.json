@@ -1,0 +1,31 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "f8783a8c-0e21-42f8-ac00-a6f00c0352ed",
+  "alias": "InsightsDashboardWebPart",
+  "componentType": "WebPart",
+
+  // The "*" signifies that the version should be taken from the package.json
+  "version": "*",
+  "manifestVersion": 2,
+
+  // If true, the component can only be installed on sites where Custom Script is allowed.
+  // Components that allow authors to embed arbitrary script code should set this to true.
+  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart", "TeamsPersonalApp", "TeamsTab", "SharePointFullPage"],
+  "supportsThemeVariants": true,
+
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Advanced
+    "group": { "default": "Advanced" },
+    "title": { "default": "Insights Dashboard", "ko-kr": "현황 대시보드" },
+    "description": { "default": "KPI tiles and charts summarizing notices and document library activity.", "ko-kr": "공지와 문서 라이브러리 현황을 KPI 타일과 차트로 요약합니다." },
+    "officeFabricIconFontName": "BIDashboard",
+    "properties": {
+      "title": "",
+      "listTitle": "",
+      "libraryTitle": "",
+      "monthsBack": 6
+    }
+  }]
+}

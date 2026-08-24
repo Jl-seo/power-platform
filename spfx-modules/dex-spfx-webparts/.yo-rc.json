@@ -1,0 +1,22 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "dex-spfx-webparts",
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "react",
+    "componentName": "NoticeBoard",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.22.2",
+    "sdksVersions": {},
+    "version": "1.23.2",
+    "libraryName": "dex-spfx-webparts",
+    "libraryId": "7825469b-7268-491f-b435-7d708306d946",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionShortDescription": "dex-spfx-webparts description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false
+  }
+}

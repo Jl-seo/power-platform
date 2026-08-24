@@ -1,0 +1,138 @@
+@import '../../../common/styles/dex';
+
+.noticeBoard {
+  overflow: hidden;
+  padding: 1em;
+  color: "[theme:bodyText, default: #111827]";
+  color: var(--bodyText);
+  @include dex-root;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.searchBox {
+  flex: 1 1 220px;
+  max-width: 320px;
+}
+
+.pinnedSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.pinnedCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid $dex-brand-200;
+  border-left: 4px solid $dex-brand-600;
+  border-radius: $dex-radius-sm;
+  background: $dex-brand-50;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    box-shadow: $dex-shadow-md;
+    transform: translateY(-1px);
+  }
+}
+
+.pinnedIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: $dex-brand-100;
+  color: $dex-brand-700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.pinnedTitle {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noticeRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 10px;
+  border-radius: $dex-radius-xs;
+  border-bottom: 1px solid $dex-bg-muted;
+  cursor: pointer;
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: $dex-bg-muted;
+  }
+}
+
+.noticeTitle {
+  flex: 1;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.categoryChip {
+  flex-shrink: 0;
+  @include dex-chip;
+}
+
+.metaText {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: $dex-fg-tertiary;
+  font-variant-numeric: tabular-nums;
+}
+
+.newBadge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 18px;
+  padding: 0 8px;
+  border-radius: $dex-radius-xs;
+  background: $dex-danger-100;
+  color: $dex-danger-700;
+}
+
+.panelMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: $dex-radius-sm;
+  background: $dex-bg-subtle;
+  border: 1px solid $dex-border-default;
+}
+
+.panelBody {
+  font-size: 14px;
+  line-height: 1.7;
+  word-break: break-word;
+
+  img {
+    max-width: 100%;
+    border-radius: $dex-radius-xs;
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "1de64a67-f6a1-45ca-9895-5bae84ef642c",
+  "alias": "NoticeBoardWebPart",
+  "componentType": "WebPart",
+
+  // The "*" signifies that the version should be taken from the package.json
+  "version": "*",
+  "manifestVersion": 2,
+
+  // If true, the component can only be installed on sites where Custom Script is allowed.
+  // Components that allow authors to embed arbitrary script code should set this to true.
+  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart", "TeamsPersonalApp", "TeamsTab", "SharePointFullPage"],
+  "supportsThemeVariants": true,
+
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Advanced
+    "group": { "default": "Advanced" },
+    "title": { "default": "Notice Board", "ko-kr": "공지사항" },
+    "description": { "default": "Displays notices from a SharePoint list with search, category filter, and pinned items.", "ko-kr": "SharePoint 목록의 공지를 검색·분류 필터·고정 공지와 함께 표시합니다." },
+    "officeFabricIconFontName": "Megaphone",
+    "properties": {
+      "title": "",
+      "listTitle": "",
+      "pageSize": 10
+    }
+  }]
+}

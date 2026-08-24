@@ -1,0 +1,66 @@
+@import '../../../common/styles/dex';
+
+.insightsDashboard {
+  overflow: hidden;
+  padding: 1em;
+  color: "[theme:bodyText, default: #111827]";
+  color: var(--bodyText);
+  @include dex-root;
+}
+
+.statRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.chartCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px;
+  min-width: 0;
+  @include dex-card;
+
+  &:hover {
+    border-color: $dex-brand-200;
+    box-shadow: $dex-shadow-md;
+  }
+}
+
+.chartTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--bodyText, #111827);
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 3px;
+    background: $dex-brand-600;
+  }
+}
+
+.chartSubtitle {
+  font-size: 11px;
+  color: $dex-fg-tertiary;
+  margin-top: -6px;
+  padding-left: 16px;
+}
+
+.sectionError {
+  margin-bottom: 12px;
+}
