@@ -9,7 +9,7 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .chartGrid {
@@ -22,23 +22,43 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 14px 16px;
-  border: 1px solid #edebe9;
-  border-radius: 4px;
+  padding: 16px 18px;
+  border: 1px solid #e6e9ef;
+  border-radius: 10px;
   background: var(--bodyBackground, #ffffff);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
   min-width: 0;
+
+  &:hover {
+    border-color: #c9d7ec;
+    box-shadow: 0 4px 12px rgba(27, 58, 107, 0.08);
+  }
 }
 
 .chartTitle {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--bodyText, #323130);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bodyText, #1f2430);
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 3px;
+    background: linear-gradient(135deg, #4a90e2 0%, #1b3a6b 100%);
+  }
 }
 
 .chartSubtitle {
   font-size: 11px;
-  color: #605e5c;
+  color: #7a8394;
   margin-top: -6px;
+  padding-left: 16px;
 }
 
 .sectionError {

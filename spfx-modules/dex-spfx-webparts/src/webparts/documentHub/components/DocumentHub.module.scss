@@ -9,7 +9,7 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .toolbar {
@@ -17,7 +17,7 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .searchBox {
@@ -34,29 +34,38 @@
 .docCard {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 12px 14px;
-  border: 1px solid #edebe9;
-  border-radius: 4px;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e6e9ef;
+  border-radius: 10px;
   cursor: pointer;
   background: var(--bodyBackground, #ffffff);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 
   &:hover {
-    border-color: #1b3a6b;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    border-color: #c9d7ec;
+    box-shadow: 0 6px 16px rgba(27, 58, 107, 0.12);
+    transform: translateY(-2px);
   }
 }
 
 .docCardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #f2f6fc;
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
 .docCardBody {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .docCardName {
@@ -65,12 +74,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--bodyText, #323130);
+  color: var(--bodyText, #1f2430);
 }
 
 .docCardMeta {
   font-size: 11px;
-  color: #605e5c;
+  color: #7a8394;
 }
 
 .fileNameCell {

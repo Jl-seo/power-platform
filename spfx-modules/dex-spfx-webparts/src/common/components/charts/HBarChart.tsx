@@ -3,7 +3,6 @@ import { mergeStyleSets } from '@fluentui/react';
 import {
   IChartDatum,
   CHART_ACCENT,
-  CHART_ACCENT_HOVER,
   CHART_TEXT_MUTED
 } from './ChartTypes';
 
@@ -34,18 +33,18 @@ const classNames = mergeStyleSets({
   },
   track: {
     height: 12,
-    borderRadius: 4,
-    background: '#f3f2f1',
+    borderRadius: 6,
+    background: '#f1f3f7',
     overflow: 'hidden'
   },
   bar: {
     height: '100%',
-    borderRadius: 4,
-    background: CHART_ACCENT,
+    borderRadius: 6,
+    background: `linear-gradient(90deg, #4a90e2 0%, ${CHART_ACCENT} 100%)`,
     minWidth: 2,
-    transition: 'background 0.1s',
+    transition: 'filter 0.1s',
     selectors: {
-      ':hover': { background: CHART_ACCENT_HOVER }
+      ':hover': { filter: 'brightness(0.9)' }
     }
   },
   value: {

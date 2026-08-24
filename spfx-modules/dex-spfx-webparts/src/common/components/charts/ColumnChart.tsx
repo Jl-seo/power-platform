@@ -101,6 +101,12 @@ export const ColumnChart: React.FC<IColumnChartProps> = (props: IColumnChartProp
       aria-label={props.ariaLabel}
       style={{ display: 'block' }}
     >
+      <defs>
+        <linearGradient id='dexColumnGradient' x1='0' y1='0' x2='0' y2='1'>
+          <stop offset='0%' stopColor='#4a90e2' />
+          <stop offset='100%' stopColor={CHART_ACCENT} />
+        </linearGradient>
+      </defs>
       {gridLines}
       {data.map((d: IChartDatum, i: number) => {
         const barHeight: number = maxValue > 0 ? (plotHeight * d.value) / maxValue : 0;
@@ -121,7 +127,10 @@ export const ColumnChart: React.FC<IColumnChartProps> = (props: IColumnChartProp
               fill='transparent'
             />
             {barHeight > 0 ? (
-              <path d={barPath(x, y, barWidth, barHeight)} fill={hovered === i ? CHART_ACCENT_HOVER : CHART_ACCENT}>
+              <path
+                d={barPath(x, y, barWidth, barHeight)}
+                fill={hovered === i ? CHART_ACCENT_HOVER : 'url(#dexColumnGradient)'}
+              >
                 <title>{`${d.label}: ${d.value}`}</title>
               </path>
             ) : undefined}

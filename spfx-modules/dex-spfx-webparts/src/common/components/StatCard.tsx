@@ -11,38 +11,53 @@ const classNames = mergeStyleSets({
   root: {
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
     flex: '1 1 0',
-    minWidth: 140,
-    padding: '12px 16px',
-    border: '1px solid #edebe9',
-    borderRadius: 4,
-    background: 'var(--bodyBackground, #ffffff)'
+    minWidth: 150,
+    padding: '16px 18px',
+    border: '1px solid #e6e9ef',
+    borderRadius: 10,
+    background: 'var(--bodyBackground, #ffffff)',
+    boxShadow: '0 1px 2px rgba(16, 24, 40, 0.04)',
+    transition: 'box-shadow .15s ease, transform .15s ease, border-color .15s ease',
+    selectors: {
+      ':hover': {
+        borderColor: '#c9d7ec',
+        boxShadow: '0 6px 16px rgba(27, 58, 107, 0.10)',
+        transform: 'translateY(-1px)'
+      }
+    }
   },
   iconWrap: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 36,
-    height: 36,
-    borderRadius: 4,
-    background: '#f0f4fa',
+    width: 42,
+    height: 42,
+    borderRadius: 10,
+    background: 'linear-gradient(135deg, #eef4fd 0%, #dcE9fb 100%)',
     color: '#1b3a6b',
-    fontSize: 16
+    fontSize: 18,
+    flexShrink: 0
   },
   textWrap: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    minWidth: 0
   },
   value: {
-    fontSize: 18,
-    fontWeight: 600,
-    lineHeight: '24px',
-    color: 'var(--bodyText, #323130)'
+    fontSize: 22,
+    fontWeight: 700,
+    lineHeight: '28px',
+    letterSpacing: '-0.3px',
+    color: 'var(--bodyText, #1f2430)',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
   },
   label: {
     fontSize: 12,
-    color: '#605e5c'
+    color: '#7a8394'
   }
 });
 
