@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바이브코딩 플랫폼 구조안 — GitHub Copilot 코딩 에이전트 기반</title>
+<style>
+  :root{
+    --navy:#1F3A5F; --blue:#2F6DB5; --sky:#E8F0FA; --ink:#1A1A1A; --grey:#6B7280;
+    --line:#D6DCE5; --bg:#F7F8FA; --beige:#F3EFE6; --red:#B4433A; --amber:#B8862B; --green:#3C7A4E;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Malgun Gothic","맑은 고딕",Pretendard,"Apple SD Gothic Neo",sans-serif;font-size:14px;line-height:1.55;word-break:keep-all}
+  .wrap{max-width:1120px;margin:0 auto;padding:36px 24px 72px}
+  header{border-bottom:3px solid var(--navy);padding-bottom:18px;margin-bottom:28px}
+  header h1{margin:0 0 6px;font-size:24px;color:var(--navy);font-weight:700}
+  header .meta{color:var(--grey);font-size:13px;display:flex;gap:16px;flex-wrap:wrap}
+  section{background:var(--white);border:1px solid var(--line);border-radius:4px;padding:22px 24px;margin-bottom:20px}
+  h2{margin:0 0 14px;font-size:17px;color:var(--navy);padding-left:12px;border-left:4px solid var(--navy)}
+  h3{margin:18px 0 8px;font-size:14px;color:var(--navy)}
+  ul.ko{margin:0;padding-left:18px}
+  ul.ko li{margin:4px 0}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-weight:600}
+  td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:nth-child(even) td{background:#FAFBFD}
+  .tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:12px;font-weight:600;white-space:nowrap}
+  .t-ms{background:var(--sky);color:var(--blue);border:1px solid #BFD3EE}
+  .t-own{background:#FBEAE8;color:var(--red);border:1px solid #EFC5C0}
+  .t-mix{background:#FBF3E3;color:var(--amber);border:1px solid #EDD9A8}
+  .t-ok{background:#E7F2EA;color:var(--green);border:1px solid #BFDCC7}
+  .t-chk{background:#FBF3E3;color:var(--amber);border:1px solid #EDD9A8}
+  .t-no{background:#F1F2F4;color:var(--grey);border:1px solid var(--line)}
+
+  /* 흐름 다이어그램 */
+  .legend{display:flex;gap:14px;margin-bottom:14px;font-size:12px;color:var(--grey);align-items:center;flex-wrap:wrap}
+  .legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+  .flow{display:grid;grid-template-columns:repeat(7,1fr);gap:0;align-items:stretch}
+  .step{position:relative;padding:14px 10px 12px;border:1.5px solid var(--line);border-radius:4px;background:#fff;cursor:pointer;min-height:118px;transition:border-color .15s, background .15s;margin-right:22px}
+  .step:last-child{margin-right:0}
+  .step:not(:last-child)::after{content:"";position:absolute;right:-16px;top:50%;width:0;height:0;border-left:9px solid var(--navy);border-top:7px solid transparent;border-bottom:7px solid transparent;transform:translateY(-50%)}
+  .step.ms{border-color:var(--blue);background:var(--sky)}
+  .step.own{border-color:var(--red);background:#FBEAE8}
+  .step.mix{border-color:var(--amber);background:#FBF3E3}
+  .step.active{outline:3px solid var(--navy);outline-offset:1px}
+  .step .n{font-size:11px;color:var(--grey);margin-bottom:4px}
+  .step .t{font-weight:700;font-size:13px;color:var(--navy);margin-bottom:6px;line-height:1.3}
+  .step .s{font-size:12px;color:#374151;line-height:1.35}
+  .detail{margin-top:16px;border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:4px;padding:14px 16px;background:#FAFBFD;min-height:96px}
+  .detail .h{font-weight:700;color:var(--navy);margin-bottom:8px;font-size:14px}
+  .detail table{font-size:13px}
+  .detail td:first-child{width:120px;color:var(--grey);white-space:nowrap}
+  .detail td{border:none;padding:4px 8px 4px 0;background:transparent!important}
+  .hint{font-size:12px;color:var(--grey);margin-top:6px}
+
+  /* 2단 카드 */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{border:1px solid var(--line);border-radius:4px;padding:16px 18px}
+  .card.pre{border-top:4px solid var(--blue)}
+  .card.prod{border-top:4px solid var(--navy)}
+  .card h4{margin:0 0 10px;font-size:14px;color:var(--navy)}
+  .card table td:first-child{width:110px;color:var(--grey)}
+
+  /* 시간축 */
+  .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .ph{border:1px solid var(--line);border-radius:4px;padding:14px 16px;background:#fff}
+  .ph.rec{border:2px solid var(--navy);background:var(--beige)}
+  .ph .k{font-size:12px;color:var(--grey);margin-bottom:4px}
+  .ph .n{font-weight:700;color:var(--navy);font-size:15px;margin-bottom:8px}
+  .ph .r{font-size:12px;color:var(--navy);font-weight:600;margin-top:8px}
+
+  .note{background:var(--beige);border-radius:4px;padding:12px 16px;font-size:13px}
+  .note b{color:var(--navy)}
+  footer{margin-top:28px;color:var(--grey);font-size:12px;display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:12px}
+  @media (max-width:860px){
+    .flow{grid-template-columns:1fr;gap:10px}
+    .step{margin-right:0;min-height:auto}
+    .step:not(:last-child)::after{right:50%;top:auto;bottom:-14px;transform:translateX(50%) rotate(90deg)}
+    .two,.phases{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){.step{transition:none}}
+  .step:focus-visible{outline:3px solid var(--navy);outline-offset:1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>바이브코딩 플랫폼 구조안</h1>
+  <div class="meta">
+    <span>기반 방식: GitHub Copilot 코딩 에이전트 + GitHub Actions + Azure Container Apps</span>
+    <span>작성일: 2026.09.01</span>
+    <span>상태: 초안 (검토용)</span>
+  </div>
+</header>
+
+<section>
+  <h2>핵심 결론</h2>
+  <ul class="ko">
+    <li>코드 작성은 GitHub Copilot 코딩 에이전트, 빌드와 배포는 GitHub Actions에 위임 — 자체 개발 범위는 요청 접수 화면과 연결 계층으로 한정함</li>
+    <li>실행 환경은 미리보기(초경량, 미사용 시 0으로 축소)와 운영(정식 자원)으로 이원화 — 사용성은 유지하고 비용은 사용 시간 기준으로만 발생하도록 함</li>
+    <li>모든 코드가 GitHub 저장소에 남고 검토 단계를 강제할 수 있어, "안전한 바이브코딩" 통제 요건을 별도 장치 없이 충족함</li>
+    <li>어설픈 구현은 사용자 이탈로 직결되므로, 미리보기 반응 속도를 최우선 품질 기준으로 설정함</li>
+  </ul>
+</section>
+
+<section>
+  <h2>전체 흐름 — 요청부터 배포까지</h2>
+  <div class="legend">
+    <span><i style="background:var(--sky);border:1px solid var(--blue)"></i>Microsoft·GitHub 제공</span>
+    <span><i style="background:#FBEAE8;border:1px solid var(--red)"></i>자체 개발</span>
+    <span><i style="background:#FBF3E3;border:1px solid var(--amber)"></i>설정·조합 (코드 소량)</span>
+    <span style="margin-left:auto">단계를 누르면 상세 내용 표시</span>
+  </div>
+  <div class="flow" id="flow">
+    <div class="step own" data-i="0" tabindex="0"><div class="n">1단계</div><div class="t">요청 접수 화면</div><div class="s">자연어로 만들고 싶은 앱 설명 입력, 진행 상태와 결과 확인</div></div>
+    <div class="step own" data-i="1" tabindex="0"><div class="n">2단계</div><div class="t">요청 변환</div><div class="s">사용자 요청을 작업 지시서 형태의 GitHub 이슈로 생성</div></div>
+    <div class="step ms" data-i="2" tabindex="0"><div class="n">3단계</div><div class="t">코드 작성</div><div class="s">Copilot 코딩 에이전트가 브랜치 생성, 코드 작성, Pull Request 등록</div></div>
+    <div class="step mix" data-i="3" tabindex="0"><div class="n">4단계</div><div class="t">자동 검사</div><div class="s">빌드, 비밀정보 탐지, 취약점 검사, 금지 라이브러리 차단</div></div>
+    <div class="step mix" data-i="4" tabindex="0"><div class="n">5단계</div><div class="t">미리보기 게시</div><div class="s">브랜치별 임시 환경에 자동 배포, 사용자에게 주소 전달</div></div>
+    <div class="step own" data-i="5" tabindex="0"><div class="n">6단계</div><div class="t">수정 반복</div><div class="s">사용자 피드백을 같은 이슈에 추가, 에이전트가 재작업</div></div>
+    <div class="step mix" data-i="6" tabindex="0"><div class="n">7단계</div><div class="t">승인·운영 배포</div><div class="s">검토자 승인 후 병합, 운영 환경으로 배포, 미리보기 환경 정리</div></div>
+  </div>
+  <div class="detail" id="detail">
+    <div class="h">단계를 선택하면 담당 구성요소, 구축 방식, 유의점을 표시함</div>
+  </div>
+</section>
+
+<section>
+  <h2>구성 계층</h2>
+  <table>
+    <thead><tr><th style="width:150px">계층</th><th style="width:260px">역할</th><th>구성요소</th><th style="width:130px">구축 방식</th></tr></thead>
+    <tbody>
+      <tr><td>요청·결과 화면</td><td>요청 입력, 진행 상태, 미리보기 링크, 승인 요청</td><td>웹 화면 (DEX 디자인 시스템 기준), Entra ID 로그인</td><td><span class="tag t-own">자체 개발</span></td></tr>
+      <tr><td>연결 계층</td><td>요청을 이슈로 변환, 에이전트 배정, 상태 수집, 사용자 알림</td><td>Azure Functions, GitHub API 호출, 요청 기록 저장소</td><td><span class="tag t-own">자체 개발</span></td></tr>
+      <tr><td>코드 생성</td><td>이슈 기반 코드 작성, 브랜치·Pull Request 생성, 피드백 반영</td><td>GitHub Copilot 코딩 에이전트</td><td><span class="tag t-ms">MS 제공</span></td></tr>
+      <tr><td>코드 관리·검토</td><td>저장소 보관, 브랜치 보호, 검토자 승인, 이력 관리</td><td>GitHub Enterprise 저장소, 브랜치 보호 규칙</td><td><span class="tag t-mix">설정</span></td></tr>
+      <tr><td>빌드·배포 절차</td><td>빌드, 검사, 미리보기 게시, 운영 배포, 정리</td><td>GitHub Actions 작업 정의</td><td><span class="tag t-mix">설정·조합</span></td></tr>
+      <tr><td>실행 환경</td><td>미리보기 실행, 운영 실행</td><td>Azure Container Apps (서버리스), Azure Container Registry</td><td><span class="tag t-ms">MS 제공</span></td></tr>
+      <tr><td>신원·통제</td><td>사용자 인증, 권한, 비밀정보 보관, 감사 기록</td><td>Entra ID, Key Vault, GitHub Advanced Security, Azure Monitor</td><td><span class="tag t-mix">설정</span></td></tr>
+      <tr><td>운영·정리</td><td>수명 정책 집행, 미사용 자원 삭제, 비용 집계</td><td>Azure Automation 또는 Functions 정기 작업, 자원 태그</td><td><span class="tag t-own">자체 개발</span></td></tr>
+    </tbody>
+  </table>
+  <div class="hint">자체 개발 항목 3개 모두 화면과 연결 코드 수준 — 코드 생성·빌드·배포 핵심 기능은 신규 개발 없이 기존 서비스 사용</div>
+</section>
+
+<section>
+  <h2>실행 환경 이원화</h2>
+  <div class="two">
+    <div class="card pre">
+      <h4>미리보기 환경 — 빠르고 가볍게, 쓸 때만 비용 발생</h4>
+      <table>
+        <tr><td>용도</td><td>사용자가 결과를 즉시 눌러보는 임시 환경</td></tr>
+        <tr><td>서비스</td><td>Azure Container Apps 서버리스 (소비 요금제)</td></tr>
+        <tr><td>축소 정책</td><td>미사용 시 인스턴스 0으로 축소, 요청 시 재기동</td></tr>
+        <tr><td>단위</td><td>브랜치 1개당 환경 1개, 고유 주소 부여</td></tr>
+        <tr><td>수명</td><td>기본 24시간, 사용자 저장 시 30일 연장</td></tr>
+        <tr><td>정리 시점</td><td>Pull Request 병합·종료 또는 수명 만료 시 자동 삭제</td></tr>
+      </table>
+    </div>
+    <div class="card prod">
+      <h4>운영 환경 — 승인된 앱만 정식 자원으로</h4>
+      <table>
+        <tr><td>용도</td><td>검토자 승인을 거친 앱의 실제 사용 환경</td></tr>
+        <tr><td>서비스</td><td>Azure Container Apps (운영 프로필), 필요 시 App Service</td></tr>
+        <tr><td>축소 정책</td><td>최소 인스턴스 1 유지 또는 업무시간 외 0 축소 선택</td></tr>
+        <tr><td>단위</td><td>앱 1개당 환경 1개, 프로젝트 단위 리소스 그룹</td></tr>
+        <tr><td>수명</td><td>소유자 지정, 90일 미접속 시 소유자 확인 후 정지</td></tr>
+        <tr><td>정리 시점</td><td>소유자 폐기 요청 또는 확인 미응답 시 정지·삭제</td></tr>
+      </table>
+    </div>
+  </div>
+  <h3>미리보기 반응 속도 확보 방안</h3>
+  <table>
+    <thead><tr><th style="width:220px">지연 원인</th><th>대응</th></tr></thead>
+    <tbody>
+      <tr><td>0에서 재기동하는 콜드 스타트</td><td>사용자가 화면을 열어 둔 동안 최소 인스턴스 1 유지, 화면 이탈 후 5분 뒤 0 축소</td></tr>
+      <tr><td>빌드 대기 시간</td><td>공통 기반 이미지 사전 준비, 의존성 캐시 적용, 프론트엔드 전용 앱은 정적 호스팅으로 빌드 생략</td></tr>
+      <tr><td>에이전트 작업 시간</td><td>진행 단계별 상태를 화면에 실시간 표시, 작업 중 예상 소요 시간 안내</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>비용·수명 정책</h2>
+  <table>
+    <thead><tr><th style="width:160px">항목</th><th>규칙</th><th style="width:220px">집행 방식</th></tr></thead>
+    <tbody>
+      <tr><td>필수 태그</td><td>생성일, 소유자, 요청 번호, 환경 구분(미리보기·운영), 만료일</td><td>배포 작업에서 자동 부착, 태그 없는 자원 생성 차단 정책</td></tr>
+      <tr><td>자원 묶음</td><td>사용자 또는 프로젝트 단위 리소스 그룹 — 그룹 삭제로 일괄 정리</td><td>이름 규칙 고정, 그룹 밖 생성 금지</td></tr>
+      <tr><td>자동 정리</td><td>만료일 경과 자원 삭제, 삭제 3일 전 소유자 알림</td><td>정기 작업(매일 1회) 실행</td></tr>
+      <tr><td>동시 상한</td><td>사용자당 활성 미리보기 5개, 초과 시 오래된 것부터 정리</td><td>연결 계층에서 생성 전 확인</td></tr>
+      <tr><td>비용 가시화</td><td>요청 번호별 비용 집계, 월간 사용량 보고</td><td>Azure Cost Management 태그 기준 집계</td></tr>
+      <tr><td>비용 발생 지점</td><td>에이전트 사용량(GitHub 요금), Actions 실행 시간, 컨테이너 실행 시간, 레지스트리 저장 용량</td><td>레지스트리 이미지 30일 보관 후 삭제</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>안전 통제 지점</h2>
+  <table>
+    <thead><tr><th style="width:170px">통제 지점</th><th>내용</th><th style="width:200px">수단</th></tr></thead>
+    <tbody>
+      <tr><td>사용자 인증·권한</td><td>회사 계정 로그인, 요청·승인·관리자 역할 분리</td><td>Entra ID, 그룹 기반 역할</td></tr>
+      <tr><td>에이전트 작업 범위</td><td>지정 저장소 내 브랜치 작업만 허용, 운영 브랜치 직접 수정 금지</td><td>브랜치 보호 규칙, 에이전트 권한 설정</td></tr>
+      <tr><td>코드 검사</td><td>비밀정보 유출, 취약 의존성, 금지 라이브러리 병합 전 차단</td><td>GitHub Advanced Security, Actions 검사 단계</td></tr>
+      <tr><td>승인 게이트</td><td>운영 배포는 지정 검토자 승인 필수, 미리보기는 자동</td><td>Pull Request 필수 검토, 환경 보호 규칙</td></tr>
+      <tr><td>비밀정보·연결</td><td>앱 실행에 필요한 연결 정보는 코드에 포함 금지</td><td>Key Vault 참조, 관리 ID</td></tr>
+      <tr><td>데이터 접근</td><td>사내 데이터 연결은 승인된 연결 목록에서만 선택</td><td>연결 계층에서 허용 목록 관리</td></tr>
+      <tr><td>감사 기록</td><td>요청, 코드 변경, 승인, 배포, 삭제 전 과정 기록 보존</td><td>GitHub 이력, Azure Monitor</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>확인 필요 사항</h2>
+  <table>
+    <thead><tr><th style="width:280px">항목</th><th>내용</th><th style="width:120px">상태</th></tr></thead>
+    <tbody>
+      <tr><td>코딩 에이전트 자동 배정</td><td>GitHub API로 이슈를 Copilot 에이전트에 배정 가능 — 연결 계층에서 호출 가능 여부 실제 확인 필요</td><td><span class="tag t-chk">확인 필요</span></td></tr>
+      <tr><td>에이전트 라이선스</td><td>코딩 에이전트는 Copilot Pro, Pro+, Business, Enterprise 전 플랜 사용 가능 — 조직 단위는 Copilot Business 좌석 기준 비용 산정. 단, 문서상 공개 미리보기 단계로 정식 출시 여부 확인 필요</td><td><span class="tag t-chk">확인 필요</span></td></tr>
+      <tr><td>에이전트 작업 소요 시간</td><td>이슈 배정부터 Pull Request 등록까지 수 분 단위 — 사용자 대기 허용 범위 정의 필요</td><td><span class="tag t-chk">확인 필요</span></td></tr>
+      <tr><td>Container Apps 0 축소</td><td>소비 요금제에서 최소 0 인스턴스 설정 가능</td><td><span class="tag t-ok">검증됨</span></td></tr>
+      <tr><td>브랜치별 미리보기 배포</td><td>Actions에서 Pull Request 단위 환경 생성·삭제 가능</td><td><span class="tag t-ok">검증됨</span></td></tr>
+      <tr><td>고객 GitHub 환경</td><td>동작 자체는 GitHub Team 조직 + Copilot Business로 충분. 브랜치·환경 보호 규칙, 감사 기록, Entra ID SSO까지 제안에 포함할 경우 GitHub Enterprise Cloud 권장 — 고객 보유 여부와 도입 범위 포함 여부 확인</td><td><span class="tag t-chk">확인 필요</span></td></tr>
+      <tr><td>생성 가능 앱 유형</td><td>1차는 웹 앱(프론트엔드 + 단순 API)으로 제한, 사내 시스템 연동 앱은 2차</td><td><span class="tag t-no">결정 필요</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>진행 단계안</h2>
+  <div class="phases">
+    <div class="ph rec">
+      <div class="k">1단계 (4~6주)</div>
+      <div class="n">동작 검증</div>
+      <ul class="ko" style="font-size:13px">
+        <li>저장소 1개, 화면 없이 이슈 직접 작성</li>
+        <li>에이전트 코드 작성부터 미리보기 게시까지 자동 연결</li>
+        <li>소요 시간과 결과 품질 측정</li>
+      </ul>
+      <div class="r">권고: 여기서 계속 진행 여부 판단</div>
+    </div>
+    <div class="ph">
+      <div class="k">2단계 (6~8주)</div>
+      <div class="n">사용자 화면·통제</div>
+      <ul class="ko" style="font-size:13px">
+        <li>요청 접수 화면과 연결 계층 개발</li>
+        <li>수정 반복, 승인 게이트, 수명 정책 적용</li>
+        <li>내부 사용자 10명 시범 사용</li>
+      </ul>
+    </div>
+    <div class="ph">
+      <div class="k">3단계 (4주)</div>
+      <div class="n">운영 전환</div>
+      <ul class="ko" style="font-size:13px">
+        <li>운영 배포 경로와 비용 보고 완성</li>
+        <li>사내 데이터 연결 허용 목록 운영</li>
+        <li>사용자 안내 자료 배포</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note" style="margin-top:16px">
+    <b>판단 기준</b> — 1단계에서 요청 후 미리보기까지 10분 이내, 단순 웹 앱 기준 첫 시도 성공률 70% 이상 확보 시 진행. 미달 시 자체 구축 대신 기존 서비스의 통제 사용(안전한 바이브코딩 플랫폼 안)으로 전환 검토
+  </div>
+</section>
+
+<footer>
+  <span>DEX Consulting — 내부 검토용 초안</span>
+  <span>Microsoft 솔루션 파트너</span>
+</footer>
+</div>
+
+<script>
+const DATA = [
+  {h:"1단계 요청 접수 화면", rows:[["담당","자체 개발 웹 화면"],["하는 일","앱 설명 입력, 생성 유형 선택(웹 화면, 간단 API), 진행 상태와 미리보기 링크 표시, 수정 요청 입력"],["구축 방식","DEX 디자인 시스템 기준 React 화면, Entra ID 로그인"],["유의점","에이전트가 이해하기 쉬운 형태로 입력을 유도 — 목적, 화면 구성, 데이터 항목을 나눠 받음"]]},
+  {h:"2단계 요청 변환", rows:[["담당","자체 개발 연결 계층 (Azure Functions)"],["하는 일","입력 내용을 작업 지시서 형식의 이슈로 생성, 코딩 에이전트에 배정, 요청 번호 발급"],["구축 방식","GitHub API 호출, 지시서 템플릿(목표, 제약, 기술 규칙, 완료 조건) 적용"],["유의점","에이전트 배정 API 호출 가능 여부 확인 필요 — 확인 필요 항목 참조"]]},
+  {h:"3단계 코드 작성", rows:[["담당","GitHub Copilot 코딩 에이전트"],["하는 일","이슈 기준으로 브랜치 생성, 코드 작성, 자체 테스트, Pull Request 등록"],["구축 방식","신규 개발 없음 — 저장소 지침 파일로 기술 규칙과 금지 사항 사전 지정"],["유의점","소요 시간 수 분 단위, 화면에 진행 상태 실시간 표시 필요"]]},
+  {h:"4단계 자동 검사", rows:[["담당","GitHub Actions + GitHub Advanced Security"],["하는 일","빌드 성공 여부, 비밀정보 포함 여부, 취약 의존성, 금지 라이브러리 검사"],["구축 방식","검사 작업 정의 파일 작성, 실패 시 에이전트에 자동 재작업 요청"],["유의점","검사 실패 사유를 이슈 댓글로 남겨 에이전트가 스스로 수정하도록 연결"]]},
+  {h:"5단계 미리보기 게시", rows:[["담당","GitHub Actions + Azure Container Apps"],["하는 일","컨테이너 이미지 빌드, 브랜치 전용 임시 환경 생성, 고유 주소 발급, 사용자 알림"],["구축 방식","배포 작업 정의 파일, 필수 태그 자동 부착, 환경 이름 규칙 고정"],["유의점","콜드 스타트 대응 — 사용자가 보는 동안 최소 인스턴스 1 유지"]]},
+  {h:"6단계 수정 반복", rows:[["담당","자체 개발 화면·연결 계층 + 코딩 에이전트"],["하는 일","사용자 수정 요청을 같은 이슈에 댓글로 추가, 에이전트 재작업, 미리보기 자동 갱신"],["구축 방식","댓글 작성 API 호출, Pull Request 갱신 시 5단계 자동 재실행"],["유의점","반복 횟수 상한 설정(예: 10회) — 초과 시 담당자 개입 안내"]]},
+  {h:"7단계 승인·운영 배포", rows:[["담당","GitHub 검토 규칙 + GitHub Actions"],["하는 일","지정 검토자 승인, 병합, 운영 환경 배포, 미리보기 환경 삭제"],["구축 방식","브랜치 보호 규칙, 운영 환경 보호 규칙, 병합 후 정리 작업"],["유의점","운영 배포 대상 앱은 소유자와 만료 정책을 사전 등록"]]}
+];
+const steps=document.querySelectorAll('.step');
+const detail=document.getElementById('detail');
+function show(i){
+  steps.forEach(s=>s.classList.toggle('active', +s.dataset.i===i));
+  const d=DATA[i];
+  detail.innerHTML='<div class="h">'+d.h+'</div><table>'+d.rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('')+'</table>';
+}
+steps.forEach(s=>{
+  s.addEventListener('click',()=>show(+s.dataset.i));
+  s.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show(+s.dataset.i);}});
+});
+show(0);
+</script>
+</body>
+</html>
