@@ -109,6 +109,20 @@
               href: adoption/teams-environment-strategy.md
             - name: Manage and govern the default environment
               href: adoption/manage-default-environment.md
+            - name: Build a governance tool for restricted networks
+              items:
+                - name: Overview
+                  href: governance-tool/overview.md
+                - name: Architecture tiers
+                  href: governance-tool/architecture-tiers.md
+                - name: Network, proxy, and authentication
+                  href: governance-tool/network-and-auth.md
+                - name: Map governance functions to tiers
+                  href: governance-tool/functional-mapping.md
+                - name: Phased adoption and cross-tenant trade-offs
+                  href: governance-tool/phased-adoption.md
+                - name: Verify and operate
+                  href: governance-tool/verify-and-operate.md
         - name: Operations
           items:
             - name: Overview
